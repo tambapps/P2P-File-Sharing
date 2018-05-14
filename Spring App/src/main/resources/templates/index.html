@@ -1,0 +1,18 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="${title}"></title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+<div class="page-content">
+    <h1 th:text="|${title}|"></h1>
+    <h2 th:text="|${message}|"></h2>
+    <a href="/receive"><button>Receive file</button></a>
+
+    <a href="/send"><button>Send file</button></a>
+</div>
+
+</body>
+</html>

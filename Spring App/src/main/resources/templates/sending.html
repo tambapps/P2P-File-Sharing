@@ -1,0 +1,26 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Sending file</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <script type="text/javascript" th:src="@{/js/progress.js}"></script>
+</head>
+<body>
+<div class="page-content">
+    <h2>File expedition</h2>
+    <p th:text="'ip: ' + ${currentTask.getIp()}"></p>
+    <p th:text="'port: ' + ${currentTask.getPort()}"></p>
+    <p th:text="'path: ' + ${filePath.path}"></p>
+    <progress id="progress" max="100" value="0"></progress>
+    <p id="text"></p>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        var progressID = [[${currentTask.id}]];
+        intervalUpdateProgress("progress",progressID, "text");
+        /*]]>*/
+    </script>
+</div>
+
+</body>
+</html>

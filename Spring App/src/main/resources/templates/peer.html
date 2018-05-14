@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Receive file</title>
+    <link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body>
+<div class="page-content">
+    <h2>Enter the sender's ip and port</h2>
+    <form action="#" th:action="@{/receive}" th:object="${peer}" method="post">
+        <div class="error" th:if="${#fields.hasErrors('ip')}" th:text="|${#fields.errors('ip').get(0)}|"></div>
+        <p>IP: <input type="text" th:field="*{ip}"/></p>
+
+        <div class="error" th:if="${#fields.hasErrors('port')}" th:text="|${#fields.errors('port').get(0)}|"></div>
+        <p>Port: <input type="number" th:field="*{port}"/></p>
+        <p><input type="submit" value="Submit"/> </p>
+    </form>
+</div>
+</body>
+</html>
