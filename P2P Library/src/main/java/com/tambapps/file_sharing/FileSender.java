@@ -10,7 +10,9 @@ public class FileSender {
     private static final int BUFFER_SIZE = 4096;
 
     private final ServerSocket serverSocket;
-    private int progress;
+    private volatile int progress;
+    private volatile long bytesSent;
+    private volatile long totalBytes;
     private TransferListener transferListener;
 
     public FileSender(InetAddress address, int socketTimeout) throws IOException {
@@ -50,6 +52,8 @@ public class FileSender {
     public void send(InputStream fis, String fileName,
                      long fileSize) throws IOException {
         progress = 0;
+        bytesSent = 0;
+        totalBytes = fileSize;
 
         try (Socket socket = serverSocket.accept()) {
             if (transferListener != null) {
@@ -68,6 +72,7 @@ public class FileSender {
 
                 while ((count = fis.read(buffer)) > 0) {
                     bytesSended += count;
+                    this.bytesSent = bytesSended;
                     dos.write(buffer, 0, count);
                     progress = (int) Math.min(99, 100 * bytesSended / fileSize);
                     if (progress != lastProgress) {
@@ -118,4 +123,11 @@ public class FileSender {
         return serverSocket.getLocalPort();
     }
 
+    public long getBytesSent() {
+        return bytesSent;
+    }
+
+    public long getTotalBytes() {
+        return totalBytes;
+    }
 }

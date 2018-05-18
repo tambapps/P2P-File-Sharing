@@ -10,7 +10,9 @@ import java.net.Socket;
 public class FileReceiver {
 
     private final String downloadPath;
-    private int progress;
+    private volatile int progress;
+    private volatile long bytesReceived;
+    private volatile long totalBytes;
     private Socket socket;
     private File outputFile;
     private TransferListener transferListener;
@@ -30,13 +32,15 @@ public class FileReceiver {
 
     public File receiveFrom(InetAddress address, int port) throws IOException {
         progress = 0;
+        bytesReceived= 0;
+
         this.outputFile = null;
         File outputFile;
         try (Socket socket = new Socket(address, port);
              DataInputStream dis = new DataInputStream(socket.getInputStream())) {
             this.socket = socket;
 
-            long fileLength = dis.readLong();
+            totalBytes = dis.readLong();
             long bytesRead = 0L;
             int bufferSize = dis.readInt();
             String fileName = readName(dis);
@@ -53,8 +57,9 @@ public class FileReceiver {
                 int count;
                 while ((count = dis.read(buffer)) > 0) {
                     bytesRead += count;
+                    this.bytesReceived = bytesRead;
                     fos.write(buffer, 0, count);
-                    progress = (int) Math.min(99, 100 * bytesRead / fileLength);
+                    progress = (int) Math.min(99, 100 * bytesRead / totalBytes);
                     if (progress != lastProgress) {
                         lastProgress = progress;
                         if (transferListener != null) {
@@ -63,7 +68,7 @@ public class FileReceiver {
                     }
                 }
 
-                if (bytesRead != fileLength) {
+                if (bytesRead != totalBytes) {
                     throw new TransferInterruptedException("Transfer was not properly finished", outputFile);
                 }
 
@@ -126,5 +131,13 @@ public class FileReceiver {
 
     public void setTransferListener(TransferListener transferListener) {
         this.transferListener = transferListener;
+    }
+
+    public long getBytesReceived() {
+        return bytesReceived;
+    }
+
+    public long getTotalBytes() {
+        return totalBytes;
     }
 }
