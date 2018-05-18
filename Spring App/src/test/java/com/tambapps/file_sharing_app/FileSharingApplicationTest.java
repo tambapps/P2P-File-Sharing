@@ -1,8 +1,11 @@
 package com.tambapps.file_sharing_app;
 
+import com.tambapps.file_sharing.IOUtils;
 import org.junit.Test;
 
-import java.io.*;
+
+import java.io.File;
+import java.io.IOException;
 import java.net.URLDecoder;
 
 import static org.junit.Assert.assertNotNull;
@@ -28,23 +31,8 @@ public class FileSharingApplicationTest {
 		assertNotNull("Shouldn't be null", file);
 		assertTrue("Didn't correctly downloaded file", file.exists());
 		assertTrue("Content of received file differs from origin file",
-				contentEquals(originFile, file));
+				IOUtils.contentEquals(originFile, file));
 	}
 
-	private boolean contentEquals(File f1, File f2) throws IOException {
-		InputStream is1 = new FileInputStream(f1);
-		InputStream is2 = new FileInputStream(f2);
 
-		final int EOF = -1;
-		int i1 = is1.read();
-		while (i1 != EOF) {
-			int i2 = is2.read();
-			if (i2 != i1) {
-				return false;
-			}
-			i1 = is1.read();
-		}
-
-		return is2.read() == EOF;
-	}
 }

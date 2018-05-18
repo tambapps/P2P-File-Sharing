@@ -34,9 +34,9 @@ public class FileSharingApplication {
 
 					SendService sendService = new SendService(new ConcurrentHashMap<>(),
 							Executors.newFixedThreadPool(1), new Timer());
+					String ip = parseOption("ip", options);
 					for (int i = 2; i < args.length; i++) {
 						try {
-						    String ip = parseOption("ip", options);
 						    String filePath = URLDecoder.decode(parseOption("filePath", options), "UTF-8");
 						    if (ip.contains(":")) { //is peer with port
                                 sendService.manualSend(filePath, ip.substring(0, ip.indexOf(':')), Integer.parseInt(ip.substring(ip.indexOf(':')+1)));
@@ -51,7 +51,7 @@ public class FileSharingApplication {
 					}
 				} else {
 					if (options.size() < 2) {
-						LOGGER.error("You must provide a download path and the sending peer");
+						LOGGER.error("You must provide the -downloadPath and the sending -peer");
 						return;
 					}
 					ReceiveService receiveService = new ReceiveService(new ConcurrentHashMap<>(),
