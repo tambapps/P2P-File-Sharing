@@ -14,7 +14,6 @@ import java.io.InputStream;
 import java.net.URLDecoder;
 import java.util.concurrent.*;
 
-
 public class FileTransferTest {
 
     private FileSender sender;

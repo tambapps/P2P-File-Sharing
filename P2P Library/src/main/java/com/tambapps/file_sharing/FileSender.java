@@ -30,28 +30,38 @@ public class FileSender {
         this(InetAddress.getByName(address), port, socketTimeout);
     }
 
+    public void send(String filePath) throws IOException {
+        send(new File(filePath));
+    }
+
     public void send(File file) throws IOException {
-        progress = 0;
         if (!file.exists()) {
             throw new IllegalArgumentException("The file with path " +
                     file.getPath() + " doesn't exist");
         } else if (!file.isFile()) {
             throw new IllegalArgumentException(file.getPath() + " isn't a file");
         }
+        FileInputStream fileInputStream = new FileInputStream(file);
+        send(fileInputStream, file.getName(), file.length());
+        fileInputStream.close();
+
+    }
+
+    public void send(InputStream fis, String fileName,
+                     long fileSize) throws IOException {
+        progress = 0;
 
         try (Socket socket = serverSocket.accept()) {
             if (transferListener != null) {
                 transferListener.onConnected(socket.getRemoteSocketAddress().toString().substring(1),
-                        socket.getPort());
+                        socket.getPort(), fileName);
             }
-            try (DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
-                 InputStream fis = new FileInputStream(file)) {
-                long fileLength = file.length();
+            try (DataOutputStream dos = new DataOutputStream(socket.getOutputStream())) {
                 long bytesSended = 0;
-                dos.writeLong(fileLength);
+                dos.writeLong(fileSize);
                 dos.writeInt(BUFFER_SIZE);
-                dos.writeInt(file.getName().length());
-                dos.writeChars(file.getName());
+                dos.writeInt(fileName.length());
+                dos.writeChars(fileName);
                 int count;
                 int lastProgress = 0;
                 byte[] buffer = new byte[BUFFER_SIZE]; // or 4096, or more
@@ -59,7 +69,7 @@ public class FileSender {
                 while ((count = fis.read(buffer)) > 0) {
                     bytesSended += count;
                     dos.write(buffer, 0, count);
-                    progress = (int) Math.min(99, 100 * bytesSended / fileLength);
+                    progress = (int) Math.min(99, 100 * bytesSended / fileSize);
                     if (progress != lastProgress) {
                         lastProgress = progress;
                         if (transferListener != null) {
@@ -67,17 +77,19 @@ public class FileSender {
                         }
                     }
                 }
+
+                if (bytesSended != fileSize) {
+                    throw new TransferInterruptedException("Transfer was not properly finished");
+                }
                 progress = 100;
-                transferListener.onProgressUpdate(progress);
+                if (transferListener != null) {
+                    transferListener.onProgressUpdate(progress);
+                }
             }
             serverSocket.close();
         } finally {
             transferListener = null;
         }
-    }
-
-    public void send(String filePath) throws IOException {
-        send(new File(filePath));
     }
 
     public void interrupt() throws IOException {

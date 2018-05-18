@@ -35,14 +35,17 @@ public class FileReceiver {
         try (Socket socket = new Socket(address, port);
              DataInputStream dis = new DataInputStream(socket.getInputStream())) {
             this.socket = socket;
-            if (transferListener != null) {
-                transferListener.onConnected(socket.getRemoteSocketAddress().toString().substring(1),
-                        socket.getPort());
-            }
+
             long fileLength = dis.readLong();
             long bytesRead = 0L;
             int bufferSize = dis.readInt();
             String fileName = readName(dis);
+
+            if (transferListener != null) {
+                transferListener.onConnected(socket.getRemoteSocketAddress().toString().substring(1),
+                        socket.getPort(), fileName);
+            }
+
             outputFile = newFile(downloadPath, fileName);
             int lastProgress = 0;
             try (FileOutputStream fos = new FileOutputStream(outputFile)) {
@@ -65,6 +68,9 @@ public class FileReceiver {
                 }
 
                 progress = 100;
+                if (transferListener != null) {
+                    transferListener.onProgressUpdate(progress);
+                }
             }
         } finally {
             this.socket = null;
