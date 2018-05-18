@@ -1,6 +1,6 @@
 package com.tambapps.file_sharing_app.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import com.tambapps.file_sharing.TransferListener;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -22,8 +22,8 @@ public class FileService {
     this.timer = timer;
   }
 
-  public abstract class FileTask {
-    public final int id; //public to be accessible by javascript scripts
+  public abstract class FileTask implements TransferListener {
+    public final int id;
     FileTask() {
       id = idCount.getAndIncrement();
     }
@@ -39,8 +39,18 @@ public class FileService {
           public void run() {
             progressMap.remove(id);
           }
-        }, 1000L);
+        }, 10_000L);
       });
+    }
+
+    @Override
+    public void onProgressUpdate(int progress) {
+
+    }
+
+    @Override
+    public void onConnected(String remoteAddress, int port, String fileName) {
+
     }
   }
 }

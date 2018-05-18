@@ -2,7 +2,6 @@ package com.tambapps.file_sharing_app.service;
 
 import com.tambapps.file_sharing.FileSender;
 
-import com.tambapps.file_sharing_app.FileSharingApplication;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -10,7 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.net.SocketTimeoutException;
-import java.util.Properties;
+
 import java.util.Timer;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
@@ -31,20 +30,23 @@ public class SendService extends FileService {
         super(progressMap, executorService, timer);
     }
 
-
     public SendTask start(String filePath) throws IOException {
         SendTask task = new SendTask(filePath);
         task.execute();
         return task;
     }
 
-    public class SendTask extends FileTask {
+    public class SendTask extends FileTask  {
         private final FileSender fileSender;
         private final String filePath;
 
         SendTask(String filePath) throws IOException {
-            fileSender = new FileSender(address, socketTimeout);
-            fileSender.setConnectionListener(((remoteAddr, port, file) -> LOGGER.info("Starting transfer of {} to {}:{}", file.getName(), remoteAddr, port)));
+            this(filePath, 0);
+        }
+
+        SendTask(String filePath, int port) throws IOException {
+            fileSender = new FileSender(address, port, socketTimeout);
+            fileSender.setTransferListener(this);
             this.filePath = filePath;
         }
 
@@ -73,11 +75,19 @@ public class SendService extends FileService {
         public int getProgress() {
             return fileSender.getProgress();
         }
-    }
 
+        @Override
+        public void onConnected(String remoteAddr, int port, String fileName) {
+            LOGGER.info("Starting transfer of {} to {}:{}", fileName, remoteAddr, port);
+        }
+
+    }
     public void manualSend(String filePath, String address) throws IOException {
+        manualSend(filePath, address, 0);
+    }
+    public void manualSend(String filePath, String address, int port) throws IOException {
         this.address = address;
         socketTimeout = 60000;
-        new SendTask(filePath).run();
+        new SendTask(filePath, port).run();
     }
 }

@@ -9,12 +9,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.io.IOException;
 
+import java.net.URLDecoder;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.stream.Stream;
 
 
 @SpringBootApplication
@@ -38,7 +36,13 @@ public class FileSharingApplication {
 							Executors.newFixedThreadPool(1), new Timer());
 					for (int i = 2; i < args.length; i++) {
 						try {
-							sendService.manualSend(parseOption("filePath", options), parseOption("ip", options));
+						    String ip = parseOption("ip", options);
+						    String filePath = URLDecoder.decode(parseOption("filePath", options), "UTF-8");
+						    if (ip.contains(":")) { //is peer with port
+                                sendService.manualSend(filePath, ip.substring(0, ip.indexOf(':')), Integer.parseInt(ip.substring(ip.indexOf(':')+1)));
+						    } else {
+                                sendService.manualSend(filePath, ip);
+                            }
 						} catch (IllegalArgumentException e) {
 							LOGGER.error("Error while reading option", e);
 						} catch (IOException e) {

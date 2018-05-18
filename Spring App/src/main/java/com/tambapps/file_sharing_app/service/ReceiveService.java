@@ -47,7 +47,7 @@ public class ReceiveService extends FileService {
             LOGGER.info("Connecting to host {}:{}", peer.getIp(), peer.getPort());
             try {
                 File file = fileReceiver.receiveFrom(peer.getIp(), peer.getPort());
-                LOGGER.info(file.getName() + "was successfully received");
+                LOGGER.info("{} was successfully received", file.getName());
             } catch (IOException e) {
                 LOGGER.error("An error occurred during receive task", e);
             }
@@ -58,7 +58,6 @@ public class ReceiveService extends FileService {
             return fileReceiver.getProgress();
         }
     }
-
 
     public void manualReceive(String downloadPath, String peer) {
         this.downloadPath = downloadPath;
