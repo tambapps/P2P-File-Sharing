@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">File Transfer P2P</string>
+    <string name="title_activity_receive">ReceiveActivity</string>
+    <string name="title_activity_send">SendActivity</string>
+</resources>

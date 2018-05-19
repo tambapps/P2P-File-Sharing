@@ -1,0 +1,47 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
+
+    <style name="AppTheme.TransferScreen" parent="Theme.AppCompat.NoActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+    </style>
+
+    <style name="generalnotitle" parent="AppTheme">
+        <item name="android:windowNoTitle">true</item>
+    </style>
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+    <style name="IpEditText">
+        <item name="android:layout_width">40sp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">#fff</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:maxLength">3</item>
+        <item name="android:inputType">number</item>
+        <item name="android:textCursorDrawable">@drawable/edittext_cursor</item>
+    </style>
+    <style name="dot">
+        <item name="android:text">.</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">26sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:layout_gravity">bottom</item>
+    </style>
+    <style name="TextLayoutStyle" parent="@android:style/TextAppearance">
+        <item name="android:textColorPrimary">#fff</item>
+        <item name="android:textColorHint">#fff</item>
+    </style>
+    <style name="DialogStyle" parent="Theme.AppCompat.DayNight.Dialog">
+        <item name="android:textColor">#fff</item>
+        <item name="android:typeface">monospace</item>
+    </style>
+</resources>

@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/gradient_drawable"
+    tools:context="tambapps.com.a2sfile_sharing.ReceiveActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="15dp"
+        android:paddingTop="40dp"
+        android:orientation="vertical">
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#fff"
+        android:text="Ip address"
+        android:layout_marginBottom="10dp"/>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/ip_input"
+        android:orientation="horizontal">
+        <EditText
+            style="@style/IpEditText"
+            android:imeOptions="actionNext"
+            android:nextFocusForward="@+id/ip2"
+            />
+        <TextView
+            style="@style/dot"
+            />
+        <EditText
+            style="@style/IpEditText"
+            android:id="@+id/ip2"
+            android:imeOptions="actionNext"
+            android:nextFocusForward="@+id/ip3"
+            />
+        <TextView
+            style="@style/dot"
+            />
+        <EditText
+            style="@style/IpEditText"
+            android:id="@+id/ip3"
+            android:imeOptions="actionNext"
+            android:nextFocusForward="@+id/ip4"
+            />
+        <TextView
+            style="@style/dot"
+            />
+        <EditText
+            style="@style/IpEditText"
+            android:id="@+id/ip4"
+            android:imeOptions="actionNext"
+            android:nextFocusForward="@+id/port_input"
+            />
+    </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#f00"
+            android:alpha="0"
+            android:layout_marginStart="2dp"
+            android:id="@+id/ip_error"
+            android:textSize="12sp"
+            android:text="The ip is malformed"/>
+
+    <android.support.design.widget.TextInputLayout
+        android:layout_width="match_parent"
+        android:id="@+id/port_input"
+        android:hint="port"
+        android:layout_marginTop="10dp"
+        android:theme="@style/TextLayoutStyle"
+        android:layout_height="wrap_content">
+        <android.support.design.widget.TextInputEditText
+            android:layout_width="80dp"
+            android:inputType="number"
+            android:textColor="#fff"
+            android:textCursorDrawable="@drawable/edittext_cursor"
+            android:layout_height="wrap_content" />
+    </android.support.design.widget.TextInputLayout>
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_alignParentBottom="true"
+        android:layout_height="wrap_content">
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="startReceiving"
+            android:padding="25dp"
+            android:textColor="#fff"
+            style="?android:attr/borderlessButtonStyle"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:text="start receiving"
+            />
+    </ScrollView>
+
+
+</RelativeLayout>
