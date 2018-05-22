@@ -1,6 +1,11 @@
 package com.tambapps.p2p.file_sharing;
 
-import java.io.*;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -78,7 +83,7 @@ public class FileSender extends FileSharer {
     }
 
     @Override
-    void closeSocket() throws IOException {
+    void closeStream() throws IOException {
         serverSocket.close();
     }
 

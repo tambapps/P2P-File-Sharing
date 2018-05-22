@@ -37,14 +37,14 @@ public abstract class FileSharer {
         return true;
     }
 
-    abstract void closeSocket() throws IOException;
+    abstract void closeStream() throws IOException;
 
     public void cancel() {
         canceled = true;
         try {
-            closeSocket();
-        } catch (IOException e) {
-            //ignored
+            closeStream();
+        } catch (IOException ignored) {
+
         }
     }
 

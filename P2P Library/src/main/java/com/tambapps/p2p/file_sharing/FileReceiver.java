@@ -4,10 +4,12 @@ import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.net.SocketException;
+
+import java.nio.channels.AsynchronousCloseException;
 import java.nio.channels.SocketChannel;
 
 public class FileReceiver extends FileSharer {
@@ -15,7 +17,6 @@ public class FileReceiver extends FileSharer {
     private final SocketChannel socketChannel;
     private final String downloadPath;
     private volatile File file;
-
 
     public FileReceiver(String downloadPath) throws IOException {
         this.downloadPath = downloadPath;
@@ -36,16 +37,14 @@ public class FileReceiver extends FileSharer {
         file = null;
 
         socketChannel.connect(new InetSocketAddress(address, port));
-        while (!isCanceled() && !socketChannel.isConnected()) {
-            try {
-                wait();
-            } catch (InterruptedException e) {
-                throw new RuntimeException("Couldn't wait anymore", e);
+        synchronized (this) {
+            while (!isCanceled() && !socketChannel.isOpen()) {
+                try {
+                    wait();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException("Couldn't wait anymore", e);
+                }
             }
-        }
-
-        if (isCanceled()) {
-            return;
         }
 
         Socket socket = socketChannel.socket();
@@ -73,11 +72,18 @@ public class FileReceiver extends FileSharer {
                     transferListener.onProgressUpdate(progress);
                 }
             }
-        } catch (SocketException e) {
-            //socket closed because of cancel()
+
+            socketChannel.close();
+        } catch (AsynchronousCloseException e) {
+            //task canceled by cancel() function
         } finally {
             transferListener = null;
         }
+    }
+
+    @Override
+    void closeStream() throws IOException {
+        socketChannel.close();
     }
 
     private String readName(DataInputStream dis) throws IOException {
@@ -113,8 +119,9 @@ public class FileReceiver extends FileSharer {
     }
 
     @Override
-    void closeSocket() throws IOException {
-        socketChannel.close();
+    public synchronized void cancel() {
+        super.cancel();
+        notifyAll();
     }
 
     public File getReceivedFile() {
