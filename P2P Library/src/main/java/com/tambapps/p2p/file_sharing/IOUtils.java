@@ -1,4 +1,4 @@
-package com.tambapps.file_sharing;
+package com.tambapps.p2p.file_sharing;
 
 import java.io.File;
 import java.io.FileInputStream;
