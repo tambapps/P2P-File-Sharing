@@ -1,5 +1,6 @@
 package com.tambapps.file_sharing;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -33,9 +34,8 @@ public class FileTransferTest {
         ExecutorCompletionService<File> completionService = new ExecutorCompletionService<>(executor);
 
         completionService.submit(() -> {
-            File file = receiver.receiveFrom(sender.getIp(), sender.getPort());
-            file.deleteOnExit();
-            return file;
+            receiver.receiveFrom(sender.getIp(), sender.getPort());
+            return receiver.getReceivedFile();
         });
 
         executor.submit(() -> {
@@ -61,5 +61,13 @@ public class FileTransferTest {
 
         assertEquals("Bytes sent should be equal to file size", file.length(), sender.getBytesSent());
         assertEquals("Bytes received should be equal to file size", file.length(), receiver.getBytesReceived());
+    }
+
+    @After
+    public void dispose() {
+        File file = new File("./file.txt");
+        if (file.exists()) {
+            file.delete();
+        }
     }
 }

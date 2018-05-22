@@ -6,42 +6,36 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.net.SocketException;
 
-public class FileReceiver {
+public class FileReceiver extends FileSharer {
 
     private final String downloadPath;
-    private volatile int progress;
-    private volatile long bytesReceived;
-    private volatile long totalBytes;
-    private Socket socket;
-    private File outputFile;
-    private TransferListener transferListener;
+    private volatile Socket socket;
+    private volatile File file;
 
     public FileReceiver(String downloadPath) {
         this.downloadPath = downloadPath;
     }
 
-    public File receiveFrom(String peer) throws IOException {
-        return receiveFrom(peer.substring(0, peer.indexOf(':')),
+    public void receiveFrom(String peer) throws IOException {
+        receiveFrom(peer.substring(0, peer.indexOf(':')),
                 Integer.parseInt(peer.substring(peer.indexOf(':') + 1)));
     }
 
-    public File receiveFrom(String address, int port) throws IOException {
-        return receiveFrom(InetAddress.getByName(address), port);
+    public void receiveFrom(String address, int port) throws IOException {
+        receiveFrom(InetAddress.getByName(address), port);
     }
 
-    public File receiveFrom(InetAddress address, int port) throws IOException {
-        progress = 0;
-        bytesReceived= 0;
+    public void receiveFrom(InetAddress address, int port) throws IOException {
+        init();
+        file = null;
+        socket = null;
 
-        this.outputFile = null;
-        File outputFile;
         try (Socket socket = new Socket(address, port);
              DataInputStream dis = new DataInputStream(socket.getInputStream())) {
             this.socket = socket;
-
             totalBytes = dis.readLong();
-            long bytesRead = 0L;
             int bufferSize = dis.readInt();
             String fileName = readName(dis);
 
@@ -50,26 +44,12 @@ public class FileReceiver {
                         socket.getPort(), fileName);
             }
 
-            outputFile = newFile(downloadPath, fileName);
-            int lastProgress = 0;
-            try (FileOutputStream fos = new FileOutputStream(outputFile)) {
-                byte[] buffer = new byte[bufferSize];
-                int count;
-                while ((count = dis.read(buffer)) > 0) {
-                    bytesRead += count;
-                    this.bytesReceived = bytesRead;
-                    fos.write(buffer, 0, count);
-                    progress = (int) Math.min(99, 100 * bytesRead / totalBytes);
-                    if (progress != lastProgress) {
-                        lastProgress = progress;
-                        if (transferListener != null) {
-                            transferListener.onProgressUpdate(progress);
-                        }
-                    }
-                }
+            file = newFile(downloadPath, fileName);
+            try (FileOutputStream fos = new FileOutputStream(file)) {
+                boolean received = share(bufferSize, dis, fos);
 
-                if (bytesRead != totalBytes) {
-                    throw new TransferInterruptedException("Transfer was not properly finished", outputFile);
+                if (received && getBytesProcessed() != totalBytes) {
+                    throw new TransferInterruptedException("Transfer was not properly finished");
                 }
 
                 progress = 100;
@@ -77,11 +57,12 @@ public class FileReceiver {
                     transferListener.onProgressUpdate(progress);
                 }
             }
+        } catch (SocketException e) {
+            //socket closed because of cancel()
         } finally {
-            this.socket = null;
             transferListener = null;
+            socket = null;
         }
-        return outputFile;
     }
 
     private String readName(DataInputStream dis) throws IOException {
@@ -116,28 +97,16 @@ public class FileReceiver {
         return file;
     }
 
-    public int getProgress() {
-        return progress;
+    @Override
+    void closeSocket() throws IOException {
+        socket.close();
     }
 
-    public File interrupt() throws IOException {
-        if (socket != null) {
-            socket.close();
-            socket = null;
-        }
-
-        return outputFile;
-    }
-
-    public void setTransferListener(TransferListener transferListener) {
-        this.transferListener = transferListener;
+    public File getReceivedFile() {
+        return file;
     }
 
     public long getBytesReceived() {
-        return bytesReceived;
-    }
-
-    public long getTotalBytes() {
-        return totalBytes;
+        return getBytesProcessed();
     }
 }
