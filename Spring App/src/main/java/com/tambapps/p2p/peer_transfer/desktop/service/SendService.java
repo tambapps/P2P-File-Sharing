@@ -1,13 +1,16 @@
-package com.tambapps.file_sharing_app.service;
+package com.tambapps.p2p.peer_transfer.desktop.service;
 
-import com.tambapps.file_sharing.FileSender;
+import com.tambapps.p2p.file_sharing.FileSender;
 
+import com.tambapps.p2p.file_sharing.IPUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.SocketException;
 import java.net.SocketTimeoutException;
 
 import java.util.Timer;
@@ -20,14 +23,14 @@ public class SendService extends FileService {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(SendService.class);
 
-    @Value("${sender.address}")
-    private String address;
+    private final String address;
     @Value("${socket.timeout}")
     private int socketTimeout; //in ms
 
     public SendService(ConcurrentMap<Integer, FileTask> progressMap,
-                       ExecutorService executorService, Timer timer) {
+                       ExecutorService executorService, Timer timer) throws SocketException {
         super(progressMap, executorService, timer);
+        address  = IPUtils.getIPAddress().getHostAddress();
     }
 
     public SendTask start(String filePath) throws IOException {
@@ -41,7 +44,7 @@ public class SendService extends FileService {
         private final String filePath;
 
         SendTask(String filePath) throws IOException {
-            this(filePath, 0);
+            this(filePath, IPUtils.getAvalaiblePort(InetAddress.getByName(address)));
         }
 
         SendTask(String filePath, int port) throws IOException {
@@ -82,11 +85,11 @@ public class SendService extends FileService {
         }
 
     }
-    public void manualSend(String filePath, String address) throws IOException {
-        manualSend(filePath, address, 0);
+    public void manualSend(String filePath) throws IOException {
+        manualSend(filePath, 0);
     }
-    public void manualSend(String filePath, String address, int port) throws IOException {
-        this.address = address;
+
+    public void manualSend(String filePath, int port) throws IOException {
         socketTimeout = 60000;
         new SendTask(filePath, port).run();
     }

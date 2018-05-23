@@ -1,13 +1,12 @@
-package com.tambapps.file_sharing_app.controller;
+package com.tambapps.p2p.peer_transfer.desktop.controller;
 
-import com.tambapps.file_sharing_app.model.FilePath;
-import com.tambapps.file_sharing_app.model.Peer;
-import com.tambapps.file_sharing_app.service.FileService;
-import com.tambapps.file_sharing_app.service.ReceiveService;
-import com.tambapps.file_sharing_app.service.SendService;
+import com.tambapps.p2p.peer_transfer.desktop.model.FilePath;
+import com.tambapps.p2p.peer_transfer.desktop.model.Peer;
+import com.tambapps.p2p.peer_transfer.desktop.service.FileService;
+import com.tambapps.p2p.peer_transfer.desktop.service.ReceiveService;
+import com.tambapps.p2p.peer_transfer.desktop.service.SendService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -53,7 +52,12 @@ public class ApplicationController {
         if (hasError(bindingResult, "ip", "port")) {
             return "peer";
         }
-        ReceiveService.ReceiveTask receiveTask = receiveService.start(peer);
+        ReceiveService.ReceiveTask receiveTask = null;
+        try {
+            receiveTask = receiveService.start(peer);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to start receiveService", e);
+        }
         model.addAttribute("currentTask", receiveTask);
         LOGGER.info("Started receive task successfully");
         return "receiving";

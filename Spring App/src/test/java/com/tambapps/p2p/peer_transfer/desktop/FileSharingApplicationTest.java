@@ -1,6 +1,7 @@
-package com.tambapps.file_sharing_app;
+package com.tambapps.p2p.peer_transfer.desktop;
 
-import com.tambapps.file_sharing.IOUtils;
+import com.tambapps.p2p.file_sharing.IOUtils;
+import org.junit.After;
 import org.junit.Test;
 
 
@@ -26,7 +27,6 @@ public class FileSharingApplicationTest {
 		File originFile = new File(URLDecoder.decode(filePath, "UTF-8"));
 
 		File file = new File("./file.txt");
-		file.deleteOnExit();
 
 		assertNotNull("Shouldn't be null", file);
 		assertTrue("Didn't correctly downloaded file", file.exists());
@@ -34,5 +34,12 @@ public class FileSharingApplicationTest {
 				IOUtils.contentEquals(originFile, file));
 	}
 
+	@After
+	public void dispose() {
+		File file = new File("./file.txt");
+		if (file.exists()) {
+			file.delete();
+		}
+	}
 
 }

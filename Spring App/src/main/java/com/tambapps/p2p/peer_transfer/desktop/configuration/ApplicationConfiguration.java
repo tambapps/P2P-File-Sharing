@@ -1,6 +1,6 @@
-package com.tambapps.file_sharing_app.configuration;
+package com.tambapps.p2p.peer_transfer.desktop.configuration;
 
-import com.tambapps.file_sharing_app.service.FileService;
+import com.tambapps.p2p.peer_transfer.desktop.service.FileService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

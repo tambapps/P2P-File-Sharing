@@ -1,7 +1,7 @@
-package com.tambapps.file_sharing_app;
+package com.tambapps.p2p.peer_transfer.desktop;
 
-import com.tambapps.file_sharing_app.service.ReceiveService;
-import com.tambapps.file_sharing_app.service.SendService;
+import com.tambapps.p2p.peer_transfer.desktop.service.ReceiveService;
+import com.tambapps.p2p.peer_transfer.desktop.service.SendService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
@@ -9,6 +9,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.io.IOException;
 
+import java.net.SocketException;
 import java.net.URLDecoder;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -32,16 +33,28 @@ public class FileSharingApplication {
 						return;
 					}
 
-					SendService sendService = new SendService(new ConcurrentHashMap<>(),
-							Executors.newFixedThreadPool(1), new Timer());
-					String ip = parseOption("ip", options);
+					SendService sendService;
+					try {
+						sendService = new SendService(new ConcurrentHashMap<>(),
+                                Executors.newFixedThreadPool(1), new Timer());
+					} catch (SocketException e) {
+						LOGGER.error("Couldn't start sendService", e);
+						return;
+					}
+					String sPort;
+					try {
+						sPort = parseOption("port", options);
+					} catch (IllegalArgumentException e) {
+						sPort = null;
+					}
+
 					for (int i = 2; i < args.length; i++) {
 						try {
 						    String filePath = URLDecoder.decode(parseOption("filePath", options), "UTF-8");
-						    if (ip.contains(":")) { //is peer with port
-                                sendService.manualSend(filePath, ip.substring(0, ip.indexOf(':')), Integer.parseInt(ip.substring(ip.indexOf(':')+1)));
+						    if (sPort != null) {
+								sendService.manualSend(filePath, Integer.parseInt(sPort));
 						    } else {
-                                sendService.manualSend(filePath, ip);
+                                sendService.manualSend(filePath);
                             }
 						} catch (IllegalArgumentException e) {
 							LOGGER.error("Error while reading option", e);
@@ -60,6 +73,8 @@ public class FileSharingApplication {
 						receiveService.manualReceive(parseOption("downloadPath", options), parseOption("peer", options));
 					} catch (IllegalArgumentException e) {
 						LOGGER.error("Error while reading option", e);
+					} catch (IOException e) {
+						LOGGER.error("Error while receiving file", e);
 					}
 				}
 

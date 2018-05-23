@@ -1,4 +1,4 @@
-package com.tambapps.file_sharing_app.model;
+package com.tambapps.p2p.peer_transfer.desktop.model;
 
 import javax.validation.constraints.NotEmpty;
 

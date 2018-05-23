@@ -1,7 +1,8 @@
-package com.tambapps.file_sharing_app.service;
+package com.tambapps.p2p.peer_transfer.desktop.service;
 
-import com.tambapps.file_sharing_app.model.Peer;
-import com.tambapps.file_sharing.FileReceiver;
+import com.tambapps.p2p.file_sharing.TransferInterruptedException;
+import com.tambapps.p2p.peer_transfer.desktop.model.Peer;
+import com.tambapps.p2p.file_sharing.FileReceiver;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +28,7 @@ public class ReceiveService extends FileService {
         super(progressMap, executorService, timer);
     }
 
-    public ReceiveTask start(Peer peer) {
+    public ReceiveTask start(Peer peer) throws IOException {
         ReceiveTask receiveTask = new ReceiveTask(peer);
         receiveTask.execute();
         return receiveTask;
@@ -37,7 +38,7 @@ public class ReceiveService extends FileService {
         private final Peer peer;
         private FileReceiver fileReceiver;
 
-        ReceiveTask(Peer peer) {
+        ReceiveTask(Peer peer) throws IOException {
             this.peer = peer;
             this.fileReceiver = new FileReceiver(downloadPath);
         }
@@ -46,8 +47,15 @@ public class ReceiveService extends FileService {
         public void run() {
             LOGGER.info("Connecting to host {}:{}", peer.getIp(), peer.getPort());
             try {
-                File file = fileReceiver.receiveFrom(peer.getIp(), peer.getPort());
+                fileReceiver.receiveFrom(peer.getIp(), peer.getPort());
+                File file = fileReceiver.getReceivedFile();
                 LOGGER.info("{} was successfully received", file.getName());
+            } catch (TransferInterruptedException e) {
+                LOGGER.error("Transfer was interrupted or not properly finished", e);
+                File file = fileReceiver.getReceivedFile();
+                if (file != null && file.exists() && !file.delete()) {
+                    LOGGER.warn("The uncompleted file couldn't be delete, please do it yourself");
+                }
             } catch (IOException e) {
                 LOGGER.error("An error occurred during receive task", e);
             }
@@ -59,7 +67,7 @@ public class ReceiveService extends FileService {
         }
     }
 
-    public void manualReceive(String downloadPath, String peer) {
+    public void manualReceive(String downloadPath, String peer) throws IOException {
         this.downloadPath = downloadPath;
         new ReceiveTask(new Peer(peer)).run();
     }

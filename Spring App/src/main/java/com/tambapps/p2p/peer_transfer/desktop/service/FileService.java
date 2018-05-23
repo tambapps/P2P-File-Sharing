@@ -1,6 +1,6 @@
-package com.tambapps.file_sharing_app.service;
+package com.tambapps.p2p.peer_transfer.desktop.service;
 
-import com.tambapps.file_sharing.TransferListener;
+import com.tambapps.p2p.file_sharing.TransferListener;
 
 import java.util.Timer;
 import java.util.TimerTask;
