@@ -6,7 +6,7 @@
     android:orientation="vertical"
     android:id="@+id/root"
     android:background="@drawable/gradient_drawable"
-    tools:context="tambapps.com.a2sfile_sharing.MainActivity">
+    tools:context="com.tambapps.p2p.peer_transfer.android.MainActivity">
 
     <RelativeLayout
         android:layout_width="wrap_content"
@@ -53,6 +53,7 @@
             android:layout_height="wrap_content"
             android:textColor="#fff"
             android:textSize="30sp"
+            android:layout_marginBottom="10dp"
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
             android:text="Receive file"/>

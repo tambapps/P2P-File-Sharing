@@ -3,7 +3,7 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 27
     defaultConfig {
-        applicationId "tambapps.com.a2sfile_sharing"
+        applicationId "com.tambapps.p2p.peer_transfer.android"
         minSdkVersion 21
         targetSdkVersion 27
         versionCode 1
@@ -12,7 +12,7 @@ android {
     }
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }

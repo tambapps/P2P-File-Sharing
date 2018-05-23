@@ -1,4 +1,4 @@
-package tambapps.com.a2sfile_sharing;
+package com.tambapps.p2p.peer_transfer.android;
 
 import org.junit.Test;
 

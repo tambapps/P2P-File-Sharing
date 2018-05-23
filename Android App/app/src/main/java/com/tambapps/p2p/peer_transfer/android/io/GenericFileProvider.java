@@ -1,4 +1,4 @@
-package tambapps.com.a2sfile_sharing.io;
+package com.tambapps.p2p.peer_transfer.android.io;
 
 import android.support.v4.content.FileProvider;
 

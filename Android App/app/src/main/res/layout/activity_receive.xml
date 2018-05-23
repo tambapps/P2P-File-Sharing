@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/gradient_drawable"
-    tools:context="tambapps.com.a2sfile_sharing.ReceiveActivity">
+    tools:context="com.tambapps.p2p.peer_transfer.android.ReceiveActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -72,6 +72,7 @@
         android:layout_width="match_parent"
         android:id="@+id/port_input"
         android:hint="port"
+        app:errorTextAppearance="@style/ErrorAppearance"
         android:layout_marginTop="10dp"
         android:theme="@style/TextLayoutStyle"
         android:layout_height="wrap_content">

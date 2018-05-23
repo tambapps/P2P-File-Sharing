@@ -1,4 +1,4 @@
-package tambapps.com.a2sfile_sharing;
+package com.tambapps.p2p.peer_transfer.android;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;

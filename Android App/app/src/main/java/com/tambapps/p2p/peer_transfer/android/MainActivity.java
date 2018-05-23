@@ -1,4 +1,4 @@
-package tambapps.com.a2sfile_sharing;
+package com.tambapps.p2p.peer_transfer.android;
 
 import android.Manifest;
 import android.content.DialogInterface;
@@ -13,31 +13,17 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Toast;
 
-import tambapps.com.a2sfile_sharing.service.ReceiveFileService;
-import tambapps.com.a2sfile_sharing.service.SendFileService;
-
 public class MainActivity extends AppCompatActivity {
     private final static int WRITE_PERMISSION_REQUEST = 2;
     public static final String RESUME_KEY = "resumeK",
     RETURN_TEXT_KEY = "rtk";
     private static final int START_FILE_SERVICE = 888;
+
+    private Snackbar snackbar;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        String action = getIntent().getAction();
-        if (action != null) {
-            if (action.endsWith(SendFileService.class.getName())) {
-                Intent intent = new Intent(this, SendActivity.class);
-                intent.putExtra(RESUME_KEY, true);
-                startActivity(intent);
-            } else if (action.endsWith(ReceiveFileService.class.getName())) {
-                Intent intent = new Intent(this, ReceiveActivity.class);
-                intent.putExtra(RESUME_KEY, true);
-                startActivity(intent);
-            }
-        }
     }
 
     @Override
@@ -102,18 +88,26 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == START_FILE_SERVICE) {
             if (resultCode == RESULT_OK) {
-                Snackbar.make(findViewById(R.id.root), data.getStringExtra(RETURN_TEXT_KEY)
+                snackbar = Snackbar.make(findViewById(R.id.root), data.getStringExtra(RETURN_TEXT_KEY)
                         , Snackbar.LENGTH_INDEFINITE)
                         .setAction("ok", new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
 
                             }
-                        })
-                        .show();
+                        });
+                snackbar.show();
             }
         } else {
             super.onActivityResult(requestCode, resultCode, data);
         }
+    }
+
+    @Override
+    protected void onStop() {
+        if (snackbar != null) {
+            snackbar.dismiss();
+        }
+        super.onStop();
     }
 }

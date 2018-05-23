@@ -1,4 +1,4 @@
-package tambapps.com.a2sfile_sharing;
+package com.tambapps.p2p.peer_transfer.android;
 
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
@@ -16,16 +16,17 @@ import android.util.Pair;
 import android.view.View;
 import android.widget.Toast;
 
+import com.tambapps.p2p.file_sharing.IPUtils;
+
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.ServerSocket;
 import java.util.Locale;
 
-import tambapps.com.a2sfile_sharing.service.FileSendingJobService;
-import tambapps.com.a2sfile_sharing.service.Utils;
+import com.tambapps.p2p.peer_transfer.android.service.FileSendingJobService;
 
 public class SendActivity extends AppCompatActivity {
 
+    private static final int SENDING_JOB_ID = 0;
     private final static int PICK_FILE = 1;
 
     @Override
@@ -58,17 +59,18 @@ public class SendActivity extends AppCompatActivity {
                 Pair<String, Long> fileInfos = getFileInfos(data.getData());
                 bundle.putString("fileUri", data.getData().toString());
                 bundle.putString("fileName", fileInfos.first);
+                bundle.putInt("id", SENDING_JOB_ID);
 
                 InetAddress address;
                 int port;
 
                 try {
-                    address = Utils.getIPAddress();
+                    address = IPUtils.getIPAddress();
                     if (address == null) {
                         Toast.makeText(this, "Couldn't get ip address. Please verify your internet connection", Toast.LENGTH_SHORT).show();
                         return;
                     }
-                    port = getAvalaiblePort(address);
+                    port = IPUtils.getAvalaiblePort(address);
                     bundle.putString("address", address.getHostAddress());
                     bundle.putInt("port", port);
                 } catch (IOException e) {
@@ -105,18 +107,6 @@ public class SendActivity extends AppCompatActivity {
         }
     }
 
-    private int getAvalaiblePort(InetAddress inetAddress) {
-        int port = 8080;
-        while (true) {
-            try (ServerSocket serverSocket = new ServerSocket(port,0, inetAddress)) {
-                //tests that port available
-            } catch (IOException e) {
-                port++;
-                continue;
-            }
-            return port;
-        }
-    }
     private Pair<String, Long> getFileInfos(Uri uri) {
         Cursor cursor = getContentResolver()
                 .query(uri, null, null, null, null, null);

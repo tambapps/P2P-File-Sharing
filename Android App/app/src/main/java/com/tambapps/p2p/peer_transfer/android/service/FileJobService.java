@@ -1,4 +1,4 @@
-package tambapps.com.a2sfile_sharing.service;
+package com.tambapps.p2p.peer_transfer.android.service;
 
 import android.annotation.TargetApi;
 import android.app.Notification;
@@ -12,17 +12,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.BitmapFactory;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.PersistableBundle;
 import android.support.v4.app.NotificationCompat;
-import android.util.Log;
 
-import com.tambapps.file_sharing.TransferListener;
+import com.tambapps.p2p.peer_transfer.android.R;
+import com.tambapps.p2p.file_sharing.TransferListener;
 
 import java.util.Locale;
-
-import tambapps.com.a2sfile_sharing.R;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Created by fonkoua on 13/05/18.
@@ -33,11 +32,13 @@ public abstract class FileJobService extends JobService {
     private FileTask fileTask;
     final static int SOCKET_TIMEOUT = 1000 * 90; //in ms
     private NotificationBroadcastReceiver notificationBroadcastReceiver;
-    private final static String ACTION_CANCEL = FileJobService.class.getPackage().toString() + ".cancel";
+    private String ACTION_CANCEL;
+    private final static ExecutorService executor = Executors.newFixedThreadPool(2);
 
     @Override
     public void onCreate() {
         super.onCreate();
+        ACTION_CANCEL = getClass().getName() + ".cancel";
         notificationBroadcastReceiver = new NotificationBroadcastReceiver();
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addCategory(Intent.CATEGORY_DEFAULT);
@@ -47,22 +48,22 @@ public abstract class FileJobService extends JobService {
 
     @Override
     public boolean onStartJob(final JobParameters params) {
-
         PersistableBundle bundle = params.getExtras();
         NotificationManager notificationManager  = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         int notifId = bundle.getInt("id");
         Runnable endRunnable = new Runnable() {
             @Override
             public void run() {
+                unregisterReceiver(notificationBroadcastReceiver);
                 jobFinished(params, false);
             }
         };
 
-        PendingIntent notifIntent = PendingIntent.getBroadcast(this, 0,
+        PendingIntent cancelIntent = PendingIntent.getBroadcast(this, 0,
                 new Intent(ACTION_CANCEL), 0);
 
         fileTask = startTask(buildNotification(notificationManager, notifId),
-                notificationManager, notifId, bundle, endRunnable, notifIntent);
+                notificationManager, notifId, bundle, endRunnable, cancelIntent);
         return true;
     }
 
@@ -98,82 +99,68 @@ public abstract class FileJobService extends JobService {
     }
 
     abstract FileTask startTask(NotificationCompat.Builder notifBuilder,
-                                 NotificationManager notificationManager,
-                                 int notifId,
-                                 PersistableBundle bundle,
-                                 Runnable endRunnable,
-                                 PendingIntent notifIntent);
+                                NotificationManager notificationManager,
+                                int notifId,
+                                PersistableBundle bundle,
+                                Runnable endRunnable,
+                                PendingIntent cancelIntent);
     abstract int smallIcon();
     abstract int largeIcon();
 
     @Override
     public boolean onStopJob(JobParameters params) {
         if (fileTask != null) {
-            fileTask.cancel(true);
+            fileTask.cancel();
 
         }
         return false;
     }
 
-    static abstract class FileTask<Param> extends AsyncTask<Param, Integer, Void> implements TransferListener {
+    static abstract class FileTask implements TransferListener {
         private NotificationCompat.Builder notifBuilder;
-        private NotificationCompat.BigTextStyle notifStyle;
+        NotificationCompat.BigTextStyle notifStyle;
         private NotificationManager notificationManager;
         private int notifId;
         private Runnable endRunnable;
-        private PendingIntent notifIntent;
         private String remotePeer;
         private String totalBytes;
-        private volatile boolean canceled;
 
         FileTask(NotificationCompat.Builder notifBuilder,
                  NotificationManager notificationManager,
                  int notifId, Runnable endRunnable,
-                 PendingIntent notifIntent) {
+                 PendingIntent cancelIntent) {
             this.notifBuilder = notifBuilder;
             this.notificationManager = notificationManager;
             this.notifId = notifId;
             this.endRunnable = endRunnable;
-            this.notifIntent = notifIntent;
             notifStyle = new NotificationCompat.BigTextStyle();
 
-            notifBuilder.addAction(R.drawable.upload_little, "cancel", notifIntent);
-
-        }
-
-        @Override
-        protected final void onProgressUpdate(Integer... values) {
-            onProgressUpdate(values[0]);
+            notifBuilder.addAction(android.R.drawable.ic_delete, "cancel", cancelIntent);
         }
 
         @Override
         public void onProgressUpdate(int progress) {
-            notifBuilder.setProgress(100, progress, false);
-            notifStyle.bigText(bytesToString(bytesProcessed()) + "/ " + totalBytes);
+            if (progress == 100) {
+                finishNotification().setContentTitle("Transfer completed");
+            } else {
+                notifBuilder.setProgress(100, progress, false);
+                notifStyle.bigText(bytesToString(bytesProcessed()) + "/ " + totalBytes);
+            }
+
             updateNotification();
         }
 
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            endRunnable.run();
-            dispose();
-            Log.e("DISPOSE","DISPOSE");
-        }
-
-        public void cancel() {
-            canceled = true;
-            Log.e("CANCELING","CANCELING");
-            onCancelled(null);
-        }
-
-        @Override
-        protected final void onCancelled(Void result) {
-            notifBuilder.setProgress(0, 0, false)
-                    .setOngoing(false)
-                    .setAutoCancel(true);
-
-            onCancelled();
-            updateNotification();
+        FileTask execute(final String... params) {
+            executor.submit(new Runnable() {
+                @Override
+                public void run() {
+                    FileTask.this.run(params);
+                    updateNotification();
+                    endRunnable.run();
+                    dispose();
+                }
+            });
+            return this;
         }
 
         @Override
@@ -188,8 +175,8 @@ public abstract class FileJobService extends JobService {
             updateNotification();
         }
 
-        @Override
-        public abstract void onCancelled();
+        abstract void run(String... params);
+        abstract void cancel();
         abstract String onConnected(String remotePeer, String fileName); //return the title of the notification
 
         abstract long totalBytes();
@@ -201,10 +188,11 @@ public abstract class FileJobService extends JobService {
             int i = 0;
 
             while (bytes / (denominator * 1024) > 0 && i < units.length()) {
-                denominator *= 1024f;
+                denominator *= 1024;
                 i++;
             }
-            return String.format(Locale.US, "%.1f %cB", ((float)bytes)/((float)denominator), units.charAt(i));
+            return String.format(Locale.US, "%.1f %sB", ((float)bytes)/((float)denominator),
+                    i == 0 ? "" : units.charAt(i - 1));
         }
 
         NotificationCompat.Builder getNotifBuilder() {
@@ -221,6 +209,7 @@ public abstract class FileJobService extends JobService {
                     .setAutoCancel(true)
                     .setOngoing(false)
                     .setContentText("")
+                    .setContentTitle("")
                     .setProgress(0, 0, false);
         }
 
@@ -229,7 +218,6 @@ public abstract class FileJobService extends JobService {
             notifStyle = null;
             notificationManager = null;
             endRunnable = null;
-            notifIntent = null;
         }
     }
 
@@ -238,14 +226,7 @@ public abstract class FileJobService extends JobService {
         @Override
         public final void onReceive(Context context, Intent intent) {
             if (ACTION_CANCEL.equals(intent.getAction()) && fileTask != null) {
-                Log.e("CANCEL","CANCEL");
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        fileTask.cancel();
-                    }
-                }).start();
-                Log.e("CANCELED","CANCELED");
+                fileTask.cancel();
             }
         }
     }

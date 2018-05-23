@@ -36,9 +36,14 @@
         <item name="android:textStyle">bold</item>
         <item name="android:layout_gravity">bottom</item>
     </style>
-    <style name="TextLayoutStyle" parent="@android:style/TextAppearance">
+    <style name="TextLayoutStyle">
         <item name="android:textColorPrimary">#fff</item>
         <item name="android:textColorHint">#fff</item>
+        <item name="android:textColor">#f00</item>
+    </style>
+    <style name="ErrorAppearance" parent="@android:style/TextAppearance">
+        <item name="android:textColor">#f00</item>
+        <item name="android:textSize">12sp</item>
     </style>
     <style name="DialogStyle" parent="Theme.AppCompat.DayNight.Dialog">
         <item name="android:textColor">#fff</item>
