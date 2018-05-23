@@ -38,7 +38,7 @@ public class FileReceiver extends FileSharer {
 
         socketChannel.connect(new InetSocketAddress(address, port));
         synchronized (this) {
-            while (!isCanceled() && !socketChannel.isOpen()) {
+            while (!isCanceled() && !socketChannel.isConnected()) {
                 try {
                     wait();
                 } catch (InterruptedException e) {
@@ -48,6 +48,7 @@ public class FileReceiver extends FileSharer {
         }
 
         Socket socket = socketChannel.socket();
+
 
         try (DataInputStream dis = new DataInputStream(socket.getInputStream())) {
             totalBytes = dis.readLong();
