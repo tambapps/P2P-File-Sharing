@@ -11,11 +11,7 @@ This is the Android app that performs P2P file sharing
 
 This is the Spring Boot app that performs P2P file sharing
 
-![alt text](https://raw.githubusercontent.com/nelson888/P2P-File-Sharing/master/screenshots/desktop1.jpg)
-
-![alt text](https://raw.githubusercontent.com/nelson888/P2P-File-Sharing/master/screenshots/desktop2.jpg)
-
-![alt text](https://raw.githubusercontent.com/nelson888/P2P-File-Sharing/master/screenshots/desktop3.jpg)
+![alt text](https://raw.githubusercontent.com/nelson888/P2P-File-Sharing/master/screenshots/desktop.png)
 
 ### P2P Library
 
