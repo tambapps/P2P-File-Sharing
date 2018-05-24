@@ -7,6 +7,8 @@ Transfer between computer and android also works.
 
 This is the Android app that performs P2P file sharing
 
+![alt text](https://raw.githubusercontent.com/nelson888/P2P-File-Sharing/master/screenshots/android.png)
+
 ### Spring App
 
 This is the Spring Boot app that performs P2P file sharing
