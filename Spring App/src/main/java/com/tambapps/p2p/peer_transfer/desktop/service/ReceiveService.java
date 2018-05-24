@@ -24,8 +24,8 @@ public class ReceiveService extends FileService {
     private String downloadPath;
 
     public ReceiveService(ConcurrentMap<Integer, FileTask> progressMap,
-                          ExecutorService executorService, Timer timer) {
-        super(progressMap, executorService, timer);
+                          ExecutorService executorService) {
+        super(progressMap, executorService);
     }
 
     public ReceiveTask start(Peer peer) throws IOException {

@@ -28,9 +28,14 @@ public class SendService extends FileService {
     private int socketTimeout; //in ms
 
     public SendService(ConcurrentMap<Integer, FileTask> progressMap,
-                       ExecutorService executorService, Timer timer) throws SocketException {
-        super(progressMap, executorService, timer);
-        address  = IPUtils.getIPAddress().getHostAddress();
+                       ExecutorService executorService) {
+        super(progressMap, executorService);
+        try {
+            address  = IPUtils.getIPAddress().getHostAddress();
+        } catch (SocketException e) {
+            LOGGER.error("Couldn't get ip address (are you connected to the internet?)", e);
+            throw new RuntimeException(e);
+        }
     }
 
     public SendTask start(String filePath) throws IOException {

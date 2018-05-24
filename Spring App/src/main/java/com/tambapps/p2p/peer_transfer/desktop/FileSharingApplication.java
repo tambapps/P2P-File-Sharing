@@ -33,14 +33,8 @@ public class FileSharingApplication {
 						return;
 					}
 
-					SendService sendService;
-					try {
-						sendService = new SendService(new ConcurrentHashMap<>(),
-                                Executors.newFixedThreadPool(1), new Timer());
-					} catch (SocketException e) {
-						LOGGER.error("Couldn't start sendService", e);
-						return;
-					}
+					SendService sendService = new SendService(new ConcurrentHashMap<>(),
+							Executors.newFixedThreadPool(1));
 					String sPort;
 					try {
 						sPort = parseOption("port", options);
@@ -68,7 +62,7 @@ public class FileSharingApplication {
 						return;
 					}
 					ReceiveService receiveService = new ReceiveService(new ConcurrentHashMap<>(),
-							Executors.newFixedThreadPool(1), new Timer());
+							Executors.newFixedThreadPool(1));
 					try {
 						receiveService.manualReceive(parseOption("downloadPath", options), parseOption("peer", options));
 					} catch (IllegalArgumentException e) {
