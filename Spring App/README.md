@@ -10,7 +10,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
-The two components used for the file transfer must be connected to the same wifi
+The two components used for the file transfer must be connected to the same wifi. Public WIFIs don't work for these transfers.
 
 
 ### Installing
