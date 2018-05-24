@@ -30,7 +30,7 @@ public class IPUtils {
     }
 
     public static int getAvalaiblePort(InetAddress inetAddress) {
-        int port = 8080;
+        int port = 8081;
         while (port < 65536) {
             try (ServerSocket serverSocket = new ServerSocket(port,0, inetAddress)) {
                 //tests that port available
