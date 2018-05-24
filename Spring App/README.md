@@ -14,27 +14,30 @@ The two components used for the file transfer must be connected to the same wifi
 
 
 ### Installing
-You must set up the ip that will be used for the file transfer (if you are the sender). To see the ip to set up, you can type this command:
-
+You can run this app from your IDE or generate the jar file by running
 ```
-ifconfig
+mvn install
 ```
+Add the '-DskipTests' option if you want to skip tests.
 
-And pick the right one (it is an inet adr, and it isn't 127.0.0.1) and put it in the application.properties, in the server.address field
-
-After that, you cloud directly run it from your IDE or generate a jar file by running
+### Running
+To start the program you must provide a path in which the received files will be downloaded. If you have generated the jar file, run
 ```
-mvn install -DskipTests
+java -jar target/File-Sharing-0.0.1-SNAPSHOT.jar --download.path=path/to/download/files/
 ```
+Or if you want to run it from your IDE, add "--download.path=path/to/download/files/" in program arguments. Then go to your web browser at localhost:8080 and from there, you can setup the receive/send procedure
 
-## Running
-To start the program you must provide a path to download files in when you receive file. If you generate a jar file, run
+###Command line
+You can also transfer files directly from the command line:
+
+To receive a file:
 ```
-java -jar target/File-Sharing-0.0.1-SNAPSHOT.jar --download.ath=path/to/download/files/
+java -jar File-Sharing-0.0.1-SNAPSHOT.jar -receive -downloadPath=/path/to/file -peer=0.0.0.0:8081
 ```
-Or if you want to run it from your IDE, add "--download.ath=path/to/download/files/" in program arguments. Then go to your web browser at localhost:8080 and from there, you can setup the receive/send procedure
-
-
+To send a file:
+```
+java -jar File-Sharing-0.0.1-SNAPSHOT.jar -send -filePath=/path/to/file
+```
 ## Built With
 
 * [Maven](https://maven.apache.org/)
