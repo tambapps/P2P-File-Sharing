@@ -8,11 +8,10 @@ import android.os.PersistableBundle;
 import android.support.v4.app.NotificationCompat;
 
 import com.tambapps.p2p.file_sharing.FileSender;
+import com.tambapps.p2p.peer_transfer.android.R;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-
-import com.tambapps.p2p.peer_transfer.android.R;
 
 /**
  * Created by fonkoua on 05/05/18.
@@ -80,33 +79,28 @@ public class FileSendingJobService extends FileJobService {
             fileName = params[3];
             long fileSize = Long.parseLong(params[4]);
             try {
-
                 fileSender.send(contentResolver.openInputStream(fileUri), fileName, fileSize);
 
                 if (fileSender.isCanceled()) {
                     finishNotification()
                             .setContentTitle("Transfer canceled");
                 } else {
-                    finishNotification().setContentTitle("Transfer completed");//.setStyle(notifStyle.bigText("Transfer completed"));
+                    finishNotification().setContentTitle("Transfer completed")
+                            .setStyle(notifStyle.bigText(fileName + " was successfully sent"));
                 }
-
-                updateNotification();
-
             } catch (FileNotFoundException e) {
                 finishNotification()
                         .setContentTitle("Transfer aborted")
                         .setContentText("The file couldn't be found");
-                updateNotification();
             } catch (IOException e) {
                 finishNotification()
                         .setContentTitle("Transfer aborted")
-                        .setContentText("An error occurred during the transfer");
-                updateNotification();
+                        .setStyle(notifStyle.bigText("An error occurred during the transfer:\n" +
+                        e.getMessage()));
             } catch (IllegalArgumentException e) {
                 finishNotification()
                         .setContentTitle("Transfer aborted")
                         .setContentText("The file selected couldn't be sent");
-                updateNotification();
             }
         }
 

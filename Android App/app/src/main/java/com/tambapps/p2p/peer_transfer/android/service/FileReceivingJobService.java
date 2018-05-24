@@ -10,6 +10,7 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.FileProvider;
 
 import com.tambapps.p2p.file_sharing.FileReceiver;
+import com.tambapps.p2p.peer_transfer.android.R;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -17,8 +18,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.SocketTimeoutException;
 import java.nio.channels.AsynchronousCloseException;
-
-import com.tambapps.p2p.peer_transfer.android.R;
 
 /**
  * Created by fonkoua on 13/05/18.
@@ -83,7 +82,6 @@ public class FileReceivingJobService extends FileJobService {
                 finishNotification()
                         .setContentTitle("Failed to start service")
                         .setContentText("Please, check your network connection");
-                updateNotification();
                 return;
             }
             fileReceiver.setTransferListener(this);
@@ -115,33 +113,28 @@ public class FileReceivingJobService extends FileJobService {
                     }
                     if (image != null) {
                         getNotifBuilder().setStyle(new NotificationCompat.BigPictureStyle()
-                                .bigPicture(image));
+                                .bigPicture(image).setSummaryText(fileName));
                     } else {
                         getNotifBuilder().setStyle(notifStyle.bigText(fileName + " was successfully received"));
                     }
                 }
-
-                updateNotification();
-
             } catch (SocketTimeoutException e) {
                 finishNotification()
                         .setContentTitle("Transfer canceled")
                         .setContentText("Connection timeout");
-                updateNotification();
             } catch (AsynchronousCloseException e) {
                 finishNotification()
                         .setContentTitle("Transfer canceled");
-                updateNotification();
             } catch (IOException e) {
                 finishNotification()
                         .setContentTitle("Transfer aborted")
-                        .setContentText("An error occurred during the transfer");
+                        .setStyle(notifStyle.bigText("An error occurred during the transfer:\n" +
+                                e.getMessage()));
                 File file = fileReceiver.getReceivedFile();
                 if (file != null && file.exists() && !file.delete()) {
                     getNotifBuilder().setStyle(notifStyle.bigText("An error occurred during the transfer.\n" +
                             "The file couldn't be downloaded entirely. Please, delete it."));
                 }
-                updateNotification();
             }
         }
 

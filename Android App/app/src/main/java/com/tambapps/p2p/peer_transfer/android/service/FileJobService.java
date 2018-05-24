@@ -29,11 +29,12 @@ import java.util.concurrent.Executors;
 
 public abstract class FileJobService extends JobService {
 
-    private FileTask fileTask;
+    private final static ExecutorService executor = Executors.newFixedThreadPool(2);
     final static int SOCKET_TIMEOUT = 1000 * 90; //in ms
+
     private NotificationBroadcastReceiver notificationBroadcastReceiver;
     private String ACTION_CANCEL;
-    private final static ExecutorService executor = Executors.newFixedThreadPool(2);
+    private FileTask fileTask;
 
     @Override
     public void onCreate() {
@@ -120,7 +121,7 @@ public abstract class FileJobService extends JobService {
         private NotificationCompat.Builder notifBuilder;
         NotificationCompat.BigTextStyle notifStyle;
         private NotificationManager notificationManager;
-        private int notifId;
+        private final int notifId;
         private Runnable endRunnable;
         private String remotePeer;
         private String totalBytes;
@@ -140,13 +141,10 @@ public abstract class FileJobService extends JobService {
 
         @Override
         public void onProgressUpdate(int progress) {
-            if (progress == 100) {
-                finishNotification().setContentTitle("Transfer completed");
-            } else {
+            if (progress < 100) {
                 notifBuilder.setProgress(100, progress, false);
                 notifStyle.bigText(bytesToString(bytesProcessed()) + "/ " + totalBytes);
             }
-
             updateNotification();
         }
 
@@ -155,6 +153,10 @@ public abstract class FileJobService extends JobService {
                 @Override
                 public void run() {
                     FileTask.this.run(params);
+                    try {
+                        Thread.sleep(500); //wait to ensure that the notification is well updated
+                    } catch (InterruptedException ignored) {
+                    }
                     updateNotification();
                     endRunnable.run();
                     dispose();
