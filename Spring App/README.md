@@ -38,6 +38,7 @@ To send a file:
 ```
 java -jar File-Sharing-0.0.1-SNAPSHOT.jar -send -filePath=/path/to/file
 ```
+You can specify the ip with the -ip option.
 ## Built With
 
 * [Maven](https://maven.apache.org/)
