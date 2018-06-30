@@ -34,7 +34,9 @@ public abstract class FileSharer {
             }
         }
         progress = (int) (100 * bytesProcessed / totalBytes);
-        transferListener.onProgressUpdate(progress, bytesProcessed, totalBytes);
+        if (transferListener != null) {
+            transferListener.onProgressUpdate(progress, bytesProcessed, totalBytes);
+        }
         return true;
     }
 
