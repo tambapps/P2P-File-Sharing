@@ -124,7 +124,6 @@ public abstract class FileJobService extends JobService {
         private final int notifId;
         private Runnable endRunnable;
         private String remotePeer;
-        private String totalBytes;
 
         FileTask(NotificationCompat.Builder notifBuilder,
                  NotificationManager notificationManager,
@@ -140,10 +139,10 @@ public abstract class FileJobService extends JobService {
         }
 
         @Override
-        public void onProgressUpdate(int progress) {
+        public void onProgressUpdate(int progress, long bytesProcessed, long totalBytes) {
             if (progress < 100) {
                 notifBuilder.setProgress(100, progress, false);
-                notifStyle.bigText(bytesToString(bytesProcessed()) + "/ " + totalBytes);
+                notifStyle.bigText(FileJobService.bytesToString(bytesProcessed) + "/ " + FileJobService.bytesToString(totalBytes));
             }
             updateNotification();
         }
@@ -166,9 +165,8 @@ public abstract class FileJobService extends JobService {
         }
 
         @Override
-        public final void onConnected(String remoteAddress, int port, String fileName) {
+        public final void onConnected(String remoteAddress, int port, String fileName, long fileSize) {
             remotePeer = remoteAddress + ":" + port;
-            totalBytes = bytesToString(totalBytes());
             getNotifBuilder()
                     .setProgress(100, 0, false)
                     .setContentText("")
@@ -180,22 +178,6 @@ public abstract class FileJobService extends JobService {
         abstract void run(String... params);
         abstract void cancel();
         abstract String onConnected(String remotePeer, String fileName); //return the title of the notification
-
-        abstract long totalBytes();
-        abstract long bytesProcessed();
-
-        private static String bytesToString(long bytes) {
-            String units = "kMG";
-            long denominator = 1;
-            int i = 0;
-
-            while (bytes / (denominator * 1024) > 0 && i < units.length()) {
-                denominator *= 1024;
-                i++;
-            }
-            return String.format(Locale.US, "%.1f %sB", ((float)bytes)/((float)denominator),
-                    i == 0 ? "" : units.charAt(i - 1));
-        }
 
         NotificationCompat.Builder getNotifBuilder() {
             return notifBuilder;
@@ -231,5 +213,18 @@ public abstract class FileJobService extends JobService {
                 fileTask.cancel();
             }
         }
+    }
+
+    static String bytesToString(long bytes) {
+        String units = "kMG";
+        long denominator = 1;
+        int i = 0;
+
+        while (bytes / (denominator * 1024) > 0 && i < units.length()) {
+            denominator *= 1024;
+            i++;
+        }
+        return String.format(Locale.US, "%.1f %sB", ((float)bytes)/((float)denominator),
+                i == 0 ? "" : units.charAt(i - 1));
     }
 }

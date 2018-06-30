@@ -165,16 +165,6 @@ public class FileReceivingJobService extends FileJobService {
         }
 
         @Override
-        long bytesProcessed() {
-            return fileReceiver.getBytesReceived();
-        }
-
-        @Override
-        long totalBytes() {
-            return fileReceiver.getTotalBytes();
-        }
-
-        @Override
         public String onConnected(String remoteAddress, String fileName) {
             this.fileName = fileName;
             return "Receiving " + fileName;

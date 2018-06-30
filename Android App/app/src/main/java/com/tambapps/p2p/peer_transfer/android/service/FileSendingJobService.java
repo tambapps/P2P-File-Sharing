@@ -112,16 +112,6 @@ public class FileSendingJobService extends FileJobService {
         }
 
         @Override
-        long bytesProcessed() {
-            return fileSender.getBytesSent();
-        }
-
-        @Override
-        long totalBytes() {
-            return fileSender.getTotalBytes();
-        }
-
-        @Override
         public String onConnected(String remoteAddress, String fileName) {
             return "Sending " + fileName + "...";
         }
