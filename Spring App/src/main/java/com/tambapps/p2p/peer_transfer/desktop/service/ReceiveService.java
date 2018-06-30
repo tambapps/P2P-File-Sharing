@@ -67,8 +67,4 @@ public class ReceiveService extends FileService {
         }
     }
 
-    public void manualReceive(String downloadPath, String peer) throws IOException {
-        this.downloadPath = downloadPath;
-        new ReceiveTask(new Peer(peer)).run();
-    }
 }

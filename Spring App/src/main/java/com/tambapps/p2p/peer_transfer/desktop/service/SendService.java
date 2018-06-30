@@ -13,7 +13,6 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 
-import java.util.Timer;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 
@@ -85,17 +84,9 @@ public class SendService extends FileService {
         }
 
         @Override
-        public void onConnected(String remoteAddr, int port, String fileName) {
+        public void onConnected(String remoteAddr, int port, String fileName, long fileSize) {
             LOGGER.info("Starting transfer of {} to {}:{}", fileName, remoteAddr, port);
         }
 
-    }
-    public void manualSend(String filePath) throws IOException {
-        manualSend(filePath, 0);
-    }
-
-    public void manualSend(String filePath, int port) throws IOException {
-        socketTimeout = 60000;
-        new SendTask(filePath, port).run();
     }
 }

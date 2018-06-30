@@ -29,11 +29,12 @@ public abstract class FileSharer {
             if (progress != lastProgress) {
                 lastProgress = progress;
                 if (transferListener != null) {
-                    transferListener.onProgressUpdate(progress);
+                    transferListener.onProgressUpdate(progress, bytesProcessed, totalBytes);
                 }
             }
         }
-
+        progress = (int) (100 * bytesProcessed / totalBytes);
+        transferListener.onProgressUpdate(progress, bytesProcessed, totalBytes);
         return true;
     }
 

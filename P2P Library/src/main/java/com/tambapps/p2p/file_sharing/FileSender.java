@@ -17,6 +17,10 @@ public class FileSender extends FileSharer {
 
     private final ServerSocket serverSocket;
 
+    public FileSender(String address) throws IOException {
+        this(address, 0, 0);
+    }
+
     public FileSender(InetAddress address, int socketTimeout) throws IOException {
         this(address, 0, socketTimeout);
     }
@@ -59,7 +63,7 @@ public class FileSender extends FileSharer {
         try (Socket socket = serverSocket.accept()) {
             if (transferListener != null) {
                 transferListener.onConnected(socket.getRemoteSocketAddress().toString().substring(1),
-                        socket.getPort(), fileName);
+                        socket.getPort(), fileName, totalBytes);
             }
             try (DataOutputStream dos = new DataOutputStream(socket.getOutputStream())) {
                 dos.writeLong(fileSize);
@@ -67,18 +71,13 @@ public class FileSender extends FileSharer {
                 dos.writeInt(fileName.length());
                 dos.writeChars(fileName);
 
-                if (share(BUFFER_SIZE, fis, dos)) {
-                    progress = 100;
-                    if (transferListener != null) {
-                        transferListener.onProgressUpdate(progress);
-                    }
+                if (share(BUFFER_SIZE, fis, dos) && getBytesProcessed() != totalBytes) {
+                    throw new TransferInterruptedException("Transfer was not properly finished");
                 }
             }
             serverSocket.close();
         } catch (SocketException e) {
             //socket closed because of cancel()
-        } finally {
-            transferListener = null;
         }
     }
 

@@ -57,28 +57,21 @@ public class FileReceiver extends FileSharer {
 
             if (transferListener != null) {
                 transferListener.onConnected(socket.getRemoteSocketAddress().toString().substring(1),
-                        socket.getPort(), fileName);
+                        socket.getPort(), fileName, totalBytes);
             }
 
             file = newFile(downloadPath, fileName);
             try (FileOutputStream fos = new FileOutputStream(file)) {
-                boolean received = share(bufferSize, dis, fos);
-
-                if (received && getBytesProcessed() != totalBytes) {
+                if (share(bufferSize, dis, fos) && getBytesProcessed() != totalBytes) {
                     throw new TransferInterruptedException("Transfer was not properly finished");
-                }
-
-                progress = 100;
-                if (transferListener != null) {
-                    transferListener.onProgressUpdate(progress);
                 }
             }
 
-            socketChannel.close();
+
         } catch (AsynchronousCloseException e) {
             //task canceled by cancel() function
         } finally {
-            transferListener = null;
+            socketChannel.close();
         }
     }
 

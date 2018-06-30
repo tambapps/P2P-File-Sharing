@@ -34,12 +34,12 @@ public class FileService {
     }
 
     @Override
-    public void onProgressUpdate(int progress) {
+    public void onProgressUpdate(int progress, long byteProcessed, long totalBytes) {
 
     }
 
     @Override
-    public void onConnected(String remoteAddress, int port, String fileName) {
+    public void onConnected(String remoteAddress, int port, String fileName, long fileSize) {
 
     }
   }
