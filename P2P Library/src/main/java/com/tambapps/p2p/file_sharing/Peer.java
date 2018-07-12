@@ -16,4 +16,17 @@ public class Peer {
   public int getPort() {
     return port;
   }
+
+  public static Peer parse(String peer) {
+    int index = peer.indexOf(":");
+    if (index < 0) {
+      throw new IllegalArgumentException("peer is malformed");
+    }
+    return new Peer(peer.substring(0, index), Integer.parseInt(peer.substring(index + 1)));
+  }
+
+  @Override
+  public String toString() {
+    return ip + ":" + port;
+  }
 }
