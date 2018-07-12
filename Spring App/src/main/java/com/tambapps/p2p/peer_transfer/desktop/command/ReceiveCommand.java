@@ -4,7 +4,7 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import com.tambapps.p2p.file_sharing.Peer;
 
-@Parameters(commandDescription = "Receive file from another peer")
+@Parameters(separators = "=", commandDescription = "Receive file from another peer")
 public class ReceiveCommand {
     @Parameter(names = "-peer", description = "the sending peer", required = true, converter = PeerConverter.class)
     private Peer peer;

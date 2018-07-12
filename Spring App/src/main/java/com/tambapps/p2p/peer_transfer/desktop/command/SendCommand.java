@@ -5,7 +5,7 @@ import com.beust.jcommander.Parameters;
 
 import java.util.List;
 
-@Parameters(commandDescription = "Send file to another peer")
+@Parameters(separators = "=", commandDescription = "Send file to another peer")
 public class SendCommand {
 
     @Parameter(description = "path of the file to send", required = true)

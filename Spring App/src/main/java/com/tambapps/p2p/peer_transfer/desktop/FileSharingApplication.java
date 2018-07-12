@@ -14,8 +14,7 @@ import java.io.File;
 import java.io.IOException;
 
 import java.net.SocketException;
-
-import java.util.*;
+import java.util.Objects;
 
 @SpringBootApplication
 public class FileSharingApplication {
@@ -110,7 +109,7 @@ public class FileSharingApplication {
 			System.out.println("Waiting for a connection on " + fileSender.getIp() + ":" + fileSender.getPort());
 			fileSender.send(file);
 			System.out.println();
-			System.out.println(file.getName() + "was successfully sent");
+			System.out.println(file.getName() + " was successfully sent");
 			System.out.println();
 		}
 	}
