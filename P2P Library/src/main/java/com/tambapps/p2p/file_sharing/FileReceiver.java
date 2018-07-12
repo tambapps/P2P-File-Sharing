@@ -32,6 +32,10 @@ public class FileReceiver extends FileSharer {
         receiveFrom(InetAddress.getByName(address), port);
     }
 
+    public void receiveFrom(Peer peer) throws IOException {
+        receiveFrom(peer.getIp(), peer.getPort());
+    }
+
     public void receiveFrom(InetAddress address, int port) throws IOException {
         init();
         file = null;
