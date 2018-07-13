@@ -1,7 +1,7 @@
 package com.tambapps.p2p.peer_transfer.desktop.controller;
 
 import com.tambapps.p2p.peer_transfer.desktop.model.FilePath;
-import com.tambapps.p2p.peer_transfer.desktop.model.Peer;
+import com.tambapps.p2p.peer_transfer.desktop.model.PeerInput;
 import com.tambapps.p2p.peer_transfer.desktop.service.FileService;
 import com.tambapps.p2p.peer_transfer.desktop.service.ReceiveService;
 import com.tambapps.p2p.peer_transfer.desktop.service.SendService;
@@ -43,12 +43,12 @@ public class ApplicationController {
 
     @GetMapping("/receive")
     public String receive(Model model) {
-        model.addAttribute("peer", new Peer());
+        model.addAttribute("peer", new PeerInput());
         return "peer";
     }
 
     @PostMapping("/receive")
-    public String receiveSubmit(@Valid @ModelAttribute("peer") Peer peer, BindingResult bindingResult, Model model) {
+    public String receiveSubmit(@Valid @ModelAttribute("peer") PeerInput peer, BindingResult bindingResult, Model model) {
         if (hasError(bindingResult, "ip", "port")) {
             return "peer";
         }

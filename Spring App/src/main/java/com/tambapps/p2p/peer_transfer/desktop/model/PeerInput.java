@@ -2,7 +2,7 @@ package com.tambapps.p2p.peer_transfer.desktop.model;
 
 import javax.validation.constraints.*;
 
-public class Peer {
+public class PeerInput {
 
     private final static String PORT_VALIDATION_ERROR = "The port is not valid";
     private final static String IP_VALIDATION_ERROR = "The ip is not valid";
@@ -14,15 +14,15 @@ public class Peer {
     @Min(value = 0, message = PORT_VALIDATION_ERROR)
     private int port;
 
-    public Peer() {
+    public PeerInput() {
     }
-    public Peer(String peerString) {
+    public PeerInput(String peerString) {
         int index = peerString.indexOf(':');
         this.ip = peerString.substring(0, index);
         this.port = Integer.parseInt(peerString.substring(index + 1));
     }
 
-    public Peer(String ip, int port) {
+    public PeerInput(String ip, int port) {
         this.ip = ip;
         this.port = port;
     }

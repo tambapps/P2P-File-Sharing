@@ -1,9 +1,11 @@
 package com.tambapps.p2p.peer_transfer.desktop.service;
 
+import com.tambapps.p2p.file_sharing.Peer;
 import com.tambapps.p2p.file_sharing.TransferInterruptedException;
-import com.tambapps.p2p.peer_transfer.desktop.model.Peer;
+
 import com.tambapps.p2p.file_sharing.FileReceiver;
 
+import com.tambapps.p2p.peer_transfer.desktop.model.PeerInput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,7 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Timer;
+
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 
@@ -28,8 +30,8 @@ public class ReceiveService extends FileService {
         super(progressMap, executorService);
     }
 
-    public ReceiveTask start(Peer peer) throws IOException {
-        ReceiveTask receiveTask = new ReceiveTask(peer);
+    public ReceiveTask start(PeerInput peer) throws IOException {
+        ReceiveTask receiveTask = new ReceiveTask(new Peer(peer.getIp(), peer.getPort()));
         receiveTask.execute();
         return receiveTask;
     }
@@ -47,7 +49,7 @@ public class ReceiveService extends FileService {
         public void run() {
             LOGGER.info("Connecting to host {}:{}", peer.getIp(), peer.getPort());
             try {
-                fileReceiver.receiveFrom(peer.getIp(), peer.getPort());
+                fileReceiver.receiveFrom(peer);
                 File file = fileReceiver.getReceivedFile();
                 LOGGER.info("{} was successfully received", file.getName());
             } catch (TransferInterruptedException e) {

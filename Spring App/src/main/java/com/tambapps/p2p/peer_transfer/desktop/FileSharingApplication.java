@@ -7,6 +7,7 @@ import com.tambapps.p2p.file_sharing.*;
 import com.tambapps.p2p.peer_transfer.desktop.command.Arguments;
 import com.tambapps.p2p.peer_transfer.desktop.command.ReceiveCommand;
 import com.tambapps.p2p.peer_transfer.desktop.command.SendCommand;
+import com.tambapps.p2p.peer_transfer.desktop.command.SpringCommand;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -20,21 +21,25 @@ import java.util.Objects;
 public class FileSharingApplication {
 	private final static String RECEIVE = "receive";
 	private final static String SEND = "send";
+	private final static String SPRING = "spring";
 
 	public static void main(String[] args) {
 		Arguments arguments = new Arguments();
 		ReceiveCommand receiveCommand = new ReceiveCommand();
 		SendCommand sendCommand = new SendCommand();
+		SpringCommand springCommand = new SpringCommand();
 		JCommander jCommander = JCommander.newBuilder()
 				.addObject(arguments)
 				.addCommand(RECEIVE, receiveCommand)
 				.addCommand(SEND, sendCommand)
+				.addCommand(SPRING, springCommand)
 				.build();
 
 		try {
 			jCommander.parse(args);
 		} catch (ParameterException e) {
 			System.out.println("Error: " + e.getMessage());
+			printHelp(jCommander);
 			return;
 		}
 
@@ -45,7 +50,8 @@ public class FileSharingApplication {
 
 		String command = jCommander.getParsedCommand();
 		if (command == null) {
-			SpringApplication.run(FileSharingApplication.class, args);
+			System.out.println("You must enter a command");
+			printHelp(jCommander);
 			return;
 		}
 		switch (command) {
@@ -64,6 +70,10 @@ public class FileSharingApplication {
 					System.out.println("Error while sending file");
 					System.out.println(e.getMessage());
 				}
+				break;
+			default:
+			case SPRING:
+				SpringApplication.run(FileSharingApplication.class, args);
 				break;
 		}
 	}
