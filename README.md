@@ -13,7 +13,7 @@ Link: [https://play.google.com/store/apps/details?id=com.tambapps.p2p.peer_trans
 
 ### Desktop app (Spring Boot)
 
-This is the Spring Boot app that performs P2P file sharing
+This is the app that performs P2P file sharing
 
 ![alt text](https://raw.githubusercontent.com/nelson888/P2P-File-Sharing/master/screenshots/desktop.png)
 
