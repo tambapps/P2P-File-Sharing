@@ -54,7 +54,7 @@ public class FileSharingApplication {
 					receive(receiveCommand);
 				} catch (IOException e) {
 					System.out.println("Error while receiving file");
-					e.printStackTrace();
+					System.out.println(e.getMessage());
 				}
 				break;
 			case SEND:
@@ -62,7 +62,7 @@ public class FileSharingApplication {
 					send(sendCommand);
 				} catch (IOException e) {
 					System.out.println("Error while sending file");
-					e.printStackTrace();
+					System.out.println(e.getMessage());
 				}
 				break;
 		}
@@ -74,7 +74,7 @@ public class FileSharingApplication {
 			try {
 				address = Objects.requireNonNull(IPUtils.getIPAddress()).getHostAddress();
 			} catch (SocketException|NullPointerException e) {
-				System.err.println("Couldn't get ip address (are you connected to the internet?)");
+				System.out.println("Couldn't get ip address (are you connected to the internet?)");
 			}
 		}
 
@@ -141,6 +141,7 @@ public class FileSharingApplication {
 			fileReceiver.receiveFrom(peer);
 			System.out.println();
 			System.out.println("Received " + fileReceiver.getReceivedFile().getName() + " successfully");
+			System.out.println();
 		}
 	}
 
