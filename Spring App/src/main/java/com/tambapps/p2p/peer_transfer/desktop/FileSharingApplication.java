@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.IOException;
 
 import java.net.SocketException;
+import java.util.Arrays;
 import java.util.Objects;
 
 @SpringBootApplication
@@ -73,7 +74,7 @@ public class FileSharingApplication {
 				break;
 			default:
 			case SPRING:
-				SpringApplication.run(FileSharingApplication.class, args);
+				SpringApplication.run(FileSharingApplication.class, Arrays.copyOf(args, 1));
 				break;
 		}
 	}
@@ -156,10 +157,8 @@ public class FileSharingApplication {
 	}
 
 	private static void printHelp(JCommander jCommander) {
-		System.out.println("To start the desktop app, run with the argument '-download.path=...'");
-		System.out.println("Or you can use the command line tool:");
+		jCommander.usage(SPRING);
 		jCommander.usage(SEND);
-
 		jCommander.usage(RECEIVE);
 	}
 }
