@@ -7,8 +7,6 @@ import com.tambapps.p2p.file_sharing.*;
 import com.tambapps.p2p.peer_transfer.desktop.command.Arguments;
 import com.tambapps.p2p.peer_transfer.desktop.command.ReceiveCommand;
 import com.tambapps.p2p.peer_transfer.desktop.command.SendCommand;
-import com.tambapps.p2p.peer_transfer.desktop.command.SpringCommand;
-import org.springframework.boot.SpringApplication;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,24 +15,21 @@ import java.io.UnsupportedEncodingException;
 import java.net.SocketException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
+
 import java.util.Objects;
 
 public class FileSharingLauncher {
 	private final static String RECEIVE = "receive";
 	private final static String SEND = "send";
-	private final static String SPRING = "spring";
 
 	public static void main(String[] args) {
 		Arguments arguments = new Arguments();
 		ReceiveCommand receiveCommand = new ReceiveCommand();
 		SendCommand sendCommand = new SendCommand();
-		SpringCommand springCommand = new SpringCommand();
 		JCommander jCommander = JCommander.newBuilder()
 				.addObject(arguments)
 				.addCommand(RECEIVE, receiveCommand)
 				.addCommand(SEND, sendCommand)
-				.addCommand(SPRING, springCommand)
 				.build();
 
 		try {
@@ -58,29 +53,15 @@ public class FileSharingLauncher {
 		}
 		switch (command) {
 			case RECEIVE:
-				try {
-					receive(receiveCommand);
-				} catch (IOException e) {
-					System.out.println("Error while receiving file");
-					System.out.println(e.getMessage());
-				}
+				receive(receiveCommand);
 				break;
 			case SEND:
-				try {
-					send(sendCommand);
-				} catch (IOException e) {
-					System.out.println("Error while sending file");
-					System.out.println(e.getMessage());
-				}
-				break;
-			default:
-			case SPRING:
-				SpringApplication.run(FileSharingApplication.class, args.length > 1 ? Arrays.copyOfRange(args, 1, args.length - 1) : new String[0]);
+				send(sendCommand);
 				break;
 		}
 	}
 
-	private static void send(SendCommand sendCommand) throws IOException {
+	private static void send(SendCommand sendCommand) {
 		String address = sendCommand.getIp();
 		if (address == null) {
 			try {
@@ -92,36 +73,63 @@ public class FileSharingLauncher {
 
 		int port = sendCommand.getPort();
 		FileSender fileSender;
-		if (port == 0) {
-			fileSender = new FileSender(address);
-		} else {
-			fileSender = new FileSender(new Peer(address, port));
+		try {
+			if (port == 0) {
+				fileSender = new FileSender(address);
+			} else {
+				fileSender = new FileSender(new Peer(address, port));
+			}
+		} catch (IOException e) {
+			System.out.println("Couldn't start sending");
+			System.out.println("Error: " + e.getMessage());
+			return;
 		}
+
 		fileSender.setTransferListener(new TransferListener() {
-			final String progressFormat = "Sent %s / %s";
+			final String progressFormat = "\rSent %s / %s";
 			@Override
 			public void onConnected(String remoteAddress, int remotePort, String fileName,
 									long fileSize) {
 				System.out.println("Connected to peer " + remoteAddress + ":" + remotePort);
-				System.out.print(String.format(progressFormat, "0kb",
-						TransferListener.bytesToString(fileSize)));
+				System.out.format(progressFormat, "0kb",
+						TransferListener.bytesToString(fileSize));
 			}
 
 			@Override
 			public void onProgressUpdate(int progress, long byteProcessed, long totalBytes) {
-				System.out.print("\r" + String.format(progressFormat,
+				System.out.format(progressFormat,
 						TransferListener.bytesToString(byteProcessed),
-						TransferListener.bytesToString(totalBytes)));
+						TransferListener.bytesToString(totalBytes));
 			}
 		});
 
 		for (String filePath : sendCommand.getFilePath()) {
-			File file = new File(decodePath(filePath));
+			File file;
+			try {
+				file = new File(decodePath(filePath));
+			} catch (UnsupportedEncodingException e) {
+				System.out.println("Couldn't decode path " + filePath);
+				continue;
+			}
+			if (!file.exists()) {
+				System.out.format("This file doesn't exist (%s)", filePath).println();
+				continue;
+			}
+			if (!file.isFile()) {
+				System.out.format("This isn't a file (%s)", filePath).println();
+				continue;
+			}
 			System.out.println("Sending " + file.getName());
 			System.out.println("Waiting for a connection on " + fileSender.getIp() + ":" + fileSender.getPort());
-			fileSender.send(file);
-			System.out.println();
-			System.out.println(file.getName() + " was successfully sent");
+			try {
+				fileSender.send(file);
+				System.out.println();
+				System.out.println(file.getName() + " was successfully sent");
+			} catch (IOException e) {
+				System.out.println();
+				System.out.format("Error while sending %s: %s",file.getName(), e.getMessage()).println();
+				continue;
+			}
 			System.out.println();
 		}
 	}
@@ -130,39 +138,51 @@ public class FileSharingLauncher {
 		return URLDecoder.decode(path, StandardCharsets.UTF_8.name());
 	}
 
-	private static void receive(ReceiveCommand receiveCommand) throws IOException {
-		FileReceiver fileReceiver = new FileReceiver(receiveCommand.getDownloadPath());
+	private static void receive(ReceiveCommand receiveCommand) {
+		FileReceiver fileReceiver;
+		try {
+			fileReceiver = new FileReceiver(receiveCommand.getDownloadPath());
+		} catch (IOException e) {
+			System.out.println("Couldn't start receiving");
+			System.out.println("Error: " + e.getMessage());
+			return;
+		}
 
 		fileReceiver.setTransferListener(new TransferListener() {
-			final String progressFormat = "Received %s / %s";
+			final String progressFormat = "\rReceived %s / %s";
 			@Override
 			public void onConnected(String remoteAddress, int remotePort, String fileName,
 									long fileSize) {
 				System.out.println("Connected to peer " + remoteAddress + ":" + remotePort);
 				System.out.println("Receiving " + fileName);
-				System.out.print(String.format(progressFormat, "0kb",
-						TransferListener.bytesToString(fileSize)));
+				System.out.format(progressFormat, "0kb",
+						TransferListener.bytesToString(fileSize));
 			}
 
 			@Override
 			public void onProgressUpdate(int progress, long byteProcessed, long totalBytes) {
-				System.out.print("\r" + String.format(progressFormat,
+				System.out.format(progressFormat,
 						TransferListener.bytesToString(byteProcessed),
-						TransferListener.bytesToString(totalBytes)));
+						TransferListener.bytesToString(totalBytes));
 			}
 		});
 		Peer peer = receiveCommand.getPeer();
 		for (int i = 0; i < receiveCommand.getCount(); i++) {
 			System.out.println("Connecting to " + peer);
-			fileReceiver.receiveFrom(peer);
-			System.out.println();
-			System.out.println("Received " + fileReceiver.getReceivedFile().getName() + " successfully");
+			try {
+				fileReceiver.receiveFrom(peer);
+				System.out.println();
+				System.out.println("Received " + fileReceiver.getReceivedFile().getName() + " successfully");
+			} catch (IOException e) {
+				System.out.println();
+				System.out.println("Error while receiving file: " + e.getMessage());
+				continue;
+			}
 			System.out.println();
 		}
 	}
 
 	private static void printHelp(JCommander jCommander) {
-		jCommander.usage(SPRING);
 		jCommander.usage(SEND);
 		jCommander.usage(RECEIVE);
 	}

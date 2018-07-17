@@ -18,25 +18,28 @@ You can run this app from your IDE or generate the jar file by running
 ```
 mvn install
 ```
+You may need to run the same command in the ../P2P Library/ folder before installing this project.
 Add the '-DskipTests' option if you want to skip tests.
 
 ### Running
-To start the program you must provide a path in which the received files will be downloaded. If you have generated the jar file, run
+To start the program you must provide a path in which the received files will be downloaded. To do that, run
 ```
-java -jar target/File-Sharing-0.0.1-SNAPSHOT.jar --download.path=path/to/download/files/
+java -jar target/file_sharing_app-0.0.2-SNAPSHOT.jar --download.path=path/to/download/files/
 ```
-Or if you want to run it from your IDE, add "--download.path=path/to/download/files/" in program arguments. Then go to your web browser at localhost:8080 and from there, you can setup the receive/send procedure
+Or if you want to run it from your IDE, add "--download.path=path/to/download/files/" in program arguments. 
+
+Then go to your web browser at localhost:8080 and from there, you can setup the receive/send procedure
 
 ###Command line
 You can also transfer files directly from the command line:
 
 To receive a file:
 ```
-java -jar File-Sharing-0.0.1-SNAPSHOT.jar receive -downloadPath=/path/to/file -peer=0.0.0.0:8081
+java -jar file-sharing-command-line-jar-with-dependencies.jar receive -downloadPath=/path/to/file -peer=0.0.0.0:8081
 ```
 To send a file:
 ```
-java -jar File-Sharing-0.0.1-SNAPSHOT.jar send /path/to/file
+java -jar file-sharing-command-line-jar-with-dependencies.jar send /path/to/file
 ```
 
 You can specify the ip and the port used to send with the -ip and -port options.
