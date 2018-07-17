@@ -8,6 +8,7 @@ import org.junit.Test;
 import java.io.File;
 import java.io.IOException;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -19,10 +20,13 @@ public class FileSharingApplicationTest {
 		String filePath = getClass().getClassLoader()
 				.getResource("file.txt")
 				.getFile();
-		new Thread(() -> FileSharingApplication.main(("-send -filePath=" + filePath + " -ip=127.0.0.1:8081")
+		String path = new File(filePath).getPath();
+		System.out.println(filePath);
+		new Thread(() -> FileSharingLauncher.main(("send " + filePath + " -ip=127.0.0.1 -port=8081")
                 .split(" "))).start();
 		Thread.sleep(1000);
-		FileSharingApplication.main(("-receive -downloadPath=./ -peer=127.0.0.1:8081").split(" "));
+
+		FileSharingLauncher.main("receive -download=./ -peer=127.0.0.1:8081".split(" "));
 
 		File originFile = new File(URLDecoder.decode(filePath, "UTF-8"));
 
