@@ -3,6 +3,9 @@ package com.tambapps.p2p.file_sharing;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 
 public abstract class FileSharer {
 
@@ -80,5 +83,9 @@ public abstract class FileSharer {
 
     public boolean isCanceled() {
         return canceled;
+    }
+
+    String decodePath(String path) throws UnsupportedEncodingException {
+        return URLDecoder.decode(path, StandardCharsets.UTF_8.name());
     }
 }

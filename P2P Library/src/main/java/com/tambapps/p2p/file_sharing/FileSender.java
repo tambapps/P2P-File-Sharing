@@ -34,12 +34,20 @@ public class FileSender extends FileSharer {
         serverSocket.setSoTimeout(socketTimeout);
     }
 
+    public FileSender(Peer senderPeer) throws IOException {
+        this(senderPeer, 0);
+    }
+
+    public FileSender(Peer senderPeer, int socketTimeout) throws IOException {
+        this(senderPeer.getIp(), senderPeer.getPort(), socketTimeout);
+    }
+
     public FileSender(String address, int port, int socketTimeout) throws IOException {
         this(InetAddress.getByName(address), port, socketTimeout);
     }
 
     public void send(String filePath) throws IOException {
-        send(new File(filePath));
+        send(new File(decodePath(filePath)));
     }
 
     public void send(File file) throws IOException {

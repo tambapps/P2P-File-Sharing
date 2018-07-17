@@ -19,7 +19,7 @@ public class FileReceiver extends FileSharer {
     private volatile File file;
 
     public FileReceiver(String downloadPath) throws IOException {
-        this.downloadPath = downloadPath;
+        this.downloadPath = decodePath(downloadPath);
         socketChannel = SocketChannel.open();
     }
 
