@@ -9,7 +9,7 @@ This is the Android app that performs P2P file sharing
 
 ![alt text](https://raw.githubusercontent.com/nelson888/P2P-File-Sharing/master/screenshots/android.png)
 
-Link: [https://play.google.com/store/apps/details?id=com.tambapps.p2p.peer_transfer.android](https://play.google.com/store/apps/details?id=com.tambapps.p2p.peer_transfer.android)
+[<img src="https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png" alt="Get it on Google Play" height="80">](https://play.google.com/store/apps/details?id=com.tambapps.p2p.peer_transfer.android)
 
 ### Desktop app (Spring Boot)
 
