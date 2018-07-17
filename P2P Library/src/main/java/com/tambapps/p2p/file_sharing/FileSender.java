@@ -70,7 +70,7 @@ public class FileSender extends FileSharer {
 
         try (Socket socket = serverSocket.accept()) {
             if (transferListener != null) {
-                transferListener.onConnected(socket.getRemoteSocketAddress().toString().substring(1),
+                transferListener.onConnected(socket.getInetAddress().getHostAddress(),
                         socket.getPort(), fileName, totalBytes);
             }
             try (DataOutputStream dos = new DataOutputStream(socket.getOutputStream())) {

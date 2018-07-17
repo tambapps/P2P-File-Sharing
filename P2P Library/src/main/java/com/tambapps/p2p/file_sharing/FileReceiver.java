@@ -60,7 +60,7 @@ public class FileReceiver extends FileSharer {
             String fileName = readName(dis);
 
             if (transferListener != null) {
-                transferListener.onConnected(socket.getRemoteSocketAddress().toString().substring(1),
+                transferListener.onConnected(socket.getInetAddress().getHostAddress(),
                         socket.getPort(), fileName, totalBytes);
             }
 
