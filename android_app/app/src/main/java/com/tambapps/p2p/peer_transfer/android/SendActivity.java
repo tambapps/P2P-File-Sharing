@@ -13,16 +13,17 @@ import android.provider.OpenableColumns;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Pair;
+import android.view.Gravity;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.tambapps.p2p.file_sharing.IPUtils;
+import com.tambapps.p2p.peer_transfer.android.service.FileSendingJobService;
 
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.Locale;
-
-import com.tambapps.p2p.peer_transfer.android.service.FileSendingJobService;
 
 public class SendActivity extends AppCompatActivity {
 
@@ -44,60 +45,86 @@ public class SendActivity extends AppCompatActivity {
             }
         });
 
+        Intent intent = getIntent();
+        String receivedAction = intent.getAction();
+
+        if (Intent.ACTION_SEND.equals(receivedAction)) {
+            Uri uri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
+            if (uri == null) {
+                Toast.makeText(this, "Couldn't get file, sending canceled", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            Pair<InetAddress, Integer> peer = getPeer();
+            if (peer == null) {
+                return;
+            }
+            InetAddress address = peer.first;
+            int port = peer.second;
+
+            if (sendFile(uri, address, port)) {
+                TextView textView = findViewById(R.id.text_view);
+                textView.setText(("Started send service on\n" + address.getHostAddress() + ":"
+                        + port +
+                        "\n" +
+                        "You can see the progress on the notification"));
+                textView.setGravity(Gravity.CENTER_HORIZONTAL);
+            }
+
+        }
 
     }
 
+    private boolean sendFile(Uri uri, InetAddress address, int port) {
+        PersistableBundle bundle = new PersistableBundle();
+        bundle.putString("address", address.getHostAddress());
+        bundle.putInt("port", port);
+
+        Pair<String, Long> fileInfos = getFileInfos(uri);
+        bundle.putString("fileUri", uri.toString());
+        bundle.putString("fileName", fileInfos.first);
+        bundle.putInt("id", SENDING_JOB_ID);
+
+        if (fileInfos.second != null) {
+            bundle.putString("fileSize", String.valueOf(fileInfos.second));
+        } else {
+            Toast.makeText(this, "Error: couldn't get size of file", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        JobInfo.Builder jobInfoBuilder = new JobInfo.Builder(0,
+                new ComponentName(this, FileSendingJobService.class))
+                .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
+                .setExtras(bundle);
+
+        JobScheduler jobScheduler =
+                (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
+
+        jobScheduler.schedule(jobInfoBuilder.build());
+        return true;
+    }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == PICK_FILE) {
             if (resultCode == RESULT_OK) {
 
-                JobScheduler jobScheduler =
-                        (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
-
-                PersistableBundle bundle = new PersistableBundle();
-                Pair<String, Long> fileInfos = getFileInfos(data.getData());
-                bundle.putString("fileUri", data.getData().toString());
-                bundle.putString("fileName", fileInfos.first);
-                bundle.putInt("id", SENDING_JOB_ID);
-
-                InetAddress address;
-                int port;
-
-                try {
-                    address = IPUtils.getIPAddress();
-                    if (address == null) {
-                        Toast.makeText(this, "Couldn't get ip address. Please verify your internet connection", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-                    port = IPUtils.getAvalaiblePort(address);
-                    bundle.putString("address", address.getHostAddress());
-                    bundle.putInt("port", port);
-                } catch (IOException e) {
-                    Toast.makeText(this, "Error: couldn't get ip address", Toast.LENGTH_SHORT).show();
+                Pair<InetAddress, Integer> peer = getPeer();
+                if (peer == null) {
+                    Toast.makeText(this, "Network error, Couldn't start sending", Toast.LENGTH_SHORT).show();
                     return;
                 }
+                InetAddress address = peer.first;
+                int port = peer.second;
 
-                if (fileInfos.second != null) {
-                    bundle.putString("fileSize", String.valueOf(fileInfos.second));
-                } else {
-                    Toast.makeText(this, "Error: couldn't get size of file", Toast.LENGTH_SHORT).show();
-                    return;
+                if (sendFile(data.getData(), address, port)) {
+                    Intent returnIntent = new Intent();
+
+                    String message = "Service started. " + String.format(Locale.US, "Waiting connection on %s:%d",
+                            address.getHostAddress(), port);
+                    returnIntent.putExtra(MainActivity.RETURN_TEXT_KEY, message);
+                    setResult(RESULT_OK, returnIntent);
+                    finish();
                 }
-
-                JobInfo.Builder jobInfoBuilder = new JobInfo.Builder(0,
-                        new ComponentName(this, FileSendingJobService.class))
-                                .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
-                        .setExtras(bundle);
-
-                jobScheduler.schedule(jobInfoBuilder.build());
-                Intent returnIntent = new Intent();
-
-                String message = "Service started. " + String.format(Locale.US, "Waiting connection on %s:%d",
-                        address.getHostAddress(), port);
-                returnIntent.putExtra(MainActivity.RETURN_TEXT_KEY, message);
-                setResult(RESULT_OK, returnIntent);
-                finish();
 
             } else {
                 Toast.makeText(this, "Couldn't get a file", Toast.LENGTH_SHORT).show();
@@ -105,6 +132,24 @@ public class SendActivity extends AppCompatActivity {
         } else {
             super.onActivityResult(requestCode, resultCode, data);
         }
+    }
+
+    private Pair<InetAddress, Integer> getPeer() {
+        InetAddress address;
+        int port;
+
+        try {
+            address = IPUtils.getIPAddress();
+            if (address == null) {
+                Toast.makeText(this, "Couldn't get ip address. Please verify your internet connection", Toast.LENGTH_SHORT).show();
+                return null;
+            }
+            port = IPUtils.getAvalaiblePort(address);
+        } catch (IOException e) {
+            Toast.makeText(this, "Error: couldn't get ip address", Toast.LENGTH_SHORT).show();
+            return null;
+        }
+        return Pair.create(address, port);
     }
 
     private Pair<String, Long> getFileInfos(Uri uri) {

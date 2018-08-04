@@ -33,7 +33,19 @@
             android:theme="@style/AppTheme" />
         <activity
             android:name="com.tambapps.p2p.peer_transfer.android.SendActivity"
-            android:theme="@style/AppTheme.TransferScreen"/>
+            android:theme="@style/AppTheme.TransferScreen">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:mimeType="image/*"/>
+                <data android:mimeType="video/*"/>
+                <data android:mimeType="application/*"/>
+                <data android:mimeType="*/avi"/>
+                <data android:mimeType="*/mkv"/>
+                <data android:mimeType="audio/*" />
+
+            </intent-filter>
+        </activity>
 
         <service android:name="com.tambapps.p2p.peer_transfer.android.service.FileSendingJobService"
             android:permission="android.permission.BIND_JOB_SERVICE"

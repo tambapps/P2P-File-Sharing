@@ -12,6 +12,7 @@
         android:textSize="24sp"
         android:textColor="#fff"
         android:text="Pick a file to send"
+        android:id="@+id/text_view"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="166dp"
         android:layout_gravity="center_horizontal"
