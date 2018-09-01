@@ -21,6 +21,7 @@ import android.widget.Toast;
 import com.tambapps.p2p.file_sharing.IPUtils;
 import com.tambapps.p2p.peer_transfer.android.service.FileSendingJobService;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.Locale;
@@ -82,8 +83,14 @@ public class SendActivity extends AppCompatActivity {
 
         Pair<String, Long> fileInfos = getFileInfos(uri);
         bundle.putString("fileUri", uri.toString());
-        bundle.putString("fileName", fileInfos.first);
         bundle.putInt("id", SENDING_JOB_ID);
+
+        if (fileInfos.first != null) {
+            bundle.putString("fileName", fileInfos.first);
+        } else {
+            Toast.makeText(this, "Error: couldn't get name of file", Toast.LENGTH_SHORT).show();
+            return false;
+        }
 
         if (fileInfos.second != null) {
             bundle.putString("fileSize", String.valueOf(fileInfos.second));
@@ -157,23 +164,35 @@ public class SendActivity extends AppCompatActivity {
                 .query(uri, null, null, null, null, null);
         String name = null;
         Long size = null;
-        try {
-            if (cursor != null && cursor.moveToFirst()) {
-                name = cursor.getString(
-                        cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
 
-                int sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE);
-                // If the size is unknown, the value stored is null.  But since a
-                // long can't be null we check that this column isn't null in the
-                // cursor
-                size = null;
-                if (!cursor.isNull(sizeIndex)) {
-                    size = cursor.getLong(sizeIndex);
+        try {
+            if (cursor != null) {
+                if (cursor.moveToFirst()) {
+                    name = cursor.getString(
+                            cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+
+                    int sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE);
+                    // If the size is unknown, the value stored is null.  But since a
+                    // long can't be null we check that this column isn't null in the
+                    // cursor
+                    size = null;
+                    if (!cursor.isNull(sizeIndex)) {
+                        size = cursor.getLong(sizeIndex);
+                    }
                 }
+            } else {
+                File file = new File(uri.getPath());
+                if (!file.exists()) {
+                    return Pair.create(null, null);
+                }
+                return Pair.create(file.getName(), file.length());
             }
-            return new Pair<>(name, size);
+
+            return Pair.create(name, size);
         } finally {
-            cursor.close();
+            if (cursor != null) {
+                cursor.close();
+            }
         }
     }
 }
