@@ -1,7 +1,6 @@
 # P2P File Sharing
 
-This project can be used to transfer files from one device (computer or android smartphone) to another. It doesn't work on all kinds of wi-fi but if one of the devices is an android, you can share data with it and connect the other device to this smartphone. This way, it will
-Transfer between computer and android also works.
+This project can be used to transfer files from one device (computer or android smartphone) to another. It works only if the two devices are on the same local network. If one of the devices is an android smartphone, you can share data with it and connect the other device to this smartphone.
 
 ## Android app
 
