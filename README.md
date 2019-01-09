@@ -6,7 +6,7 @@ This project can be used to transfer files from one device (computer or android 
 
 This is the Android app that performs P2P file sharing
 
-![alt text](https://raw.githubusercontent.com/nelson888/P2P-File-Sharing/master/screenshots/android.png)
+![alt text](https://raw.githubusercontent.com/tambapps/P2P-File-Sharing/master/screenshots/android.png)
 
 [<img src="https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png" alt="Get it on Google Play" height="80">](https://play.google.com/store/apps/details?id=com.tambapps.p2p.peer_transfer.android)
 
@@ -14,7 +14,7 @@ This is the Android app that performs P2P file sharing
 
 This is the app that performs P2P file sharing
 
-![alt text](https://raw.githubusercontent.com/nelson888/P2P-File-Sharing/master/screenshots/desktop.png)
+![alt text](https://raw.githubusercontent.com/tambapps/P2P-File-Sharing/master/screenshots/desktop.png)
 
 ### P2P Library
 
