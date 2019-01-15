@@ -13,17 +13,22 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Toast;
 
+import com.google.firebase.analytics.FirebaseAnalytics;
+
 public class MainActivity extends AppCompatActivity {
     private final static int WRITE_PERMISSION_REQUEST = 2;
     public static final String RESUME_KEY = "resumeK",
     RETURN_TEXT_KEY = "rtk";
     private static final int START_FILE_SERVICE = 888;
 
+    private FirebaseAnalytics analytics;
     private Snackbar snackbar;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        analytics = FirebaseAnalytics.getInstance(this);
     }
 
     @Override
@@ -73,14 +78,23 @@ public class MainActivity extends AppCompatActivity {
             writePermissionDialog();
             return;
         }
+        logScreenEvent("SEND");
         startActivityForResult(new Intent(this, SendActivity.class), START_FILE_SERVICE);
     }
 
+    private void logScreenEvent(String name) {
+        Bundle bundle = new Bundle();
+        bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "SCREEN");
+        bundle.putString(FirebaseAnalytics.Param.CONTENT, name);
+        analytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
+
+    }
     public void receiveIntent(View view) {
         if (!hasWritePermission()) {
             writePermissionDialog();
             return;
         }
+        logScreenEvent("RECEIVE");
         startActivityForResult(new Intent(this, ReceiveActivity.class), START_FILE_SERVICE);
     }
 

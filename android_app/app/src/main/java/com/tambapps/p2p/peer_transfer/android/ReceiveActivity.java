@@ -18,6 +18,8 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.google.firebase.analytics.FirebaseAnalytics;
+import com.tambapps.p2p.peer_transfer.android.analytics.Constants;
 import com.tambapps.p2p.peer_transfer.android.service.FileReceivingJobService;
 
 public class ReceiveActivity extends AppCompatActivity {
@@ -25,6 +27,7 @@ public class ReceiveActivity extends AppCompatActivity {
     private static final int RECEIVING_JOB_ID = 1;
     private TextInputLayout portInput;
     private IpInputHandler ipInputHandler;
+    private FirebaseAnalytics analytics;
 
     private String downloadPath;
 
@@ -32,6 +35,7 @@ public class ReceiveActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_receive);
+        analytics = FirebaseAnalytics.getInstance(this);
 
         portInput = findViewById(R.id.port_input);
         downloadPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getPath();
@@ -88,12 +92,20 @@ public class ReceiveActivity extends AppCompatActivity {
                     .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
                     .setExtras(bundle);
 
+            logReceive();
             jobScheduler.schedule(jobInfoBuilder.build());
             Intent returnIntent = new Intent();
             returnIntent.putExtra(MainActivity.RETURN_TEXT_KEY, "Service started. You can see the progress in the notification bar");
             setResult(RESULT_OK, returnIntent);
             finish();
         }
+    }
+
+    private void logReceive() {
+        Bundle bundle = new Bundle();
+        bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, Constants.Value.SERVICE_START);
+        bundle.putString(FirebaseAnalytics.Param.CONTENT, "RECEIVE_SERVICE");
+        analytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
     }
 
     private class IpInputHandler {

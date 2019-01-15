@@ -17,6 +17,7 @@ import android.os.PersistableBundle;
 import android.support.v4.app.NotificationCompat;
 
 import com.crashlytics.android.Crashlytics;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.tambapps.p2p.peer_transfer.android.R;
 import com.tambapps.p2p.file_sharing.TransferListener;
 
@@ -32,6 +33,8 @@ public abstract class FileJobService extends JobService {
 
     private final static ExecutorService executor = Executors.newFixedThreadPool(2);
     final static int SOCKET_TIMEOUT = 1000 * 90; //in ms
+    private FirebaseAnalytics analytics;
+
 
     private NotificationBroadcastReceiver notificationBroadcastReceiver;
     private String ACTION_CANCEL;
@@ -40,6 +43,7 @@ public abstract class FileJobService extends JobService {
     @Override
     public void onCreate() {
         super.onCreate();
+        analytics = FirebaseAnalytics.getInstance(this);
         ACTION_CANCEL = getClass().getName() + ".cancel";
         notificationBroadcastReceiver = new NotificationBroadcastReceiver();
         IntentFilter intentFilter = new IntentFilter();
@@ -229,4 +233,10 @@ public abstract class FileJobService extends JobService {
         return String.format(Locale.US, "%.1f %sB", ((float)bytes)/((float)denominator),
                 i == 0 ? "" : units.charAt(i - 1));
     }
+
+
+    public FirebaseAnalytics getAnalytics() {
+        return analytics;
+    }
+
 }

@@ -19,7 +19,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.tambapps.p2p.file_sharing.IPUtils;
+import com.tambapps.p2p.peer_transfer.android.analytics.Constants;
 import com.tambapps.p2p.peer_transfer.android.service.FileSendingJobService;
 
 import java.io.File;
@@ -31,10 +33,14 @@ public class SendActivity extends AppCompatActivity {
 
     private static final int SENDING_JOB_ID = 0;
     private final static int PICK_FILE = 1;
+    private FirebaseAnalytics analytics;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        analytics = FirebaseAnalytics.getInstance(this);
+
         setContentView(R.layout.activity_send);
         FloatingActionButton fab = findViewById(R.id.fab);
 
@@ -107,10 +113,19 @@ public class SendActivity extends AppCompatActivity {
 
         JobScheduler jobScheduler =
                 (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
-
+        logSend(fileInfos.second);
         jobScheduler.schedule(jobInfoBuilder.build());
         return true;
     }
+
+    private void logSend(Long fileSize) {
+        Bundle bundle = new Bundle();
+        bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, Constants.Value.SERVICE_START);
+        bundle.putString(Constants.Param.SIZE, String.valueOf(fileSize));
+        bundle.putString(FirebaseAnalytics.Param.CONTENT, "SEND_SERVICE");
+        analytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == PICK_FILE) {

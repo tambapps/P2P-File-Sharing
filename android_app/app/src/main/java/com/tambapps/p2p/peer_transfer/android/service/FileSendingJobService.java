@@ -84,6 +84,7 @@ public class FileSendingJobService extends FileJobService {
                 fileSender.send(contentResolver.openInputStream(fileUri), fileName, fileSize);
 
                 if (fileSender.isCanceled()) {
+
                     finishNotification()
                             .setContentTitle("Transfer canceled");
                 } else {
