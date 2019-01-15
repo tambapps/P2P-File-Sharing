@@ -69,7 +69,7 @@ public abstract class FileJobService extends JobService {
                 new Intent(ACTION_CANCEL), 0);
 
         fileTask = startTask(buildNotification(notificationManager, notifId),
-                notificationManager, notifId, bundle, endRunnable, cancelIntent);
+                notificationManager, notifId, bundle, endRunnable, cancelIntent, analytics);
         return true;
     }
 
@@ -109,7 +109,7 @@ public abstract class FileJobService extends JobService {
                                 int notifId,
                                 PersistableBundle bundle,
                                 Runnable endRunnable,
-                                PendingIntent cancelIntent);
+                                PendingIntent cancelIntent, FirebaseAnalytics analytics);
     abstract int smallIcon();
     abstract int largeIcon();
 
@@ -127,17 +127,19 @@ public abstract class FileJobService extends JobService {
         NotificationCompat.BigTextStyle notifStyle;
         private NotificationManager notificationManager;
         private final int notifId;
+        private FirebaseAnalytics analytics;
         private Runnable endRunnable;
         private String remotePeer;
 
         FileTask(NotificationCompat.Builder notifBuilder,
                  NotificationManager notificationManager,
                  int notifId, Runnable endRunnable,
-                 PendingIntent cancelIntent) {
+                 PendingIntent cancelIntent, FirebaseAnalytics analytics) {
             this.notifBuilder = notifBuilder;
             this.notificationManager = notificationManager;
             this.notifId = notifId;
             this.endRunnable = endRunnable;
+            this.analytics = analytics;
             notifStyle = new NotificationCompat.BigTextStyle();
 
             notifBuilder.addAction(android.R.drawable.ic_delete, "cancel", cancelIntent);
@@ -208,6 +210,11 @@ public abstract class FileJobService extends JobService {
             notifStyle = null;
             notificationManager = null;
             endRunnable = null;
+            analytics = null;
+        }
+
+        public FirebaseAnalytics getAnalytics() {
+            return analytics;
         }
     }
 
@@ -232,11 +239,6 @@ public abstract class FileJobService extends JobService {
         }
         return String.format(Locale.US, "%.1f %sB", ((float)bytes)/((float)denominator),
                 i == 0 ? "" : units.charAt(i - 1));
-    }
-
-
-    public FirebaseAnalytics getAnalytics() {
-        return analytics;
     }
 
 }

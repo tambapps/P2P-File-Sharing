@@ -4,12 +4,15 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.ContentResolver;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.support.v4.app.NotificationCompat;
 
 import com.crashlytics.android.Crashlytics;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.tambapps.p2p.file_sharing.FileSender;
 import com.tambapps.p2p.peer_transfer.android.R;
+import com.tambapps.p2p.peer_transfer.android.analytics.Constants;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -26,8 +29,8 @@ public class FileSendingJobService extends FileJobService {
                        int notifId,
                        PersistableBundle bundle,
                        Runnable endRunnable,
-                       PendingIntent cancelIntent) {
-        return new SendingTask(notifBuilder, notificationManager, notifId, getContentResolver(), endRunnable, cancelIntent)
+                       PendingIntent cancelIntent, FirebaseAnalytics analytics) {
+        return new SendingTask(notifBuilder, notificationManager, notifId, getContentResolver(), endRunnable, cancelIntent, analytics)
                 .execute(bundle.getString("address"), String.valueOf(bundle.getInt("port")),
                         bundle.getString("fileUri"), bundle.getString("fileName"),
                         bundle.getString("fileSize"));
@@ -54,16 +57,21 @@ public class FileSendingJobService extends FileJobService {
                     int notifId,
                     ContentResolver contentResolver,
                     Runnable endRunnable,
-                    PendingIntent cancelIntent) {
-            super(notifBuilder, notificationManager, notifId, endRunnable, cancelIntent);
+                    PendingIntent cancelIntent, FirebaseAnalytics analytics) {
+            super(notifBuilder, notificationManager, notifId, endRunnable, cancelIntent, analytics);
             this.contentResolver = contentResolver;
         }
 
         void run(String... params) {
+            Bundle bundle = new Bundle();
+            bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, Constants.Value.SERVICE);
+            bundle.putString(FirebaseAnalytics.Param.CONTENT, "SEND_SERVICE");
+
             try {
                 fileSender = new FileSender(params[0], Integer.parseInt(params[1]),
                         SOCKET_TIMEOUT);
             } catch (IOException e) {
+                bundle.putString(FirebaseAnalytics.Param.VALUE, Constants.Value.SERVICE_START_ERROR);
                 Crashlytics.logException(e);
                 finishNotification()
                         .setContentTitle("Failed to start service")
@@ -82,9 +90,9 @@ public class FileSendingJobService extends FileJobService {
             long fileSize = Long.parseLong(params[4]);
             try {
                 fileSender.send(contentResolver.openInputStream(fileUri), fileName, fileSize);
-
+                bundle.putString(FirebaseAnalytics.Param.VALUE, Constants.Value.SUCCESS);
                 if (fileSender.isCanceled()) {
-
+                    bundle.putString(FirebaseAnalytics.Param.VALUE, Constants.Value.CANCELED);
                     finishNotification()
                             .setContentTitle("Transfer canceled");
                 } else {
@@ -92,22 +100,27 @@ public class FileSendingJobService extends FileJobService {
                             .setStyle(notifStyle.bigText(fileName + " was successfully sent"));
                 }
             } catch (FileNotFoundException e) {
+                bundle.putString(FirebaseAnalytics.Param.VALUE, Constants.Value.ERROR);
                 Crashlytics.logException(e);
                 finishNotification()
                         .setContentTitle("Transfer aborted")
                         .setContentText("The file couldn't be found");
             } catch (IOException e) {
+                bundle.putString(FirebaseAnalytics.Param.VALUE, Constants.Value.ERROR);
                 Crashlytics.logException(e);
                 finishNotification()
                         .setContentTitle("Transfer aborted")
                         .setStyle(notifStyle.bigText("An error occurred during the transfer:\n" +
                         e.getMessage()));
             } catch (IllegalArgumentException e) {
+                bundle.putString(FirebaseAnalytics.Param.VALUE, Constants.Value.ERROR);
                 Crashlytics.logException(e);
                 finishNotification()
                         .setContentTitle("Transfer aborted")
                         .setContentText("The file selected couldn't be sent");
             }
+
+            getAnalytics().logEvent(FirebaseAnalytics.Event.SHARE, bundle);
         }
 
         @Override

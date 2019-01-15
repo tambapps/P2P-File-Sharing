@@ -5,13 +5,16 @@ import android.app.PendingIntent;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.FileProvider;
 
 import com.crashlytics.android.Crashlytics;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.tambapps.p2p.file_sharing.FileReceiver;
 import com.tambapps.p2p.peer_transfer.android.R;
+import com.tambapps.p2p.peer_transfer.android.analytics.Constants;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -35,7 +38,7 @@ public class FileReceivingJobService extends FileJobService {
                        final int notifId,
                        PersistableBundle bundle,
                        Runnable endRunnable,
-                       PendingIntent cancelIntent) {
+                       PendingIntent cancelIntent, FirebaseAnalytics analytics) {
         return new ReceivingTask(notifBuilder, notificationManager, notifId, endRunnable, cancelIntent,
                 new FileIntentProvider() {
                     @Override
@@ -45,7 +48,7 @@ public class FileReceivingJobService extends FileJobService {
                                 getApplicationContext().getPackageName() + ".io", file));
                         fileIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                         return PendingIntent.getActivity(FileReceivingJobService.this, notifId, fileIntent, PendingIntent.FLAG_UPDATE_CURRENT);                    }
-                })
+                }, analytics)
                 .execute(bundle.getString("downloadPath"), bundle.getString("peer"));
     }
 
@@ -70,16 +73,20 @@ public class FileReceivingJobService extends FileJobService {
                       int notifId,
                       Runnable endRunnable,
                       PendingIntent cancelIntent,
-                      FileIntentProvider fileIntentProvider) {
-            super(notifBuilder, notificationManager, notifId, endRunnable, cancelIntent);
+                      FileIntentProvider fileIntentProvider, FirebaseAnalytics analytics) {
+            super(notifBuilder, notificationManager, notifId, endRunnable, cancelIntent, analytics);
             this.fileIntentProvider = fileIntentProvider;
         }
 
         @Override
         protected void run(String... params) {
+            Bundle bundle = new Bundle();
+            bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, Constants.Value.SERVICE);
+            bundle.putString(FirebaseAnalytics.Param.CONTENT, "RECEIVE_SERVICE");
             try {
                 fileReceiver = new FileReceiver(params[0]);
             } catch (IOException e) {
+                bundle.putString(FirebaseAnalytics.Param.VALUE, Constants.Value.SERVICE_START_ERROR);
                 Crashlytics.logException(e);
                 finishNotification()
                         .setContentTitle("Failed to start service")
@@ -95,12 +102,14 @@ public class FileReceivingJobService extends FileJobService {
                 fileReceiver.receiveFrom(params[1]);
                 File file = fileReceiver.getReceivedFile();
                 if (fileReceiver.isCanceled()) {
+                    bundle.putString(FirebaseAnalytics.Param.VALUE, Constants.Value.CANCELED);
                     NotificationCompat.Builder builder = finishNotification()
                             .setContentTitle("Transfer canceled");
                     if (file.exists() && !file.delete()) {
                         builder.setStyle(notifStyle.bigText("The file couldn't be downloaded entirely. Please, delete it."));
                     }
                 } else {
+                    bundle.putString(FirebaseAnalytics.Param.VALUE, Constants.Value.SUCCESS);
                     finishNotification()
                             .setContentTitle("Transfer completed")
                             .setContentIntent(fileIntentProvider.ofFile(file));
@@ -110,6 +119,7 @@ public class FileReceivingJobService extends FileJobService {
                         try (InputStream inputStream = new FileInputStream(file)) {
                             image = BitmapFactory.decodeStream(inputStream);
                         } catch (IOException e) {
+                            bundle.putString(FirebaseAnalytics.Param.VALUE, Constants.Value.ERROR);
                             Crashlytics.log("Couldn't decode img");
                             Crashlytics.logException(e);
                         }
@@ -123,14 +133,17 @@ public class FileReceivingJobService extends FileJobService {
                 }
             } catch (SocketTimeoutException e) {
                 Crashlytics.logException(e);
+                bundle.putString(FirebaseAnalytics.Param.VALUE, Constants.Value.ERROR);
                 finishNotification()
                         .setContentTitle("Transfer canceled")
                         .setContentText("Connection timeout");
             } catch (AsynchronousCloseException e) {
+                bundle.putString(FirebaseAnalytics.Param.VALUE, Constants.Value.ERROR);
                 Crashlytics.logException(e);
                 finishNotification()
                         .setContentTitle("Transfer canceled");
             } catch (IOException e) {
+                bundle.putString(FirebaseAnalytics.Param.VALUE, Constants.Value.ERROR);
                 Crashlytics.logException(e);
                 finishNotification()
                         .setContentTitle("Transfer aborted")

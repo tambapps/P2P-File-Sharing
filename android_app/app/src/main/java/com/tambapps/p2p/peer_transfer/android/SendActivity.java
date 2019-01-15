@@ -121,8 +121,8 @@ public class SendActivity extends AppCompatActivity {
     private void logSend(Long fileSize) {
         Bundle bundle = new Bundle();
         bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, Constants.Value.SERVICE_START);
-        bundle.putString(Constants.Param.SIZE, String.valueOf(fileSize));
-        bundle.putString(FirebaseAnalytics.Param.CONTENT, "SEND_SERVICE");
+        bundle.putLong(Constants.Param.SIZE, fileSize);
+        bundle.putString(FirebaseAnalytics.Param.CONTENT, "SEND");
         analytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
     }
 

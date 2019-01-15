@@ -104,7 +104,7 @@ public class ReceiveActivity extends AppCompatActivity {
     private void logReceive() {
         Bundle bundle = new Bundle();
         bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, Constants.Value.SERVICE_START);
-        bundle.putString(FirebaseAnalytics.Param.CONTENT, "RECEIVE_SERVICE");
+        bundle.putString(FirebaseAnalytics.Param.CONTENT, "RECEIVE");
         analytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
     }
 
