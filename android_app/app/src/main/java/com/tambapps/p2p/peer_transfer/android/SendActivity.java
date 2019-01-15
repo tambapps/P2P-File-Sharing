@@ -18,6 +18,7 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.crashlytics.android.Crashlytics;
 import com.tambapps.p2p.file_sharing.IPUtils;
 import com.tambapps.p2p.peer_transfer.android.service.FileSendingJobService;
 
@@ -153,6 +154,7 @@ public class SendActivity extends AppCompatActivity {
             }
             port = IPUtils.getAvalaiblePort(address);
         } catch (IOException e) {
+            Crashlytics.logException(e);
             Toast.makeText(this, "Error: couldn't get ip address", Toast.LENGTH_SHORT).show();
             return null;
         }

@@ -16,6 +16,7 @@ import android.os.Build;
 import android.os.PersistableBundle;
 import android.support.v4.app.NotificationCompat;
 
+import com.crashlytics.android.Crashlytics;
 import com.tambapps.p2p.peer_transfer.android.R;
 import com.tambapps.p2p.file_sharing.TransferListener;
 
@@ -154,7 +155,8 @@ public abstract class FileJobService extends JobService {
                     FileTask.this.run(params);
                     try {
                         Thread.sleep(500); //wait to ensure that the notification is well updated
-                    } catch (InterruptedException ignored) {
+                    } catch (InterruptedException e) {
+                        Crashlytics.logException(e);
                     }
                     updateNotification();
                     endRunnable.run();

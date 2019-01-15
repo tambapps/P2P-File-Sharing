@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.os.PersistableBundle;
 import android.support.v4.app.NotificationCompat;
 
+import com.crashlytics.android.Crashlytics;
 import com.tambapps.p2p.file_sharing.FileSender;
 import com.tambapps.p2p.peer_transfer.android.R;
 
@@ -63,6 +64,7 @@ public class FileSendingJobService extends FileJobService {
                 fileSender = new FileSender(params[0], Integer.parseInt(params[1]),
                         SOCKET_TIMEOUT);
             } catch (IOException e) {
+                Crashlytics.logException(e);
                 finishNotification()
                         .setContentTitle("Failed to start service")
                         .setContentText("Please, check your network connection");
@@ -89,15 +91,18 @@ public class FileSendingJobService extends FileJobService {
                             .setStyle(notifStyle.bigText(fileName + " was successfully sent"));
                 }
             } catch (FileNotFoundException e) {
+                Crashlytics.logException(e);
                 finishNotification()
                         .setContentTitle("Transfer aborted")
                         .setContentText("The file couldn't be found");
             } catch (IOException e) {
+                Crashlytics.logException(e);
                 finishNotification()
                         .setContentTitle("Transfer aborted")
                         .setStyle(notifStyle.bigText("An error occurred during the transfer:\n" +
                         e.getMessage()));
             } catch (IllegalArgumentException e) {
+                Crashlytics.logException(e);
                 finishNotification()
                         .setContentTitle("Transfer aborted")
                         .setContentText("The file selected couldn't be sent");

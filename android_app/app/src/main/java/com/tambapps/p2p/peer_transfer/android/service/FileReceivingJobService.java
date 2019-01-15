@@ -9,6 +9,7 @@ import android.os.PersistableBundle;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.FileProvider;
 
+import com.crashlytics.android.Crashlytics;
 import com.tambapps.p2p.file_sharing.FileReceiver;
 import com.tambapps.p2p.peer_transfer.android.R;
 
@@ -79,6 +80,7 @@ public class FileReceivingJobService extends FileJobService {
             try {
                 fileReceiver = new FileReceiver(params[0]);
             } catch (IOException e) {
+                Crashlytics.logException(e);
                 finishNotification()
                         .setContentTitle("Failed to start service")
                         .setContentText("Please, check your network connection");
@@ -105,10 +107,11 @@ public class FileReceivingJobService extends FileJobService {
 
                     Bitmap image = null;
                     if (isImage(file)) {
-                        try (InputStream inputStream = new FileInputStream(file)){
+                        try (InputStream inputStream = new FileInputStream(file)) {
                             image = BitmapFactory.decodeStream(inputStream);
-                        } catch (IOException ignored) {
-
+                        } catch (IOException e) {
+                            Crashlytics.log("Couldn't decode img");
+                            Crashlytics.logException(e);
                         }
                     }
                     if (image != null) {
@@ -119,13 +122,16 @@ public class FileReceivingJobService extends FileJobService {
                     }
                 }
             } catch (SocketTimeoutException e) {
+                Crashlytics.logException(e);
                 finishNotification()
                         .setContentTitle("Transfer canceled")
                         .setContentText("Connection timeout");
             } catch (AsynchronousCloseException e) {
+                Crashlytics.logException(e);
                 finishNotification()
                         .setContentTitle("Transfer canceled");
             } catch (IOException e) {
+                Crashlytics.logException(e);
                 finishNotification()
                         .setContentTitle("Transfer aborted")
                         .setStyle(notifStyle.bigText("An error occurred during the transfer:\n" +
