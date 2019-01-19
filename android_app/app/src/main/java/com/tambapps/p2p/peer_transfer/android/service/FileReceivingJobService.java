@@ -82,11 +82,10 @@ public class FileReceivingJobService extends FileJobService {
         protected void run(String... params) {
             Bundle bundle = new Bundle();
             bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, Constants.Value.SERVICE);
-            bundle.putString(FirebaseAnalytics.Param.CONTENT, "RECEIVE_SERVICE");
+            bundle.putString(FirebaseAnalytics.Param.METHOD, "RECEIVE");
             try {
                 fileReceiver = new FileReceiver(params[0]);
             } catch (IOException e) {
-                bundle.putString(FirebaseAnalytics.Param.VALUE, Constants.Value.SERVICE_START_ERROR);
                 Crashlytics.logException(e);
                 finishNotification()
                         .setContentTitle("Failed to start service")
@@ -102,14 +101,12 @@ public class FileReceivingJobService extends FileJobService {
                 fileReceiver.receiveFrom(params[1]);
                 File file = fileReceiver.getReceivedFile();
                 if (fileReceiver.isCanceled()) {
-                    bundle.putString(FirebaseAnalytics.Param.VALUE, Constants.Value.CANCELED);
                     NotificationCompat.Builder builder = finishNotification()
                             .setContentTitle("Transfer canceled");
                     if (file.exists() && !file.delete()) {
                         builder.setStyle(notifStyle.bigText("The file couldn't be downloaded entirely. Please, delete it."));
                     }
                 } else {
-                    bundle.putString(FirebaseAnalytics.Param.VALUE, Constants.Value.SUCCESS);
                     finishNotification()
                             .setContentTitle("Transfer completed")
                             .setContentIntent(fileIntentProvider.ofFile(file));
@@ -119,7 +116,6 @@ public class FileReceivingJobService extends FileJobService {
                         try (InputStream inputStream = new FileInputStream(file)) {
                             image = BitmapFactory.decodeStream(inputStream);
                         } catch (IOException e) {
-                            bundle.putString(FirebaseAnalytics.Param.VALUE, Constants.Value.ERROR);
                             Crashlytics.log("Couldn't decode img");
                             Crashlytics.logException(e);
                         }
@@ -133,17 +129,14 @@ public class FileReceivingJobService extends FileJobService {
                 }
             } catch (SocketTimeoutException e) {
                 Crashlytics.logException(e);
-                bundle.putString(FirebaseAnalytics.Param.VALUE, Constants.Value.ERROR);
                 finishNotification()
                         .setContentTitle("Transfer canceled")
                         .setContentText("Connection timeout");
             } catch (AsynchronousCloseException e) {
-                bundle.putString(FirebaseAnalytics.Param.VALUE, Constants.Value.ERROR);
                 Crashlytics.logException(e);
                 finishNotification()
                         .setContentTitle("Transfer canceled");
             } catch (IOException e) {
-                bundle.putString(FirebaseAnalytics.Param.VALUE, Constants.Value.ERROR);
                 Crashlytics.logException(e);
                 finishNotification()
                         .setContentTitle("Transfer aborted")
@@ -155,6 +148,7 @@ public class FileReceivingJobService extends FileJobService {
                             "The file couldn't be downloaded entirely. Please, delete it."));
                 }
             }
+            getAnalytics().logEvent(FirebaseAnalytics.Event.SHARE, bundle);
         }
 
         private boolean isImage(File file) {

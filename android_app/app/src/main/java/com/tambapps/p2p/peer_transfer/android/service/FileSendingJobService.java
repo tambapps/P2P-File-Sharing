@@ -65,13 +65,12 @@ public class FileSendingJobService extends FileJobService {
         void run(String... params) {
             Bundle bundle = new Bundle();
             bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, Constants.Value.SERVICE);
-            bundle.putString(FirebaseAnalytics.Param.CONTENT, "SEND_SERVICE");
+            bundle.putString(FirebaseAnalytics.Param.METHOD, "SEND");
 
             try {
                 fileSender = new FileSender(params[0], Integer.parseInt(params[1]),
                         SOCKET_TIMEOUT);
             } catch (IOException e) {
-                bundle.putString(FirebaseAnalytics.Param.VALUE, Constants.Value.SERVICE_START_ERROR);
                 Crashlytics.logException(e);
                 finishNotification()
                         .setContentTitle("Failed to start service")
@@ -90,9 +89,7 @@ public class FileSendingJobService extends FileJobService {
             long fileSize = Long.parseLong(params[4]);
             try {
                 fileSender.send(contentResolver.openInputStream(fileUri), fileName, fileSize);
-                bundle.putString(FirebaseAnalytics.Param.VALUE, Constants.Value.SUCCESS);
                 if (fileSender.isCanceled()) {
-                    bundle.putString(FirebaseAnalytics.Param.VALUE, Constants.Value.CANCELED);
                     finishNotification()
                             .setContentTitle("Transfer canceled");
                 } else {
@@ -100,20 +97,17 @@ public class FileSendingJobService extends FileJobService {
                             .setStyle(notifStyle.bigText(fileName + " was successfully sent"));
                 }
             } catch (FileNotFoundException e) {
-                bundle.putString(FirebaseAnalytics.Param.VALUE, Constants.Value.ERROR);
                 Crashlytics.logException(e);
                 finishNotification()
                         .setContentTitle("Transfer aborted")
                         .setContentText("The file couldn't be found");
             } catch (IOException e) {
-                bundle.putString(FirebaseAnalytics.Param.VALUE, Constants.Value.ERROR);
                 Crashlytics.logException(e);
                 finishNotification()
                         .setContentTitle("Transfer aborted")
                         .setStyle(notifStyle.bigText("An error occurred during the transfer:\n" +
                         e.getMessage()));
             } catch (IllegalArgumentException e) {
-                bundle.putString(FirebaseAnalytics.Param.VALUE, Constants.Value.ERROR);
                 Crashlytics.logException(e);
                 finishNotification()
                         .setContentTitle("Transfer aborted")
