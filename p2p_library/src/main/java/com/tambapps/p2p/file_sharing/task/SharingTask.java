@@ -1,12 +1,15 @@
 package com.tambapps.p2p.file_sharing.task;
 
-import com.tambapps.p2p.file_sharing.TransferInterruptedException;
+import com.tambapps.p2p.file_sharing.exception.SharingException;
 import com.tambapps.p2p.file_sharing.TransferListener;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+/**
+ * Task for sharing a file with another peer
+ */
 public abstract class SharingTask {
 
     public static final int MAX_PROGRESS = 100;
@@ -39,7 +42,7 @@ public abstract class SharingTask {
             }
         }
         if (bytesProcessed != totalBytes) {
-            throw new TransferInterruptedException("Transfer was not properly finished");
+            throw new SharingException("Transfer was not properly finished");
         } else if (transferListener != null) {
             transferListener.onProgressUpdate(MAX_PROGRESS, bytesProcessed, totalBytes);
         }

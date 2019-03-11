@@ -1,7 +1,6 @@
 package com.tambapps.p2p.file_sharing.task;
 
 import com.tambapps.p2p.file_sharing.Peer;
-import com.tambapps.p2p.file_sharing.TransferInterruptedException;
 import com.tambapps.p2p.file_sharing.TransferListener;
 import com.tambapps.p2p.file_sharing.util.FileUtils;
 
@@ -16,6 +15,9 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 
+/**
+ * A P2P Sending Task
+ */
 public class SendingTask extends SharingTask {
 
     public static final int BUFFER_SIZE = 4096;

@@ -11,6 +11,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.*;
 
+/**
+ * Util class to share files without having to deals with tasks
+ */
 public class FileSharer {
 
   private final ExecutorService executorService;

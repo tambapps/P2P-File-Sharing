@@ -13,6 +13,9 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.channels.SocketChannel;
 
+/**
+ * A P2P Receive task
+ */
 public class ReceivingTask extends SharingTask {
 
     private final FileProvider fileProvider;

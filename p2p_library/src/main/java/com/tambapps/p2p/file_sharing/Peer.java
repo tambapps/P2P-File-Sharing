@@ -4,7 +4,11 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
+/**
+ * Representation of peer
+ */
 public class Peer {
+
   private final InetAddress ip;
   private final int port;
 
