@@ -1,91 +1,101 @@
 package com.tambapps.p2p.file_sharing;
 
+import com.tambapps.p2p.file_sharing.concurrent.FutureShare;
+import com.tambapps.p2p.file_sharing.concurrent.ShareCallable;
+import com.tambapps.p2p.file_sharing.task.ReceivingTask;
+import com.tambapps.p2p.file_sharing.task.SendingTask;
+import com.tambapps.p2p.file_sharing.task.SharingTask;
+import com.tambapps.p2p.file_sharing.util.FileUtils;
+
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
+import java.util.concurrent.*;
 
-public abstract class FileSharer {
+public class FileSharer {
 
-    private volatile boolean canceled = false;
+  private final ExecutorService executorService;
 
-    TransferListener transferListener;
-    volatile int progress;
-    private volatile long bytesProcessed;
-    volatile long totalBytes;
+  public FileSharer() {
+    this(Runtime.getRuntime().availableProcessors());
+  }
 
-    boolean share(int bufferSize, InputStream is, OutputStream os) throws IOException {
-        byte[] buffer = new byte[bufferSize];
-        int count;
-        int lastProgress = 0;
-        long bytesProcessed = 0;
-        while ((count = is.read(buffer)) > 0) {
-            if (canceled) {
-                return false;
-            }
-            bytesProcessed += count;
-            this.bytesProcessed = bytesProcessed;
-            os.write(buffer, 0, count);
-            progress = (int) Math.min(99, 100 * bytesProcessed / totalBytes);
-            if (progress != lastProgress) {
-                lastProgress = progress;
-                if (transferListener != null) {
-                    transferListener.onProgressUpdate(progress, bytesProcessed, totalBytes);
-                }
-            }
-        }
-        progress = (int) (100 * bytesProcessed / totalBytes);
-        if (transferListener != null) {
-            transferListener.onProgressUpdate(progress, bytesProcessed, totalBytes);
-        }
-        return true;
+  public FileSharer(int nbThreads) {
+    this.executorService = Executors.newFixedThreadPool(nbThreads);
+  }
+
+  public Future<Boolean> sendFile(String filePath, Peer peer) throws FileNotFoundException {
+    File file = new File(filePath);
+    if (!file.exists()) {
+      throw new FileNotFoundException("File with path '" + filePath + "' was not found");
+    }
+    return sendFile(file, peer, SendingTask.DEFAULT_SOCKET_TIMEOUT);
+  }
+
+  public Future<Boolean> sendFile(File file, Peer peer) {
+    return sendFile(file, peer, SendingTask.DEFAULT_SOCKET_TIMEOUT);
+  }
+
+  public Future<Boolean> sendFile(File file, Peer peer, int socketTimout) {
+    SendCallable callable = new SendCallable(file, peer, socketTimout);
+    return new FutureShare(executorService.submit(callable), callable);
+  }
+
+  public Future<Boolean> receiveFile(File file, Peer peer) {
+    ReceiveCallable callable = new ReceiveCallable(file, peer);
+    return new FutureShare(executorService.submit(callable), callable);
+  }
+
+
+
+  static class SendCallable implements ShareCallable {
+    private final SendingTask task;
+    private File file;
+
+    public SendCallable(File file, Peer peer, int socketTimout) {
+      this.task = new SendingTask(peer, socketTimout);
+      this.file = file;
     }
 
-    abstract void closeStream() throws IOException;
-
+    @Override
     public void cancel() {
-        canceled = true;
-        try {
-            closeStream();
-        } catch (IOException ignored) {
-
-        }
+      task.cancel();
     }
 
-    void init() {
-        progress = 0;
-        bytesProcessed = 0;
-        totalBytes = 0;
-        canceled = false;
+    @Override
+    public Boolean call() {
+      try {
+        task.send(file);
+        return true;
+      } catch (IOException e) {
+        return false;
+      }
+    }
+  }
+
+  static class ReceiveCallable implements ShareCallable {
+
+    private final ReceivingTask task;
+    private Peer peer;
+
+    public ReceiveCallable(File file, Peer peer) {
+      this.task = new ReceivingTask(file);
+      this.peer = peer;
     }
 
-    long getBytesProcessed() {
-        return bytesProcessed;
+    @Override
+    public void cancel() {
+      task.cancel();
     }
 
-    public long getTotalBytes() {
-        return totalBytes;
+    @Override
+    public Boolean call() {
+      try {
+        task.receiveFrom(peer);
+        return true;
+      } catch (IOException e) {
+        return false;
+      }
     }
-
-    public void setTransferListener(TransferListener transferListener) {
-        this.transferListener = transferListener;
-    }
-
-    public TransferListener getTransferListener() {
-        return transferListener;
-    }
-
-    public int getProgress() {
-        return progress;
-    }
-
-    public boolean isCanceled() {
-        return canceled;
-    }
-
-    String decodePath(String path) throws UnsupportedEncodingException {
-        return URLDecoder.decode(path, StandardCharsets.UTF_8.name());
-    }
+  }
 }

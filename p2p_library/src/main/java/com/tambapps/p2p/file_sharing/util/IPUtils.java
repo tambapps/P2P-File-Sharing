@@ -1,4 +1,4 @@
-package com.tambapps.p2p.file_sharing;
+package com.tambapps.p2p.file_sharing.util;
 
 import java.io.IOException;
 import java.net.InetAddress;
