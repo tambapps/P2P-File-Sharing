@@ -49,7 +49,6 @@ public class FileTransferTest {
 
     private SendingTask sender;
     private ReceivingTask receiver;
-
     private ExecutorCompletionService<Boolean> completionService =
             new ExecutorCompletionService<>(Executors.newFixedThreadPool(2));
 
@@ -72,7 +71,6 @@ public class FileTransferTest {
             receiver.receiveFrom(SENDER_PEER);
             return true;
         });
-
 
         //check if tasks finished without throwing an exception
         for (int i = 0; i < 2; i++) {

@@ -15,15 +15,24 @@ import java.nio.channels.SocketChannel;
 
 public class ReceivingTask extends SharingTask {
 
-    private final File file;
+    private final FileProvider fileProvider;
+    private volatile File outputFile = null;
 
     public ReceivingTask(File file) {
         this(file, null);
     }
 
+    public ReceivingTask(FileProvider fileProvider) {
+        this(fileProvider, null);
+    }
+
     public ReceivingTask(File file, TransferListener transferListener) {
+        this(name -> file, transferListener);
+    }
+
+    public ReceivingTask(FileProvider fileProvider, TransferListener transferListener) {
         super(transferListener);
-        this.file = file;
+        this.fileProvider = fileProvider;
     }
 
     public void receiveFrom(InetAddress address, int port) throws IOException {
@@ -57,7 +66,8 @@ public class ReceivingTask extends SharingTask {
                       fileName, totalBytes);
                 }
 
-                try (FileOutputStream fos = new FileOutputStream(file)) {
+                outputFile = fileProvider.newFile(fileName);
+                try (FileOutputStream fos = new FileOutputStream(outputFile)) {
                     share(bufferSize, dis, fos, totalBytes);
                 }
             }
@@ -74,7 +84,7 @@ public class ReceivingTask extends SharingTask {
     }
 
     public File getOutputFile() {
-        return file;
+        return outputFile;
     }
 
 }
