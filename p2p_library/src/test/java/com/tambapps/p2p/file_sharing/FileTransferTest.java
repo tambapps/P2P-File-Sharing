@@ -3,15 +3,12 @@ package com.tambapps.p2p.file_sharing;
 import com.tambapps.p2p.file_sharing.task.ReceivingTask;
 import com.tambapps.p2p.file_sharing.task.SendingTask;
 import com.tambapps.p2p.file_sharing.util.FileUtils;
-import com.tambapps.p2p.file_sharing.util.IOUtils;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 
-import java.io.UnsupportedEncodingException;
 import java.net.*;
 
 import java.util.concurrent.ExecutionException;
@@ -82,7 +79,7 @@ public class FileTransferTest {
         assertNotNull("Shouldn't be null", file);
         assertTrue("Didn't correctly downloaded file", file.exists());
         assertTrue("Content of received file differs from origin file",
-                IOUtils.contentEquals(ORIGIN_FILE, file));
+                contentEquals(ORIGIN_FILE, file));
     }
 
     @Test
@@ -151,5 +148,22 @@ public class FileTransferTest {
         }
         assertTrue("Should be true", sender.isCanceled());
     }
+
+  private boolean contentEquals(File f1, File f2) throws IOException {
+    InputStream is1 = new FileInputStream(f1);
+    InputStream is2 = new FileInputStream(f2);
+
+    final int EOF = -1;
+    int i1 = is1.read();
+    while (i1 != EOF) {
+      int i2 = is2.read();
+      if (i2 != i1) {
+        return false;
+      }
+      i1 = is1.read();
+    }
+
+    return is2.read() == EOF;
+  }
 
 }

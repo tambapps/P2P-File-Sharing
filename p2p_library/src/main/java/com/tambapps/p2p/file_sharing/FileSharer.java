@@ -1,7 +1,7 @@
 package com.tambapps.p2p.file_sharing;
 
 import com.tambapps.p2p.file_sharing.concurrent.FutureShare;
-import com.tambapps.p2p.file_sharing.concurrent.ShareCallable;
+import com.tambapps.p2p.file_sharing.concurrent.SharingCallable;
 import com.tambapps.p2p.file_sharing.task.FileProvider;
 import com.tambapps.p2p.file_sharing.task.ReceivingTask;
 import com.tambapps.p2p.file_sharing.task.SendingTask;
@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.util.concurrent.*;
 
 /**
- * Util class to share files without having to deals with tasks
+ * Util class to share files without having to deal with tasks
  */
 public class FileSharer {
 
@@ -65,7 +65,8 @@ public class FileSharer {
     return receiveFile(name -> FileUtils.newAvailableFile(directory, name), peer);
   }
 
-  static class SendCallable implements ShareCallable {
+  static class SendCallable implements SharingCallable {
+
     private final SendingTask task;
     private File file;
 
@@ -90,7 +91,7 @@ public class FileSharer {
     }
   }
 
-  static class ReceiveCallable implements ShareCallable {
+  static class ReceiveCallable implements SharingCallable {
 
     private final ReceivingTask task;
     private Peer peer;

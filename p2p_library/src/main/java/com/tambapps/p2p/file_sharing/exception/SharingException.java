@@ -7,4 +7,5 @@ public class SharingException extends IOException {
     public SharingException(String message) {
         super(message);
     }
+
 }

@@ -9,6 +9,11 @@ import java.util.Locale;
 
 public class FileUtils {
 
+  /**
+   * Display size of bytes with a appropriate unit
+   * @param bytes the bytes to display
+   * @return a String representing the bytes in the appropriate unit
+   */
   public static String bytesToString(long bytes) {
     String units = "kMG";
     long denominator = 1;
@@ -22,6 +27,15 @@ public class FileUtils {
       i == 0 ? "" : units.charAt(i - 1));
   }
 
+  /**
+   * provide a non-existing file in the given directory with the given name if it does not exists.
+   * If a file with the given name exits, it will look for a non-existing file with the following name
+   * fileName_xxx with xxx a number
+   * @param directory the directory in which to get the file
+   * @param name the name wanted of the file
+   * @return an non-existing file in the given directory with a name starting with to the given one
+   * @throws IOException
+   */
   public static File newAvailableFile(File directory, String name) throws IOException {
     File file = new File(directory, name);
     if (file.exists()) { //searching available file name

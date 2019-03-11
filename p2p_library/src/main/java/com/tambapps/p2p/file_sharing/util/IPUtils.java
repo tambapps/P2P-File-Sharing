@@ -29,6 +29,11 @@ public class IPUtils {
         return null;
     }
 
+    /**
+     * Get an available port
+     * @param inetAddress the address of the host
+     * @return an available port
+     */
     public static int getAvalaiblePort(InetAddress inetAddress) {
         int port = 8081;
         while (port < 65536) {
@@ -42,4 +47,5 @@ public class IPUtils {
         }
         throw new RuntimeException("No available port was found");
     }
+
 }

@@ -8,9 +8,9 @@ import java.util.concurrent.TimeoutException;
 public class FutureShare implements Future<Boolean> {
 
   private final Future<Boolean> future;
-  private final ShareCallable callable;
+  private final SharingCallable callable;
 
-  public FutureShare(Future<Boolean> future, ShareCallable callable) {
+  public FutureShare(Future<Boolean> future, SharingCallable callable) {
     this.future = future;
     this.callable = callable;
   }
