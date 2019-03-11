@@ -1,8 +1,8 @@
-package com.tambapps.p2p.file_sharing.task;
+package com.tambapps.p2p.fandem.task;
 
-import com.tambapps.p2p.file_sharing.Peer;
-import com.tambapps.p2p.file_sharing.listener.ReceivingListener;
-import com.tambapps.p2p.file_sharing.listener.TransferListener;
+import com.tambapps.p2p.fandem.Peer;
+import com.tambapps.p2p.fandem.listener.ReceivingListener;
+import com.tambapps.p2p.fandem.listener.TransferListener;
 
 import java.io.DataInputStream;
 import java.io.File;

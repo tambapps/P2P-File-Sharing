@@ -1,4 +1,4 @@
-package com.tambapps.p2p.file_sharing;
+package com.tambapps.p2p.fandem;
 
 import java.net.InetAddress;
 import java.net.Socket;

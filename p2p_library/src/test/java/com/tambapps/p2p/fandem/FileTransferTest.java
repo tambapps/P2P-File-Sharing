@@ -1,8 +1,8 @@
-package com.tambapps.p2p.file_sharing;
+package com.tambapps.p2p.fandem;
 
-import com.tambapps.p2p.file_sharing.task.ReceivingTask;
-import com.tambapps.p2p.file_sharing.task.SendingTask;
-import com.tambapps.p2p.file_sharing.util.FileUtils;
+import com.tambapps.p2p.fandem.task.ReceivingTask;
+import com.tambapps.p2p.fandem.task.SendingTask;
+import com.tambapps.p2p.fandem.util.FileUtils;
 
 import org.junit.Before;
 import org.junit.Test;

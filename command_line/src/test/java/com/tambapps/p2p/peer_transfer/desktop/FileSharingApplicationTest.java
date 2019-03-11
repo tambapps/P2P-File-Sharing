@@ -1,12 +1,13 @@
 package com.tambapps.p2p.peer_transfer.desktop;
 
-import com.tambapps.p2p.file_sharing.IOUtils;
 import org.junit.After;
 import org.junit.Test;
 
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URLDecoder;
 
 import static org.junit.Assert.assertNotNull;
@@ -19,8 +20,7 @@ public class FileSharingApplicationTest {
 		String filePath = getClass().getClassLoader()
 				.getResource("file.txt")
 				.getFile();
-		String path = new File(filePath).getPath();
-		System.out.println(filePath);
+
 		new Thread(() -> FileSharingLauncher.main(("send " + filePath + " -ip=127.0.0.1 -port=8081")
                 .split(" "))).start();
 		Thread.sleep(1000);
@@ -34,7 +34,7 @@ public class FileSharingApplicationTest {
 		assertNotNull("Shouldn't be null", file);
 		assertTrue("Didn't correctly downloaded file", file.exists());
 		assertTrue("Content of received file differs from origin file",
-				IOUtils.contentEquals(originFile, file));
+				contentEquals(originFile, file));
 	}
 
 	@After
@@ -43,6 +43,23 @@ public class FileSharingApplicationTest {
 		if (file.exists()) {
 			file.delete();
 		}
+	}
+
+	private boolean contentEquals(File f1, File f2) throws IOException {
+		InputStream is1 = new FileInputStream(f1);
+		InputStream is2 = new FileInputStream(f2);
+
+		final int EOF = -1;
+		int i1 = is1.read();
+		while (i1 != EOF) {
+			int i2 = is2.read();
+			if (i2 != i1) {
+				return false;
+			}
+			i1 = is1.read();
+		}
+
+		return is2.read() == EOF;
 	}
 
 }

@@ -1,6 +1,6 @@
-package com.tambapps.p2p.file_sharing.util;
+package com.tambapps.p2p.fandem.util;
 
-import com.tambapps.p2p.file_sharing.task.FileProvider;
+import com.tambapps.p2p.fandem.task.FileProvider;
 
 import java.io.File;
 import java.io.IOException;

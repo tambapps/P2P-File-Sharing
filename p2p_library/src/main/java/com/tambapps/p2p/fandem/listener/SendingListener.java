@@ -1,6 +1,6 @@
-package com.tambapps.p2p.file_sharing.listener;
+package com.tambapps.p2p.fandem.listener;
 
-import com.tambapps.p2p.file_sharing.Peer;
+import com.tambapps.p2p.fandem.Peer;
 
 public interface SendingListener extends TransferListener  {
   /**

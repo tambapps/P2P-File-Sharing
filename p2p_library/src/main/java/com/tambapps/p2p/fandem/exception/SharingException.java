@@ -1,4 +1,4 @@
-package com.tambapps.p2p.file_sharing.exception;
+package com.tambapps.p2p.fandem.exception;
 
 import java.io.IOException;
 
