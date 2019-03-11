@@ -1,4 +1,6 @@
-package com.tambapps.p2p.file_sharing;
+package com.tambapps.p2p.file_sharing.listener;
+
+import com.tambapps.p2p.file_sharing.Peer;
 
 /**
  * A listener of sharing events

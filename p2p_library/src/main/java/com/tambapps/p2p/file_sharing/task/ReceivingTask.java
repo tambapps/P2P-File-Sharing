@@ -1,7 +1,8 @@
 package com.tambapps.p2p.file_sharing.task;
 
 import com.tambapps.p2p.file_sharing.Peer;
-import com.tambapps.p2p.file_sharing.TransferListener;
+import com.tambapps.p2p.file_sharing.listener.ReceivingListener;
+import com.tambapps.p2p.file_sharing.listener.TransferListener;
 
 import java.io.DataInputStream;
 import java.io.File;
@@ -22,18 +23,18 @@ public class ReceivingTask extends SharingTask {
     private volatile File outputFile = null;
 
     public ReceivingTask(File file) {
-        this(file, null);
+        this(null, file);
     }
 
     public ReceivingTask(FileProvider fileProvider) {
-        this(fileProvider, null);
+        this(null, fileProvider);
     }
 
-    public ReceivingTask(File file, TransferListener transferListener) {
-        this(name -> file, transferListener);
+    public ReceivingTask(TransferListener transferListener, File file) {
+        this(transferListener, name -> file);
     }
 
-    public ReceivingTask(FileProvider fileProvider, TransferListener transferListener) {
+    public ReceivingTask(TransferListener transferListener, FileProvider fileProvider) {
         super(transferListener);
         this.fileProvider = fileProvider;
     }
@@ -72,6 +73,9 @@ public class ReceivingTask extends SharingTask {
                 outputFile = fileProvider.newFile(fileName);
                 try (FileOutputStream fos = new FileOutputStream(outputFile)) {
                     share(bufferSize, dis, fos, totalBytes);
+                }
+                if (transferListener != null && transferListener instanceof ReceivingListener) {
+                    ((ReceivingListener) transferListener).onEnd(outputFile);
                 }
             }
         }

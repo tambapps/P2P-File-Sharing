@@ -1,5 +1,7 @@
 package com.tambapps.p2p.file_sharing.util;
 
+import com.tambapps.p2p.file_sharing.task.FileProvider;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -58,6 +60,10 @@ public class FileUtils {
       throw new IOException("Couldn't create new file");
     }
     return file;
+  }
+
+  public static FileProvider newAvailableFileProvider(File directory) {
+    return name -> newAvailableFile(directory, name);
   }
 
   public static File newAvailableFile(String directory, String name) throws IOException {

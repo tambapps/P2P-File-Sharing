@@ -1,7 +1,7 @@
 package com.tambapps.p2p.file_sharing.task;
 
 import com.tambapps.p2p.file_sharing.exception.SharingException;
-import com.tambapps.p2p.file_sharing.TransferListener;
+import com.tambapps.p2p.file_sharing.listener.TransferListener;
 
 import java.io.IOException;
 import java.io.InputStream;

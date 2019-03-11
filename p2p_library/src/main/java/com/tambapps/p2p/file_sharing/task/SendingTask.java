@@ -1,7 +1,8 @@
 package com.tambapps.p2p.file_sharing.task;
 
 import com.tambapps.p2p.file_sharing.Peer;
-import com.tambapps.p2p.file_sharing.TransferListener;
+import com.tambapps.p2p.file_sharing.listener.SendingListener;
+import com.tambapps.p2p.file_sharing.listener.TransferListener;
 import com.tambapps.p2p.file_sharing.util.FileUtils;
 
 import java.io.DataOutputStream;
@@ -57,6 +58,14 @@ public class SendingTask extends SharingTask {
         this(senderPeer.getIp(), senderPeer.getPort(), socketTimeout);
     }
 
+    public SendingTask(TransferListener transferListener, Peer senderPeer, int socketTimeout) {
+        this(transferListener, senderPeer.getIp(), senderPeer.getPort(), socketTimeout, BUFFER_SIZE);
+    }
+
+    public SendingTask(TransferListener transferListener, Peer senderPeer) {
+        this(transferListener, senderPeer.getIp(), senderPeer.getPort(), DEFAULT_SOCKET_TIMEOUT, BUFFER_SIZE);
+    }
+
     public SendingTask(Peer senderPeer) {
         this(senderPeer.getIp(), senderPeer.getPort(), DEFAULT_SOCKET_TIMEOUT);
     }
@@ -73,7 +82,7 @@ public class SendingTask extends SharingTask {
 
     public void send(InputStream fis, String fileName,
                      long fileSize) throws IOException {
-        try (ServerSocket serverSocket = createServerSocket();
+        try (ServerSocket serverSocket = createServerSocket(fileName);
           Socket socket = serverSocket.accept()) {
             if (transferListener != null) {
                 transferListener.onConnected(peer, Peer.of(socket), fileName, fileSize);
@@ -90,8 +99,11 @@ public class SendingTask extends SharingTask {
         }
     }
 
-    private ServerSocket createServerSocket() throws IOException {
+    private ServerSocket createServerSocket(String fileName) throws IOException {
         serverSocket = new ServerSocket(peer.getPort(), 1, peer.getIp());
+        if (transferListener != null && transferListener instanceof SendingListener) {
+            ((SendingListener)transferListener).onStart(Peer.of(serverSocket.getInetAddress(), serverSocket.getLocalPort()), fileName);
+        }
         serverSocket.setSoTimeout(socketTimeout);
         return serverSocket;
     }
