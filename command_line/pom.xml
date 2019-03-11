@@ -4,21 +4,21 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>com.tambapps</groupId>
-  <artifactId>p2p-command-line-tool</artifactId>
+  <groupId>com.tambapps.p2p</groupId>
+  <artifactId>fandam-command-line-tool</artifactId>
   <version>1.0-SNAPSHOT</version>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <java.version>1.8</java.version>
-    <mainClass>com.tambapps.p2p.peer_transfer.desktop.FileSharingLauncher</mainClass>
+    <mainClass>com.tambapps.p2p.fandem.cl.Main</mainClass>
   </properties>
 
   <dependencies>
     <dependency>
-      <groupId>com.tambapps</groupId>
-      <artifactId>file_sharing</artifactId>
+      <groupId>com.tambapps.p2p</groupId>
+      <artifactId>fandem</artifactId>
       <version>1.2</version>
     </dependency>
     <dependency>

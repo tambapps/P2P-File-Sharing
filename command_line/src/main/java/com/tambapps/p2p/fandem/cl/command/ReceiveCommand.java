@@ -1,8 +1,8 @@
-package com.tambapps.p2p.peer_transfer.desktop.command;
+package com.tambapps.p2p.fandem.cl.command;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
-import com.tambapps.p2p.file_sharing.Peer;
+import com.tambapps.p2p.fandem.Peer;
 
 @Parameters(separators = "=", commandDescription = "Receive file from another peer")
 public class ReceiveCommand {

@@ -1,4 +1,4 @@
-package com.tambapps.p2p.peer_transfer.desktop;
+package com.tambapps.p2p.fandem.cl;
 
 import org.junit.After;
 import org.junit.Test;
@@ -13,7 +13,7 @@ import java.net.URLDecoder;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-public class FileSharingApplicationTest {
+public class MainTest {
 
 	@Test
 	public void transferTest() throws IOException, InterruptedException {
@@ -21,11 +21,11 @@ public class FileSharingApplicationTest {
 				.getResource("file.txt")
 				.getFile();
 
-		new Thread(() -> FileSharingLauncher.main(("send " + filePath + " -ip=127.0.0.1 -port=8081")
+		new Thread(() -> Main.main(("send " + filePath + " -ip=127.0.0.1 -port=8081")
                 .split(" "))).start();
 		Thread.sleep(1000);
 
-		FileSharingLauncher.main("receive -download=./ -peer=127.0.0.1:8081".split(" "));
+		Main.main("receive -download=./ -peer=127.0.0.1:8081".split(" "));
 
 		File originFile = new File(URLDecoder.decode(filePath, "UTF-8"));
 

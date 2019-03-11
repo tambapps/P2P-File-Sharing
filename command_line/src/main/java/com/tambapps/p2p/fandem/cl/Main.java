@@ -1,18 +1,18 @@
-package com.tambapps.p2p.peer_transfer.desktop;
+package com.tambapps.p2p.fandem.cl;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
-import com.tambapps.p2p.file_sharing.*;
+import com.tambapps.p2p.fandem.Peer;
+import com.tambapps.p2p.fandem.cl.command.Arguments;
+import com.tambapps.p2p.fandem.cl.command.SendCommand;
 
-import com.tambapps.p2p.file_sharing.listener.ReceivingListener;
-import com.tambapps.p2p.file_sharing.listener.SendingListener;
-import com.tambapps.p2p.file_sharing.task.ReceivingTask;
-import com.tambapps.p2p.file_sharing.task.SendingTask;
-import com.tambapps.p2p.file_sharing.util.FileUtils;
-import com.tambapps.p2p.file_sharing.util.IPUtils;
-import com.tambapps.p2p.peer_transfer.desktop.command.Arguments;
-import com.tambapps.p2p.peer_transfer.desktop.command.ReceiveCommand;
-import com.tambapps.p2p.peer_transfer.desktop.command.SendCommand;
+import com.tambapps.p2p.fandem.listener.ReceivingListener;
+import com.tambapps.p2p.fandem.listener.SendingListener;
+import com.tambapps.p2p.fandem.task.ReceivingTask;
+import com.tambapps.p2p.fandem.task.SendingTask;
+import com.tambapps.p2p.fandem.util.FileUtils;
+import com.tambapps.p2p.fandem.util.IPUtils;
+import com.tambapps.p2p.fandem.cl.command.ReceiveCommand;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,7 +26,7 @@ import java.nio.charset.StandardCharsets;
 
 import java.util.Objects;
 
-public class FileSharingLauncher {
+public class Main {
 	private final static String RECEIVE = "receive";
 	private final static String SEND = "send";
 
