@@ -31,7 +31,12 @@ public class ReceivingTask extends SharingTask {
     }
 
     public ReceivingTask(TransferListener transferListener, File file) {
-        this(transferListener, name -> file);
+        this(transferListener, new FileProvider() {
+            @Override
+            public File newFile(String name) {
+                return file;
+            }
+        });
     }
 
     public ReceivingTask(TransferListener transferListener, FileProvider fileProvider) {

@@ -63,7 +63,12 @@ public class FileUtils {
   }
 
   public static FileProvider newAvailableFileProvider(File directory) {
-    return name -> newAvailableFile(directory, name);
+    return new FileProvider() {
+      @Override
+      public File newFile(String name) throws IOException {
+        return newAvailableFile(directory, name);
+      }
+    };
   }
 
   public static File newAvailableFile(String directory, String name) throws IOException {

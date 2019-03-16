@@ -1,5 +1,7 @@
 package com.tambapps.p2p.fandem.util;
 
+import com.tambapps.p2p.fandem.Peer;
+
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -34,7 +36,7 @@ public class IPUtils {
      * @param inetAddress the address of the host
      * @return an available port
      */
-    public static int getAvalaiblePort(InetAddress inetAddress) {
+    public static int getAvailablePort(InetAddress inetAddress) {
         int port = 8081;
         while (port < 65536) {
             try (ServerSocket serverSocket = new ServerSocket(port,0, inetAddress)) {
@@ -48,4 +50,8 @@ public class IPUtils {
         throw new RuntimeException("No available port was found");
     }
 
+    public static Peer getAvailablePeer() throws SocketException {
+        InetAddress address = getIPAddress();
+        return Peer.of(address, getAvailablePort(address));
+    }
 }
