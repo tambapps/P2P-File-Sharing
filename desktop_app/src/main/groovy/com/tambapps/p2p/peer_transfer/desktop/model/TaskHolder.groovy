@@ -1,25 +1,40 @@
 package com.tambapps.p2p.peer_transfer.desktop.model
 
-import com.tambapps.p2p.file_sharing.FileSharer
+import com.tambapps.p2p.fandem.Peer
 
-abstract class TaskHolder<T extends FileSharer> {
+import java.util.concurrent.Future
 
-    final T task
-    String remotePeer
+class TaskHolder {
+
+    Peer peer //self peer for sender, remotePeer for receiver
+    Peer remotePeer //for sender only
     String fileName
+    File directory //for receiver only
+    File file // for receiver only
     long bytesTransferred
     long totalBytes
     int progress
+    boolean sender
+    boolean connected
+    IOException error
+    Future future
 
-    TaskHolder(T task) {
-        this.task = task
+    boolean isFinished() {
+        return totalBytes == bytesTransferred
     }
 
-    TaskHolder(T task, File file) {
-        this.task = task
-        this.fileName = file.name
-        totalBytes = file.length()
+    String getTaskName() {
+        return (sender ? 'Sending' : 'Receiving') + ' task'
     }
 
-    abstract boolean isSender()
+    String getHeader() {
+        return sender ? "Sending $fileName:" : "Receiving in $directory.path:"
+    }
+    void cancel() {
+        future.cancel(true)
+    }
+
+    boolean isCanceled() {
+        return future.isCancelled()
+    }
 }

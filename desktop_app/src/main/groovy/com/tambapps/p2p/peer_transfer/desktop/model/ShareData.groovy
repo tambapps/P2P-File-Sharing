@@ -6,9 +6,4 @@ abstract class ShareData {
 
     abstract void clear()
 
-    protected void clearIp() {
-        for (int i = 0; i < ipFields.length; i++) {
-            ipFields[i] = ""
-        }
-    }
 }

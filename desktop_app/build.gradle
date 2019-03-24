@@ -18,7 +18,7 @@ plugins {
 mainClassName = 'com.tambapps.p2p.peer_transfer.desktop.App'
 
 dependencies {
-    compile files('libs/timelapse-api-client-1.0-SNAPSHOT-jar-with-dependencies.jar')
+    compile files('libs/fandem-1.2.jar')
 
     // Use the latest Groovy version for building this library
     compile 'org.codehaus.groovy:groovy-all:2.4.15'

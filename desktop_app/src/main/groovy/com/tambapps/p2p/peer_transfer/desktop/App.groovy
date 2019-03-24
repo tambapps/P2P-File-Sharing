@@ -1,12 +1,15 @@
 package com.tambapps.p2p.peer_transfer.desktop
 
-import com.tambapps.p2p.file_sharing.FileReceiver
-import com.tambapps.p2p.file_sharing.FileSender
-import com.tambapps.p2p.file_sharing.IPUtils
+import com.tambapps.p2p.fandem.FileSharer
+import com.tambapps.p2p.fandem.Peer
+import com.tambapps.p2p.fandem.listener.ReceivingListener
+import com.tambapps.p2p.fandem.task.ReceivingTask
+import com.tambapps.p2p.fandem.util.FileUtils
+import com.tambapps.p2p.fandem.util.IPUtils
 import com.tambapps.p2p.peer_transfer.desktop.model.ReceiveData
-import com.tambapps.p2p.peer_transfer.desktop.model.ReceiveHolder
 import com.tambapps.p2p.peer_transfer.desktop.model.SendData
-import com.tambapps.p2p.peer_transfer.desktop.model.SendHolder
+
+import com.tambapps.p2p.peer_transfer.desktop.model.TaskHolder
 import com.tambapps.p2p.peer_transfer.desktop.style.Colors
 import com.tambapps.p2p.peer_transfer.desktop.style.Fonts
 import com.tambapps.p2p.peer_transfer.desktop.view.list.TaskList
@@ -22,13 +25,12 @@ import javax.swing.JFileChooser
 import javax.swing.JLabel
 import javax.swing.JTextField
 import java.awt.BorderLayout
-import java.awt.Color
 import java.awt.GridLayout
 import java.awt.event.ActionEvent
 
 import static java.awt.Component.CENTER_ALIGNMENT
 import static javax.swing.JFrame.EXIT_ON_CLOSE
-
+final int MAX_TRANSFERS = 4
 def builder = new SwingBuilder()
 builder.registerBeanFactory( "gradiantPanel", GradiantPanel)
 builder.registerBeanFactory( "emptyPanel", EmptyPanel)
@@ -40,7 +42,7 @@ final int HEIGHT = 720
 TaskListModel sharingTasks = new TaskListModel()
 
 def taskBar = {
-    builder.taskList(model: sharingTasks, constraints: BorderLayout.SOUTH, preferredSize: [WIDTH, HEIGHT / 5 as int], background: Colors.TEXT_COLOR)
+    builder.taskList(model: sharingTasks, constraints: BorderLayout.SOUTH, preferredSize: [WIDTH, HEIGHT / 5 as int], background: Colors.GRADIANT_BOTTOM)
 }
 def header = {
     builder.panel(layout: new GridLayout(2, 2), constraints : BorderLayout.NORTH, background: Colors.GRADIANT_TOP) {
@@ -77,8 +79,14 @@ def sendView = {
             if (error) {
                 println("NOT VALID DATA: $error") //TODO error dialog
             } else {
-                FileSender sender = new FileSender(IPUtils.IPAddress, 0)
-                sharingTasks.addElement(new SendHolder(sender, sendData.file))
+                Peer peer
+                try {
+                    peer = IPUtils.availablePeer
+                } catch (SocketException e) { //TODO error dialog couldn't get ip
+                    System.err.println("NNONONONONNO")
+                    return
+                }
+                sharingTasks.addElement(peer, sendData.file)
                 sendData.clear()
                 fileText.text = ""
             }
@@ -105,7 +113,7 @@ def receiveView = {
                     document  = new NumberDocument(3)
                     document.addChangeListener {String text -> receiveData.ipFields[position] = text }
                 }
-                builder.textField(opaque: false, horizontalAlignment: JTextField.CENTER, document: document, font: Fonts.TEXT_FONT, foreground: Colors.TEXT_COLOR)
+                builder.textField(id: "pField$i", opaque: false, horizontalAlignment: JTextField.CENTER, document: document, font: Fonts.TEXT_FONT, foreground: Colors.TEXT_COLOR)
                 if (i < 3) {
                     builder.label('.', maximumSize: [50, 100], horizontalAlignment: JTextField.CENTER, foreground: Colors.TEXT_COLOR, font: Fonts.TITLE_FONT)
                 } else if (i == 3) {
@@ -137,11 +145,11 @@ def receiveView = {
             if (error) {
                 println("NOT VALID DATA: $error") //TODO error dialog
             } else {
-                FileReceiver receiver = new FileReceiver(receiveData.folder.path) //TODO add constructor with file as folder
-                sharingTasks.addElement(new ReceiveHolder(receiver))
+                sharingTasks.addElement(receiveData.folder, Peer.of(receiveData.ip, receiveData.port))
                 receiveData.clear()
-                folderText.text = ""
-                //TODO clear ip
+                for (int i = 0; i < 5; i++) {
+                    getProperty("pField$i").text = ''
+                }
             }
         })
         builder.emptyPanel()
@@ -149,16 +157,16 @@ def receiveView = {
     }
 }
 builder.edt {
-    frame(title: "P2P File Sharing", size: [WIDTH, HEIGHT], show: true, defaultCloseOperation: EXIT_ON_CLOSE,
-    iconImage: new ImageIcon(App.getResource("/appicon.png")).image) {
+    frame(title: 'Fandem: P2P File Sharing', size: [WIDTH, HEIGHT], show: true,
+            defaultCloseOperation: EXIT_ON_CLOSE,
+    iconImage: new ImageIcon(App.getResource('/appicon.png')).image) {
         panel(layout : new BorderLayout()) {
             header()
-            taskBar()
             gradiantPanel(layout: new GridLayout(1, 2), constraints : BorderLayout.CENTER) {
                 sendView()
                 receiveView()
-
             }
+            taskBar()
         }
     }
 }

@@ -2,7 +2,7 @@ package com.tambapps.p2p.peer_transfer.desktop.model
 
 class ReceiveData extends ShareData {
     final String[] ipFields = ["", "", "", ""]
-    int port
+    Integer port
     File folder
 
     String getIp() {
@@ -26,7 +26,9 @@ class ReceiveData extends ShareData {
     @Override
     void clear() {
         port = null
-        folder = null
-        clearIp()
+        //we don't clear folder
+        for (int i = 0; i < ipFields.length; i++) {
+            ipFields[i] = ""
+        }
     }
 }
