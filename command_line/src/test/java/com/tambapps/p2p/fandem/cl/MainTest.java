@@ -21,11 +21,11 @@ public class MainTest {
 				.getResource("file.txt")
 				.getFile();
 
-		new Thread(() -> Main.main(("send " + filePath + " -ip=127.0.0.1 -port=8081")
+		new Thread(() -> Main.main(("send " + filePath + " -ip=127.0.0.1 -p=8081")
                 .split(" "))).start();
 		Thread.sleep(1000);
 
-		Main.main("receive -download=./ -peer=127.0.0.1:8081".split(" "));
+		Main.main("receive -d=./ -peer=127.0.0.1:8081".split(" "));
 
 		File originFile = new File(URLDecoder.decode(filePath, "UTF-8"));
 

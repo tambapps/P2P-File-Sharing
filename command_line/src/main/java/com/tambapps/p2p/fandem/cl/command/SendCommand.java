@@ -14,8 +14,11 @@ public class SendCommand {
     @Parameter(names = "-ip", description = "the ip used to send (optional)")
     private String ip = null;
 
-    @Parameter(names = "-port", description = "the port used to send (optional)")
-    private int port;
+    @Parameter(names = {"-p", "--port"}, description = "the port used to send (optional)")
+    private Integer port;
+
+    @Parameter(names = {"-t", "--timeout"}, description = "the port used to send (optional)")
+    private int timeout = 30 * 1000;
 
     public List<String> getFilePath() {
         return filePath;
@@ -25,7 +28,11 @@ public class SendCommand {
         return ip;
     }
 
-    public int getPort() {
+    public Integer getPort() {
         return port;
+    }
+
+    public int getTimeout() {
+        return timeout;
     }
 }

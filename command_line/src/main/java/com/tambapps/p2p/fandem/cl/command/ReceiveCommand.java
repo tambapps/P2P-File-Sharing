@@ -6,14 +6,14 @@ import com.tambapps.p2p.fandem.Peer;
 
 @Parameters(separators = "=", commandDescription = "Receive file from another peer")
 public class ReceiveCommand {
-    @Parameter(names = "-peer", description = "the sending peer", required = true, converter = PeerConverter.class)
+    @Parameter(names = {"-p", "-peer"}, description = "the sending peer", required = true, converter = PeerConverter.class)
     private Peer peer;
 
-    @Parameter(names = {"-download", "--downloadPath"}, description = "the path where the file(s) will be downloaded",
+    @Parameter(names = {"-d", "--downloadPath"}, description = "the path where the file(s) will be downloaded",
             required = true)
     private String downloadPath;
 
-    @Parameter(names = "-count", description = "the number of files that will be received")
+    @Parameter(names = {"-c", "-count"}, description = "the number of files that will be received")
     private int count = 1;
 
     public Peer getPeer() {

@@ -87,7 +87,11 @@ public class Main {
 			}
 		}
 
-		Peer peer = Peer.of(address, sendCommand.getPort());
+		Integer port  = sendCommand.getPort();
+		if (port == null) {
+			port = IPUtils.getAvailablePort(address);
+		}
+		Peer peer = Peer.of(address, port);
 		SendingListener listener = new SendingListener() {
 			final String progressFormat = "\rSent %s / %s";
 			@Override
@@ -128,7 +132,7 @@ public class Main {
 			}
 
 			try {
-				new SendingTask(listener, peer).send(file);
+				new SendingTask(listener, peer, sendCommand.getTimeout()).send(file);
 				System.out.println();
 				System.out.println(file.getName() + " was successfully sent");
 			} catch (IOException e) {
