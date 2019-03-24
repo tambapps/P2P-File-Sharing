@@ -10,7 +10,9 @@ import android.support.v4.app.NotificationCompat;
 
 import com.crashlytics.android.Crashlytics;
 import com.google.firebase.analytics.FirebaseAnalytics;
-import com.tambapps.p2p.file_sharing.FileSender;
+import com.tambapps.p2p.fandem.Peer;
+import com.tambapps.p2p.fandem.listener.SendingListener;
+
 import com.tambapps.p2p.peer_transfer.android.R;
 import com.tambapps.p2p.peer_transfer.android.analytics.Constants;
 
@@ -46,9 +48,9 @@ public class FileSendingJobService extends FileJobService {
         return R.drawable.upload2;
     }
 
-    static class SendingTask extends FileTask {
+    static class SendingTask extends FileTask implements SendingListener {
 
-        private FileSender fileSender;
+        private com.tambapps.p2p.fandem.task.SendingTask fileSender;
         private ContentResolver contentResolver;
         private String fileName;
 
@@ -68,7 +70,7 @@ public class FileSendingJobService extends FileJobService {
             bundle.putString(FirebaseAnalytics.Param.METHOD, "SEND");
 
             try {
-                fileSender = new FileSender(params[0], Integer.parseInt(params[1]),
+                fileSender = new com.tambapps.p2p.fandem.task.SendingTask(this, Peer.of(params[0], Integer.parseInt(params[1])),
                         SOCKET_TIMEOUT);
             } catch (IOException e) {
                 Crashlytics.logException(e);
@@ -78,11 +80,6 @@ public class FileSendingJobService extends FileJobService {
                 updateNotification();
                 return;
             }
-
-            fileSender.setTransferListener(this);
-            getNotifBuilder().setContentTitle("Waiting for a connection")
-                    .setContentText(fileSender.getIp() + ":" + fileSender.getPort());
-            updateNotification();
 
             Uri fileUri = Uri.parse(params[2]);
             fileName = params[3];
@@ -133,6 +130,13 @@ public class FileSendingJobService extends FileJobService {
         void dispose() {
             super.dispose();
             contentResolver = null;
+        }
+
+        @Override
+        public void onStart(Peer peer, String s) {
+            getNotifBuilder().setContentTitle("Waiting for a connection")
+                    .setContentText(peer.getIp() + ":" + peer.getPort());
+            updateNotification();
         }
     }
 }

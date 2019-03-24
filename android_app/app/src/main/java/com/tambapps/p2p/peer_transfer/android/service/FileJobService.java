@@ -18,8 +18,9 @@ import android.support.v4.app.NotificationCompat;
 
 import com.crashlytics.android.Crashlytics;
 import com.google.firebase.analytics.FirebaseAnalytics;
+import com.tambapps.p2p.fandem.Peer;
+import com.tambapps.p2p.fandem.listener.TransferListener;
 import com.tambapps.p2p.peer_transfer.android.R;
-import com.tambapps.p2p.file_sharing.TransferListener;
 
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
@@ -173,12 +174,12 @@ public abstract class FileJobService extends JobService {
         }
 
         @Override
-        public final void onConnected(String remoteAddress, int port, String fileName, long fileSize) {
-            remotePeer = remoteAddress + ":" + port;
+        public final void onConnected(Peer selfPeer, Peer remotePeer, String fileName, long fileSize) {
+            this.remotePeer = remotePeer.toString();
             getNotifBuilder()
                     .setProgress(100, 0, false)
                     .setContentText("")
-                    .setContentTitle(onConnected(remotePeer, fileName))
+                    .setContentTitle(onConnected(this.remotePeer, fileName))
                     .setStyle(notifStyle.bigText(""));
             updateNotification();
         }

@@ -20,7 +20,8 @@ import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
 import com.google.firebase.analytics.FirebaseAnalytics;
-import com.tambapps.p2p.file_sharing.IPUtils;
+
+import com.tambapps.p2p.fandem.util.IPUtils;
 import com.tambapps.p2p.peer_transfer.android.analytics.Constants;
 import com.tambapps.p2p.peer_transfer.android.service.FileSendingJobService;
 

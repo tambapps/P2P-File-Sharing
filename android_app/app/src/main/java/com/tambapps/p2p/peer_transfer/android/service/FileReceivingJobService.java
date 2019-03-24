@@ -9,10 +9,14 @@ import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.FileProvider;
+import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
 import com.google.firebase.analytics.FirebaseAnalytics;
-import com.tambapps.p2p.file_sharing.FileReceiver;
+
+import com.tambapps.p2p.fandem.Peer;
+
+import com.tambapps.p2p.fandem.util.FileUtils;
 import com.tambapps.p2p.peer_transfer.android.R;
 import com.tambapps.p2p.peer_transfer.android.analytics.Constants;
 
@@ -64,7 +68,7 @@ public class FileReceivingJobService extends FileJobService {
 
     static class ReceivingTask extends FileTask {
 
-        private FileReceiver fileReceiver;
+        private com.tambapps.p2p.fandem.task.ReceivingTask fileReceiver;
         private String fileName;
         private FileIntentProvider fileIntentProvider;
 
@@ -79,27 +83,26 @@ public class FileReceivingJobService extends FileJobService {
         }
 
         @Override
-        protected void run(String... params) {
+        protected void run(String... params) { //downloadPath, peer
             Bundle bundle = new Bundle();
             bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, Constants.Value.SERVICE);
             bundle.putString(FirebaseAnalytics.Param.METHOD, "RECEIVE");
-            try {
-                fileReceiver = new FileReceiver(params[0]);
-            } catch (IOException e) {
-                Crashlytics.logException(e);
-                finishNotification()
-                        .setContentTitle("Failed to start service")
-                        .setContentText("Please, check your network connection");
-                return;
-            }
-            fileReceiver.setTransferListener(this);
+
+            final String dirPath = params[0];
+            fileReceiver = new com.tambapps.p2p.fandem.task.ReceivingTask(this, new com.tambapps.p2p.fandem.task.FileProvider() {
+                @Override
+                public File newFile(String name) throws IOException {
+                    return FileUtils.newAvailableFile(dirPath, name);
+                }
+            });
+
             getNotifBuilder().setContentTitle("Connecting...")
                     .setContentText("connecting to " + params[1]);
             updateNotification();
 
             try {
-                fileReceiver.receiveFrom(params[1]);
-                File file = fileReceiver.getReceivedFile();
+                fileReceiver.receiveFrom(Peer.parse(params[1]));
+                File file = fileReceiver.getOutputFile();
                 if (fileReceiver.isCanceled()) {
                     NotificationCompat.Builder builder = finishNotification()
                             .setContentTitle("Transfer canceled");
@@ -137,12 +140,13 @@ public class FileReceivingJobService extends FileJobService {
                 finishNotification()
                         .setContentTitle("Transfer canceled");
             } catch (IOException e) {
+                Log.e("FileReceivingJobService", "error while receiving", e);
                 Crashlytics.logException(e);
                 finishNotification()
                         .setContentTitle("Transfer aborted")
                         .setStyle(notifStyle.bigText("An error occurred during the transfer:\n" +
                                 e.getMessage()));
-                File file = fileReceiver.getReceivedFile();
+                File file = fileReceiver.getOutputFile();
                 if (file != null && file.exists() && !file.delete()) {
                     getNotifBuilder().setStyle(notifStyle.bigText("An error occurred during the transfer.\n" +
                             "The file couldn't be downloaded entirely. Please, delete it."));
