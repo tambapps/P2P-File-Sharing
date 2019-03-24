@@ -47,6 +47,6 @@ public class Peer {
 
   @Override
   public String toString() {
-    return ip.getHostName().substring(1) + ":" + port;
+    return ip.getHostAddress().replace("/", "") + ":" + port;
   }
 }

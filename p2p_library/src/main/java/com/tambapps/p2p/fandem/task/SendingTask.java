@@ -22,7 +22,7 @@ import java.net.SocketException;
 public class SendingTask extends SharingTask {
 
     public static final int BUFFER_SIZE = 4096;
-    public static final int DEFAULT_SOCKET_TIMEOUT = 10000;
+    public static final int DEFAULT_SOCKET_TIMEOUT = 30000;
 
     private final Peer peer;
     private final int bufferSize;
