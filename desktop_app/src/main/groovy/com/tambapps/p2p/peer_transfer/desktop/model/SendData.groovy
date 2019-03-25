@@ -7,7 +7,7 @@ class SendData extends ShareData {
     @Override
     String checkErrors() {
         if (file == null) {
-            return "file is missing"
+            return "File is missing"
         }
         return null
     }

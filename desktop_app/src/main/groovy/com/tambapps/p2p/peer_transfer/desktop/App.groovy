@@ -23,6 +23,7 @@ import groovy.swing.SwingBuilder
 import javax.swing.ImageIcon
 import javax.swing.JFileChooser
 import javax.swing.JLabel
+import javax.swing.JOptionPane
 import javax.swing.JTextField
 import java.awt.BorderLayout
 import java.awt.GridLayout
@@ -77,13 +78,19 @@ def sendView = {
         builder.button(text: 'Send', alignmentX: CENTER_ALIGNMENT, actionPerformed: {
             String error = sendData.checkErrors()
             if (error) {
-                println("NOT VALID DATA: $error") //TODO error dialog
+                JOptionPane.showMessageDialog(frame,
+                    error,
+                    'Invalid input',
+                    JOptionPane.WARNING_MESSAGE)
             } else {
                 Peer peer
                 try {
                     peer = IPUtils.availablePeer
-                } catch (SocketException e) { //TODO error dialog couldn't get ip
-                    System.err.println("NNONONONONNO")
+                } catch (SocketException e) {
+                    JOptionPane.showMessageDialog(frame,
+                        "Error while trying to create peer: $e.message",
+                        'Network error',
+                        JOptionPane.ERROR_MESSAGE)
                     return
                 }
                 sharingTasks.addElement(peer, sendData.file)
@@ -143,7 +150,10 @@ def receiveView = {
         builder.button(text: 'Receive', alignmentX: CENTER_ALIGNMENT, actionPerformed: {
             String error = receiveData.checkErrors()
             if (error) {
-                println("NOT VALID DATA: $error") //TODO error dialog
+                JOptionPane.showMessageDialog(frame,
+                    error,
+                    'Invalid input',
+                    JOptionPane.WARNING_MESSAGE)
             } else {
                 sharingTasks.addElement(receiveData.folder, Peer.of(receiveData.ip, receiveData.port))
                 receiveData.clear()
@@ -157,7 +167,7 @@ def receiveView = {
     }
 }
 builder.edt {
-    frame(title: 'Fandem: P2P File Sharing', size: [WIDTH, HEIGHT], show: true,
+    frame(title: 'Fandem: P2P File Sharing', size: [WIDTH, HEIGHT], show: true, id: 'frame',
             defaultCloseOperation: EXIT_ON_CLOSE,
     iconImage: new ImageIcon(App.getResource('/appicon.png')).image) {
         panel(layout : new BorderLayout()) {
