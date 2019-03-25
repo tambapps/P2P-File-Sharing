@@ -1,15 +1,13 @@
 package com.tambapps.p2p.peer_transfer.desktop
 
-import com.tambapps.p2p.fandem.FileSharer
+import static java.awt.Component.CENTER_ALIGNMENT
+import static javax.swing.JFrame.EXIT_ON_CLOSE
+
 import com.tambapps.p2p.fandem.Peer
-import com.tambapps.p2p.fandem.listener.ReceivingListener
-import com.tambapps.p2p.fandem.task.ReceivingTask
-import com.tambapps.p2p.fandem.util.FileUtils
 import com.tambapps.p2p.fandem.util.IPUtils
+
 import com.tambapps.p2p.peer_transfer.desktop.model.ReceiveData
 import com.tambapps.p2p.peer_transfer.desktop.model.SendData
-
-import com.tambapps.p2p.peer_transfer.desktop.model.TaskHolder
 import com.tambapps.p2p.peer_transfer.desktop.style.Colors
 import com.tambapps.p2p.peer_transfer.desktop.style.Fonts
 import com.tambapps.p2p.peer_transfer.desktop.view.list.TaskList
@@ -18,6 +16,7 @@ import com.tambapps.p2p.peer_transfer.desktop.view.panel.EmptyPanel
 import com.tambapps.p2p.peer_transfer.desktop.view.panel.GradiantPanel
 import com.tambapps.p2p.peer_transfer.desktop.view.panel.IPPanel
 import com.tambapps.p2p.peer_transfer.desktop.view.text.NumberDocument
+
 import groovy.swing.SwingBuilder
 
 import javax.swing.ImageIcon
@@ -29,9 +28,8 @@ import java.awt.BorderLayout
 import java.awt.GridLayout
 import java.awt.event.ActionEvent
 
-import static java.awt.Component.CENTER_ALIGNMENT
-import static javax.swing.JFrame.EXIT_ON_CLOSE
 final int MAX_TRANSFERS = 4
+
 def builder = new SwingBuilder()
 builder.registerBeanFactory( "gradiantPanel", GradiantPanel)
 builder.registerBeanFactory( "emptyPanel", EmptyPanel)
@@ -76,6 +74,13 @@ def sendView = {
         builder.emptyPanel()
 
         builder.button(text: 'Send', alignmentX: CENTER_ALIGNMENT, actionPerformed: {
+            if (sharingTasks.size >= MAX_TRANSFERS) {
+                JOptionPane.showMessageDialog(frame,
+                    "You cannot have more than $MAX_TRANSFERS tasks at the same time",
+                    "Maximum tasks reached",
+                    JOptionPane.WARNING_MESSAGE)
+                return
+            }
             String error = sendData.checkErrors()
             if (error) {
                 JOptionPane.showMessageDialog(frame,
@@ -94,6 +99,10 @@ def sendView = {
                     return
                 }
                 sharingTasks.addElement(peer, sendData.file)
+                JOptionPane.showMessageDialog(frame,
+                    'Sending task was started. Click on the task to cancel it',
+                    'Started sending task',
+                    JOptionPane.INFORMATION_MESSAGE)
                 sendData.clear()
                 fileText.text = ""
             }
@@ -148,6 +157,13 @@ def receiveView = {
         builder.emptyPanel()
 
         builder.button(text: 'Receive', alignmentX: CENTER_ALIGNMENT, actionPerformed: {
+            if (sharingTasks.size >= MAX_TRANSFERS) {
+                JOptionPane.showMessageDialog(frame,
+                    "You cannot have more than $MAX_TRANSFERS tasks at the same time",
+                    "Maximum tasks reached",
+                    JOptionPane.WARNING_MESSAGE)
+                return
+            }
             String error = receiveData.checkErrors()
             if (error) {
                 JOptionPane.showMessageDialog(frame,
@@ -156,6 +172,11 @@ def receiveView = {
                     JOptionPane.WARNING_MESSAGE)
             } else {
                 sharingTasks.addElement(receiveData.folder, Peer.of(receiveData.ip, receiveData.port))
+                JOptionPane.showMessageDialog(frame,
+                    'Receiving task was started. Click on the task to cancel it',
+                    'Started sending task',
+                    JOptionPane.INFORMATION_MESSAGE)
+                sendData.clear()
                 receiveData.clear()
                 for (int i = 0; i < 5; i++) {
                     getProperty("pField$i").text = ''

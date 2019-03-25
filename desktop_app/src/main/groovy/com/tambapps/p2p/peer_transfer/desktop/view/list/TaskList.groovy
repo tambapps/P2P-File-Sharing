@@ -33,8 +33,8 @@ class TaskList extends JList<TaskHolder> implements ListCellRenderer<TaskHolder>
             model.removeElement(i)
         } else { //cancel
             holder.cancel()
-            fireContentsChanged(i)
         }
+        fireContentsChanged(i)
     }
 
     @Override
@@ -42,14 +42,12 @@ class TaskList extends JList<TaskHolder> implements ListCellRenderer<TaskHolder>
         SwingBuilder builder = new SwingBuilder()
        return builder.panel(background: Colors.GRADIANT_BOTTOM) {
            if (holder.error) {
-               builder.label(text: "$holder.header An error occured: $holder.error.message")
-               builder.button('cancel')
+               builder.label(text: "$holder.header An error occured: $holder.error.message. Click to close")
                return this
            }
 
            if (holder.canceled) {
-               builder.label(text: "$holder.header Task was canceled")
-               builder.button('close')
+               builder.label(text: "$holder.header Task was canceled. Click to close")
                return this
            }
 
@@ -59,7 +57,6 @@ class TaskList extends JList<TaskHolder> implements ListCellRenderer<TaskHolder>
                } else {
                    builder.label(text: "$holder.header Connecting to $holder.peer...")
                }
-               builder.button('cancel')
                return this
            }
 
@@ -76,11 +73,10 @@ class TaskList extends JList<TaskHolder> implements ListCellRenderer<TaskHolder>
                        builder.label(text: "File name: $holder.fileName")
                    }
                }
-               String progressString = FileUtils.bytesToString(holder.bytesTransferred) + " / " + FileUtils.bytesToString(holder.totalBytes)
+               String progressString = FileUtils.bytesToString(holder.bytesTransferred) + ' / ' + FileUtils.bytesToString(holder.totalBytes)
                builder.progressBar(value: holder.progress, stringPainted: true, string: progressString, maximum: holder.totalBytes)
            } else {
-               builder.label(text: "$holder.fileName was successfully " + (holder.sender ? "sent" : "received"))
-               builder.button('close')
+               builder.label(text: "$holder.fileName was successfully " + (holder.sender ? 'sent' : 'received') + '. Click to close')
            }
         }
     }
@@ -88,6 +84,5 @@ class TaskList extends JList<TaskHolder> implements ListCellRenderer<TaskHolder>
     private void fireContentsChanged(int i) {
         model.fireContentsChanged(i)
     }
-
 
 }
