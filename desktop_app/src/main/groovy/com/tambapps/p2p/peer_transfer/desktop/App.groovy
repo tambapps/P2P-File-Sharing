@@ -1,7 +1,6 @@
 package com.tambapps.p2p.peer_transfer.desktop
 
 import javax.swing.BorderFactory
-import java.awt.Color
 
 import static java.awt.Component.CENTER_ALIGNMENT
 import static javax.swing.JFrame.EXIT_ON_CLOSE

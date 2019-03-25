@@ -6,9 +6,11 @@ import com.tambapps.p2p.peer_transfer.desktop.model.TaskListModel
 import com.tambapps.p2p.peer_transfer.desktop.style.Colors
 import groovy.swing.SwingBuilder
 
+import javax.swing.BorderFactory
 import javax.swing.JList
 import javax.swing.ListCellRenderer
 import javax.swing.ListModel
+import java.awt.Color
 import java.awt.Component
 import java.awt.event.ActionEvent
 import java.awt.event.MouseAdapter
@@ -40,7 +42,10 @@ class TaskList extends JList<TaskHolder> implements ListCellRenderer<TaskHolder>
     @Override
     Component getListCellRendererComponent(JList<? extends TaskHolder> jList, TaskHolder holder, int i, boolean b, boolean b1) {
         SwingBuilder builder = new SwingBuilder()
-       return builder.panel(background: Colors.GRADIANT_BOTTOM) {
+        Color borderColor = i < model.size - 1 ? Colors.BORDER : Colors.GRADIANT_BOTTOM
+
+       return builder.panel(background: Colors.GRADIANT_BOTTOM,
+           border: BorderFactory.createMatteBorder(0, 0, 1, 0, borderColor)) {
            if (holder.error) {
                builder.label(text: "$holder.header An error occured: $holder.error.message. Click to close")
                return this
