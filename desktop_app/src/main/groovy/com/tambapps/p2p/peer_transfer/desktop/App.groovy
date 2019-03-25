@@ -1,5 +1,8 @@
 package com.tambapps.p2p.peer_transfer.desktop
 
+import javax.swing.BorderFactory
+import java.awt.Color
+
 import static java.awt.Component.CENTER_ALIGNMENT
 import static javax.swing.JFrame.EXIT_ON_CLOSE
 
@@ -41,7 +44,9 @@ final int HEIGHT = 720
 TaskListModel sharingTasks = new TaskListModel()
 
 def taskBar = {
-    builder.taskList(model: sharingTasks, constraints: BorderLayout.SOUTH, preferredSize: [WIDTH, HEIGHT / 5 as int], background: Colors.GRADIANT_BOTTOM)
+    builder.taskList(model: sharingTasks, constraints: BorderLayout.SOUTH,
+        preferredSize: [WIDTH, HEIGHT / 5 as int], background: Colors.GRADIANT_BOTTOM,
+        border: BorderFactory.createMatteBorder(2, 0, 0, 0, Colors.BORDER))
 }
 def header = {
     builder.panel(layout: new GridLayout(2, 2), constraints : BorderLayout.NORTH, background: Colors.GRADIANT_TOP) {
@@ -53,7 +58,7 @@ def header = {
 }
 def sendView = {
     final SendData sendData = new SendData()
-    builder.vbox() {
+    builder.vbox(border: BorderFactory.createMatteBorder(0, 0, 0, 1, Colors.BORDER)) {
         builder.emptyPanel()
         builder.emptyPanel()
         builder.hbox(background: null) {
@@ -113,7 +118,7 @@ def sendView = {
 }
 def receiveView = {
     final ReceiveData receiveData = new ReceiveData()
-    builder.vbox() {
+    builder.vbox(border: BorderFactory.createMatteBorder(0, 1, 0, 0, Colors.BORDER)) {
         builder.emptyPanel()
         builder.emptyPanel()
         builder.hbox(maximumSize: [WIDTH, HEIGHT >> 4], background: null) {
