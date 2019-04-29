@@ -1,5 +1,3 @@
 .gradle/
 libs/
-
-# For not include imported source code
-src/main/groovy/com/tambapps/p2p/fandem
+build/
