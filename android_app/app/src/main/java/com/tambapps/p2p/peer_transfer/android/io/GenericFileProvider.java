@@ -1,6 +1,6 @@
 package com.tambapps.p2p.peer_transfer.android.io;
 
-import android.support.v4.content.FileProvider;
+import androidx.core.content.FileProvider;
 
 /**
  * Used to provide uri of downloaded files without
