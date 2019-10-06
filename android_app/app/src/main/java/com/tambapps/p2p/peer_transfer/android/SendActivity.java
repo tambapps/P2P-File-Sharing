@@ -22,7 +22,7 @@ import com.crashlytics.android.Crashlytics;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
 import com.tambapps.p2p.fandem.util.IPUtils;
-import com.tambapps.p2p.peer_transfer.android.analytics.Constants;
+import com.tambapps.p2p.peer_transfer.android.analytics.AnalyticsValues;
 import com.tambapps.p2p.peer_transfer.android.service.FileSendingJobService;
 
 import java.io.File;
@@ -121,7 +121,7 @@ public class SendActivity extends AppCompatActivity {
 
     private void logSend(Long fileSize) {
         Bundle bundle = new Bundle();
-        bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, Constants.Value.SERVICE_START);
+        bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, AnalyticsValues.SERVICE_START);
         bundle.putLong(FirebaseAnalytics.Param.QUANTITY, fileSize);
         bundle.putString(FirebaseAnalytics.Param.METHOD, "SEND");
         analytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);

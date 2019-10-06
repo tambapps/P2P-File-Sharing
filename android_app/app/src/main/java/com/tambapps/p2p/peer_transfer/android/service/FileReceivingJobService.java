@@ -18,7 +18,7 @@ import com.tambapps.p2p.fandem.Peer;
 
 import com.tambapps.p2p.fandem.util.FileUtils;
 import com.tambapps.p2p.peer_transfer.android.R;
-import com.tambapps.p2p.peer_transfer.android.analytics.Constants;
+import com.tambapps.p2p.peer_transfer.android.analytics.AnalyticsValues;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -85,7 +85,7 @@ public class FileReceivingJobService extends FileJobService {
         @Override
         protected void run(String... params) { //downloadPath, peer
             Bundle bundle = new Bundle();
-            bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, Constants.Value.SERVICE);
+            bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, AnalyticsValues.SERVICE);
             bundle.putString(FirebaseAnalytics.Param.METHOD, "RECEIVE");
 
             final String dirPath = params[0];

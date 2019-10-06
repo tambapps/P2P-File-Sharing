@@ -19,7 +19,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.google.firebase.analytics.FirebaseAnalytics;
-import com.tambapps.p2p.peer_transfer.android.analytics.Constants;
+import com.tambapps.p2p.peer_transfer.android.analytics.AnalyticsValues;
 import com.tambapps.p2p.peer_transfer.android.service.FileReceivingJobService;
 
 public class ReceiveActivity extends AppCompatActivity {
@@ -103,7 +103,7 @@ public class ReceiveActivity extends AppCompatActivity {
 
     private void logReceive() {
         Bundle bundle = new Bundle();
-        bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, Constants.Value.SERVICE_START);
+        bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, AnalyticsValues.SERVICE_START);
         bundle.putString(FirebaseAnalytics.Param.METHOD, "RECEIVE");
         analytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
     }

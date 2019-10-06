@@ -14,7 +14,7 @@ import com.tambapps.p2p.fandem.Peer;
 import com.tambapps.p2p.fandem.listener.SendingListener;
 
 import com.tambapps.p2p.peer_transfer.android.R;
-import com.tambapps.p2p.peer_transfer.android.analytics.Constants;
+import com.tambapps.p2p.peer_transfer.android.analytics.AnalyticsValues;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -66,7 +66,7 @@ public class FileSendingJobService extends FileJobService {
 
         void run(String... params) {
             Bundle bundle = new Bundle();
-            bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, Constants.Value.SERVICE);
+            bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, AnalyticsValues.SERVICE);
             bundle.putString(FirebaseAnalytics.Param.METHOD, "SEND");
 
             try {
