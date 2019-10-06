@@ -1,4 +1,3 @@
 <resources>
     <dimen name="fab_margin">16dp</dimen>
-    <dimen name="inset_size">155px</dimen>
 </resources>

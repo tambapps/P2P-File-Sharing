@@ -12,16 +12,22 @@
         android:roundIcon="@drawable/round_appicon"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity
+            android:name=".HelpActivity"
+            android:label="@string/title_activity_help"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
+
         <provider
-            android:name="com.tambapps.p2p.peer_transfer.android.io.GenericFileProvider"
+            android:name=".io.GenericFileProvider"
             android:authorities="${applicationId}.io"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/provider_paths"/>
+                android:resource="@xml/provider_paths" />
         </provider>
-        <activity android:name="com.tambapps.p2p.peer_transfer.android.MainActivity">
+
+        <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -29,30 +35,33 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.tambapps.p2p.peer_transfer.android.ReceiveActivity"
+            android:name=".ReceiveActivity"
             android:theme="@style/AppTheme" />
         <activity
-            android:name="com.tambapps.p2p.peer_transfer.android.SendActivity"
+            android:name=".SendActivity"
             android:theme="@style/AppTheme.TransferScreen">
             <intent-filter>
-                <action android:name="android.intent.action.SEND"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-                <data android:mimeType="image/*"/>
-                <data android:mimeType="video/*"/>
-                <data android:mimeType="application/*"/>
-                <data android:mimeType="*/avi"/>
-                <data android:mimeType="*/mkv"/>
-                <data android:mimeType="audio/*" />
+                <action android:name="android.intent.action.SEND" />
 
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:mimeType="image/*" />
+                <data android:mimeType="video/*" />
+                <data android:mimeType="application/*" />
+                <data android:mimeType="*/avi" />
+                <data android:mimeType="*/mkv" />
+                <data android:mimeType="audio/*" />
             </intent-filter>
         </activity>
 
-        <service android:name="com.tambapps.p2p.peer_transfer.android.service.FileSendingJobService"
-            android:permission="android.permission.BIND_JOB_SERVICE"
-            android:exported="true"/>
-        <service android:name="com.tambapps.p2p.peer_transfer.android.service.FileReceivingJobService"
-            android:permission="android.permission.BIND_JOB_SERVICE"
-            android:exported="true"/>
+        <service
+            android:name=".service.FileSendingJobService"
+            android:exported="true"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+        <service
+            android:name=".service.FileReceivingJobService"
+            android:exported="true"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
     </application>
 
 </manifest>

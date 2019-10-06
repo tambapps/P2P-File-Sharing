@@ -82,6 +82,10 @@ public class MainActivity extends AppCompatActivity {
         startActivityForResult(new Intent(this, SendActivity.class), START_FILE_SERVICE);
     }
 
+    public void helpIntent(View v) {
+        startActivity(new Intent(this, HelpActivity.class));
+    }
+
     private void logScreenEvent(String name) {
         Bundle bundle = new Bundle();
         bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "SCREEN");
