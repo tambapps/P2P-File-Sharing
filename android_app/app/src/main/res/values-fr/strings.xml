@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Fandem</string>
+    <string name="tab_text_2">Envoyer un fichier</string>
+    <string name="tab_text_3">Recevoir un fichier</string>
+    <string name="help_title">Bienvenue sur Fandem</string>
+    <string name="help_description">\t\t\t\tCette application permet d\'envoyer/recevoir des fichiers en Peer to Peer (P2P). P2P signifie que les données sont transférées directement d\'un appareil à l\'autre, aucune donnée n\'est envoyée à un serveur intermédiaire.\n\nPour transférer des fichiers, les deux appareils doivent être dans le même réseau local.\nLe meilleur usage est de partager la connexion 3/4G avec un des smartphones, et de connecter l\'autre sur le WI-FI crée par le partage de connexion.</string>
+    <string name="ip_address">Addresse IP</string>
+    <string name="pick_a_file_to_send">Choisissez un fichier</string>
+    <string name="port">port</string>
+    <string name="receive_file">Recevoir un fichier</string>
+    <string name="send_file">Envoyer un fichier</string>
+    <string name="start_receiving">Commencer l\'envoi</string>
+    <string name="the_ip_is_malformed">L\'IP est malformée</string>
+    <string name="receive_description">\t\t\t\tPour recevoir un fichier, allez sur la page d\'envoi, entrez l\'addresse IP et le port de l\'appareil expéditeur, puis appuyez sur \'commencer l\'envoi\'.\nVous pouvez voir le progrès dans la notification créee.</string>
+    <string name="send_description">\t\t\t\tPour envoyer un fichier, allez sur la page d\'envoi, puis choisissez un fichier à envoyer en cliquant sur le bouton en bas de l\'écran. Ensuite, votre addresse IP et port sera affichée sur l\'écran, vous devrez transmettre ces informations à l\'appareil récepteur.\nUne fois que l\'appareil récepteur aura entré ces informations, le transfert commencera. Vous pouvez voir le progrès dans la notification crée.</string>
+</resources>

@@ -14,8 +14,7 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".HelpActivity"
-            android:label="@string/title_activity_help"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar"/>
 
         <provider
             android:name=".io.GenericFileProvider"

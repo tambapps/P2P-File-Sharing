@@ -30,7 +30,7 @@
             android:textSize="30sp"
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
-            android:text="Send file"/>
+            android:text="@string/send_file"/>
 
         <ImageButton
             android:layout_width="50dp"
@@ -64,7 +64,7 @@
             android:layout_marginBottom="10dp"
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
-            android:text="Receive file"/>
+            android:text="@string/receive_file"/>
     </RelativeLayout>
 
 
