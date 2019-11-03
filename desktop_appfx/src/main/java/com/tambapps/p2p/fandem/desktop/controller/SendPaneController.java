@@ -1,46 +1,63 @@
 package com.tambapps.p2p.fandem.desktop.controller;
 
-import com.tambapps.p2p.fandem.desktop.style.Colors;
+import com.tambapps.p2p.fandem.desktop.App;
 import com.tambapps.p2p.fandem.desktop.utils.PropertyUtils;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
-import javafx.scene.layout.Pane;
 import javafx.stage.FileChooser;
-import javafx.stage.Stage;
 
 import java.io.File;
+import java.io.IOException;
+
+import static com.tambapps.p2p.fandem.desktop.App.*;
 
 public class SendPaneController {
 
-  private Stage stage;
-
   @FXML
   private Label pathLabel;
-  @FXML
-  private Pane root;
 
   private ObjectProperty<File> fileProperty = new SimpleObjectProperty<>();
 
   @FXML
   private void initialize() {
-    root.setStyle(String.format("-fx-background-color: linear-gradient(to top, %s, %s)",
-      Colors.GRADIENT_BOTTOM, Colors.GRADIENT_TOP));
-    pathLabel.textProperty().bind(PropertyUtils.mapProperty(fileProperty, (f) -> f == null ? "" : f.getPath()));
-  }
-
-  public void setStage(Stage stage) {
-    this.stage = stage;
+    pathLabel.textProperty().bind(PropertyUtils.nullableToStringProperty(fileProperty, File::getPath));
   }
 
   @FXML
   private void pickFile() {
     FileChooser fileChooser = new FileChooser();
-    File file = fileChooser.showOpenDialog(stage);
+    File file = fileChooser.showOpenDialog(App.getStage());
     if (file == null) {
       return;
     }
     fileProperty.set(file);
+  }
+
+  @FXML
+  private void sendFile() {
+    File file = fileProperty.get();
+    if (file == null) {
+      if (sharingTasks.size() >= MAX_SHARING_TASKS) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION, "You haven't picked any file yet", ButtonType.OK);
+        alert.show();
+        return;
+      }
+    }
+    if (sharingTasks.size() >= MAX_SHARING_TASKS) {
+      Alert alert = new Alert(Alert.AlertType.INFORMATION, "Maximum tasks number reached. Wait until one task is over to start another.", ButtonType.OK);
+      alert.show();
+      return;
+    }
+    try {
+      sharingTasks.add(sharingService.sendFile(file));
+      fileProperty.set(null);
+    } catch (IOException e) {
+      Alert alert = new Alert(Alert.AlertType.ERROR, "Couldn't retrieve IP. Are you connected to internet?", ButtonType.OK);
+      alert.show();
+    }
   }
 }

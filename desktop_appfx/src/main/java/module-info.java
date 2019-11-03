@@ -7,5 +7,7 @@ module com.tambapps.p2p.fandem.desktop {
     exports com.tambapps.p2p.fandem.desktop;
     opens com.tambapps.p2p.fandem.desktop.controller to javafx.fxml;
     exports com.tambapps.p2p.fandem.desktop.controller;
+    exports com.tambapps.p2p.fandem.desktop.model;
+    exports com.tambapps.p2p.fandem.desktop.service;
 
 }
