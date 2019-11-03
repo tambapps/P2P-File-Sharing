@@ -2,6 +2,7 @@ package com.tambapps.p2p.fandem.desktop.controller;
 
 import com.tambapps.p2p.fandem.Peer;
 import com.tambapps.p2p.fandem.desktop.App;
+import com.tambapps.p2p.fandem.desktop.utils.NodeUtils;
 import com.tambapps.p2p.fandem.desktop.utils.PropertyUtils;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -11,10 +12,8 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.stage.DirectoryChooser;
-import javafx.stage.FileChooser;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -44,6 +43,8 @@ public class ReceivePaneController {
   @FXML
   private void initialize() {
     ipFields = List.of(ipField0, ipField1, ipField2, ipField3);
+    ipFields.forEach(NodeUtils::numberTextField);
+    NodeUtils.numberTextField(portField);
     PropertyUtils.bindMapNullableToStringProperty(folderProperty, File::getPath, pathLabel.textProperty());
   }
 
@@ -93,6 +94,6 @@ public class ReceivePaneController {
   private String getAddress() {
     return ipFields.stream()
       .map(field -> field.textProperty().get())
-      .collect(Collectors.joining(":"));
+      .collect(Collectors.joining("."));
   }
 }
