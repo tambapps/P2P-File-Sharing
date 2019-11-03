@@ -20,12 +20,8 @@ public class FileSharer {
 
   private final ExecutorService executorService;
 
-  public FileSharer() {
-    this(Runtime.getRuntime().availableProcessors());
-  }
-
-  public FileSharer(int nbThreads) {
-    this.executorService = Executors.newFixedThreadPool(nbThreads);
+  public FileSharer(ExecutorService executorService) {
+    this.executorService = executorService;
   }
 
   public Future<Boolean> sendFile(String filePath, Peer peer, SharingErrorListener errorListener) {
