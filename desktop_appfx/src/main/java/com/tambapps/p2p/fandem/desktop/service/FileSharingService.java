@@ -2,9 +2,7 @@ package com.tambapps.p2p.fandem.desktop.service;
 
 import com.tambapps.p2p.fandem.FileSharer;
 import com.tambapps.p2p.fandem.Peer;
-import com.tambapps.p2p.fandem.desktop.model.ReceivingTask;
-import com.tambapps.p2p.fandem.desktop.model.SendingTask;
-import com.tambapps.p2p.fandem.listener.SharingErrorListener;
+import com.tambapps.p2p.fandem.desktop.model.SharingTask;
 import com.tambapps.p2p.fandem.listener.TransferListener;
 import com.tambapps.p2p.fandem.util.IPUtils;
 
@@ -22,8 +20,8 @@ public class FileSharingService {
     this.fileSharer = new FileSharer(executorService);
   }
 
-  public SendingTask sendFile(File file) throws IOException {
-    SendingTask sendingTask = new SendingTask();
+  public SharingTask sendFile(File file) throws IOException {
+    SharingTask sendingTask = new SharingTask(true);
     sendingTask.file.set(file);
     Peer peer;
     try {
@@ -51,8 +49,8 @@ public class FileSharingService {
     return sendingTask;
   }
 
-  public ReceivingTask receiveFile(File folder, Peer peer) {
-    ReceivingTask task = new ReceivingTask();
+  public SharingTask receiveFile(File folder, Peer peer) {
+    SharingTask task = new SharingTask(false);
 
     Future future = fileSharer.receiveFile(name -> {
       File file = new File(folder, name);

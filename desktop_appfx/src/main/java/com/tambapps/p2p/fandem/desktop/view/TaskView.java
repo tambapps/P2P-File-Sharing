@@ -1,17 +1,15 @@
 package com.tambapps.p2p.fandem.desktop.view;
 
-import com.tambapps.p2p.fandem.desktop.model.ReceivingTask;
-import com.tambapps.p2p.fandem.desktop.model.SendingTask;
 import com.tambapps.p2p.fandem.desktop.model.SharingTask;
 import javafx.scene.layout.Pane;
 
 public class TaskView extends Pane {
 
   public static TaskView generate(SharingTask task) {
-    if (task instanceof SendingTask) {
-      return new SendingView((SendingTask) task);
+    if (task.sender) {
+      return new SendingView(task);
     } else {
-      return new ReceivingView((ReceivingTask) task);
+      return new ReceivingView(task);
     }
   }
 
@@ -23,7 +21,7 @@ public class TaskView extends Pane {
 
   private static class SendingView extends TaskView {
 
-    private SendingView(SendingTask task) {
+    private SendingView(SharingTask task) {
       super(task);
       setStyle("-fx-background-color: #000000");
 
@@ -32,7 +30,7 @@ public class TaskView extends Pane {
 
   private static class ReceivingView extends TaskView {
 
-    private ReceivingView(ReceivingTask task) {
+    private ReceivingView(SharingTask task) {
       super(task);
       setStyle("-fx-background-color: #ffffff");
     }

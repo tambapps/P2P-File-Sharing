@@ -11,6 +11,8 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleObjectProperty;
 
+import java.io.File;
+
 public class SharingTask {
   public final ObjectProperty<Peer> peer = new SimpleObjectProperty<>();
   public final ObjectProperty<Peer> remotePeer = new SimpleObjectProperty<>();
@@ -18,7 +20,13 @@ public class SharingTask {
   public final LongProperty totalBytes = new SimpleLongProperty();
   public final IntegerProperty percentage = new SimpleIntegerProperty();
   public final BooleanPropertyBase canceled = new SimpleBooleanProperty(false);
+  public ObjectProperty<File> file = new SimpleObjectProperty<>();
+  public final boolean sender;
   private Runnable canceler;
+
+  public SharingTask(boolean sender) {
+    this.sender = sender;
+  }
 
   public void setCanceler(Runnable canceler) {
     this.canceler = canceler;

@@ -65,6 +65,11 @@ public class ReceivePaneController {
       alert.show();
       return;
     }
+    if (portField.textProperty().get().isEmpty()) {
+      Alert alert = new Alert(Alert.AlertType.INFORMATION, "You must provide the sender's port", ButtonType.OK);
+      alert.show();
+      return;
+    }
     if (file == null) {
       Alert alert = new Alert(Alert.AlertType.INFORMATION, "You haven't picked a directory yet", ButtonType.OK);
       alert.show();
