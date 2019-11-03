@@ -7,6 +7,6 @@ import java.io.File;
 
 public class ReceivingTask extends SharingTask {
 
-  public ObjectProperty<File> directory = new SimpleObjectProperty<>();
+  public ObjectProperty<File> file = new SimpleObjectProperty<>();
 
 }

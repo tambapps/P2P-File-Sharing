@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.text.Text?>
+
+<Pane fx:id="root" prefHeight="400.0" prefWidth="500.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.tambapps.p2p.fandem.desktop.controller.ReceivePaneController">
+   <children>
+      <Label layoutX="92.0" layoutY="38.0" text="Receive File" />
+      <Button layoutX="30.0" layoutY="217.0" mnemonicParsing="false" onAction="#pickFolder" text="pick folder" />
+      <Label fx:id="pathLabel" layoutX="256.0" layoutY="230.0" prefHeight="16.0" prefWidth="352.0" />
+      <Button layoutX="231.0" layoutY="323.0" mnemonicParsing="false" onAction="#receiveFile" text="Receive" />
+      <Label layoutX="20.0" layoutY="114.0" text="Peer address" />
+      <TextField fx:id="ipField0" layoutX="116.0" layoutY="109.0" prefHeight="26.0" prefWidth="48.0" />
+      <Text layoutX="170.0" layoutY="127.0" strokeType="OUTSIDE" strokeWidth="0.0" text="." />
+      <TextField fx:id="ipField1" layoutX="183.0" layoutY="109.0" prefHeight="26.0" prefWidth="48.0" />
+      <Text layoutX="239.0" layoutY="127.0" strokeType="OUTSIDE" strokeWidth="0.0" text="." />
+      <TextField fx:id="ipField2" layoutX="250.0" layoutY="109.0" prefHeight="26.0" prefWidth="48.0" />
+      <Text layoutX="310.0" layoutY="126.0" strokeType="OUTSIDE" strokeWidth="0.0" text="." />
+      <TextField fx:id="ipField3" layoutX="329.0" layoutY="109.0" prefHeight="26.0" prefWidth="48.0" />
+      <Text layoutX="387.0" layoutY="129.0" strokeType="OUTSIDE" strokeWidth="0.0" text=":" />
+      <TextField fx:id="portField" layoutX="403.0" layoutY="108.0" prefHeight="26.0" prefWidth="48.0" />
+   </children>
+</Pane>

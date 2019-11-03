@@ -41,11 +41,9 @@ public class SendPaneController {
   private void sendFile() {
     File file = fileProperty.get();
     if (file == null) {
-      if (sharingTasks.size() >= MAX_SHARING_TASKS) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION, "You haven't picked any file yet", ButtonType.OK);
-        alert.show();
-        return;
-      }
+      Alert alert = new Alert(Alert.AlertType.INFORMATION, "You haven't picked any file yet", ButtonType.OK);
+      alert.show();
+      return;
     }
     if (sharingTasks.size() >= MAX_SHARING_TASKS) {
       Alert alert = new Alert(Alert.AlertType.INFORMATION, "Maximum tasks number reached. Wait until one task is over to start another.", ButtonType.OK);
@@ -56,7 +54,7 @@ public class SendPaneController {
       sharingTasks.add(sharingService.sendFile(file));
       fileProperty.set(null);
     } catch (IOException e) {
-      Alert alert = new Alert(Alert.AlertType.ERROR, "Couldn't retrieve IP. Are you connected to internet?", ButtonType.OK);
+      Alert alert = new Alert(Alert.AlertType.ERROR, e.getMessage(), ButtonType.OK);
       alert.show();
     }
   }

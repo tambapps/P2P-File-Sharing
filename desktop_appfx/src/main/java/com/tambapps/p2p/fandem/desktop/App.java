@@ -40,7 +40,7 @@ public class App extends Application {
           Colors.GRADIENT_BOTTOM, Colors.GRADIENT_TOP));
 
         HBox panesContainer = (HBox) vBox.getChildren().get(0);
-        panesContainer.getChildren().addAll(load("sendPane"), load("sendPane"));
+        panesContainer.getChildren().addAll(load("sendPane"), load("receivePane"));
 
         Scene scene = new Scene(vBox);
         stage.setScene(scene);

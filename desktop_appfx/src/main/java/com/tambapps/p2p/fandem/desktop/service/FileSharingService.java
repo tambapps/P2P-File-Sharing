@@ -2,7 +2,9 @@ package com.tambapps.p2p.fandem.desktop.service;
 
 import com.tambapps.p2p.fandem.FileSharer;
 import com.tambapps.p2p.fandem.Peer;
+import com.tambapps.p2p.fandem.desktop.model.ReceivingTask;
 import com.tambapps.p2p.fandem.desktop.model.SendingTask;
+import com.tambapps.p2p.fandem.listener.SharingErrorListener;
 import com.tambapps.p2p.fandem.listener.TransferListener;
 import com.tambapps.p2p.fandem.util.IPUtils;
 
@@ -48,4 +50,32 @@ public class FileSharingService {
     sendingTask.setCanceler(() -> future.cancel(true));
     return sendingTask;
   }
+
+  public ReceivingTask receiveFile(File folder, Peer peer) {
+    ReceivingTask task = new ReceivingTask();
+
+    Future future = fileSharer.receiveFile(name -> {
+      File file = new File(folder, name);
+      task.file.set(file);
+      return file;
+    }, peer, new TransferListener() {
+      @Override
+      public void onConnected(Peer selfPeer, Peer remotePeer, String fileName, long fileSize) {
+        task.remotePeer.set(remotePeer);
+        task.peer.set(selfPeer);
+        task.totalBytes.set(fileSize);
+      }
+
+      @Override
+      public void onProgressUpdate(int progress, long byteProcessed, long totalBytes) {
+        task.percentage.set(progress);
+        task.bytesProcessed.set(byteProcessed);
+      }
+    }, e -> {
+
+    });
+    task.setCanceler(() -> future.cancel(true));
+    return task;
+  }
+
 }
