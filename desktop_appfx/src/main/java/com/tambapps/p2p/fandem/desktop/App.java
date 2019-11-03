@@ -47,14 +47,22 @@ public class App extends Application {
         stage.show();
     }
 
-    private Region load(String name) throws IOException {
+    public static Region load(String name) throws IOException {
         FXMLLoader loader = new FXMLLoader(App.class.getResource(name + ".fxml"));
         Region node = loader.load();
         node.setBackground(Background.EMPTY);
         return node;
     }
 
-    public static void main(String[] args) {
+    public static Region loadQuietly(String name) {
+        try {
+            return load(name);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to get region", e);
+        }
+    }
+
+        public static void main(String[] args) {
         ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() + 1);
         sharingService = new FileSharingService(executor);
         launch();

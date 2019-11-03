@@ -29,17 +29,17 @@ public class FileSharingService {
     } catch (SocketException e) {
       throw new IOException("Couldn't retrieve IP. Are you connected to internet?");
     }
+    sendingTask.peer.set(peer);
     Future future = fileSharer.sendFile(file, peer, new TransferListener() {
       @Override
       public void onConnected(Peer selfPeer, Peer remotePeer, String fileName, long fileSize) {
-        sendingTask.peer.set(selfPeer);
         sendingTask.remotePeer.set(remotePeer);
         sendingTask.totalBytes.set(fileSize);
       }
 
       @Override
       public void onProgressUpdate(int progress, long byteProcessed, long totalBytes) {
-        sendingTask.percentage.setValue(progress);
+        sendingTask.percentage.setValue(((double)byteProcessed) / ((double)totalBytes));
         sendingTask.bytesProcessed.set(byteProcessed);
       }
     }, e -> {
@@ -51,6 +51,7 @@ public class FileSharingService {
 
   public SharingTask receiveFile(File folder, Peer peer) {
     SharingTask task = new SharingTask(false);
+    task.remotePeer.set(peer);
 
     Future future = fileSharer.receiveFile(name -> {
       File file = new File(folder, name);
@@ -66,7 +67,7 @@ public class FileSharingService {
 
       @Override
       public void onProgressUpdate(int progress, long byteProcessed, long totalBytes) {
-        task.percentage.set(progress);
+        task.percentage.setValue(((double)byteProcessed) / ((double)totalBytes));
         task.bytesProcessed.set(byteProcessed);
       }
     }, e -> {
