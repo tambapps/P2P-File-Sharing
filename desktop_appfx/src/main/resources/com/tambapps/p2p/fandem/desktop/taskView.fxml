@@ -12,5 +12,6 @@
       <Label fx:id="centerLabel" alignment="CENTER" layoutX="349.0" layoutY="17.0" prefHeight="16.0" prefWidth="303.0" textAlignment="CENTER" />
       <Button fx:id="cancelButton" layoutX="901.0" layoutY="12.0" mnemonicParsing="false" onAction="#cancel" text="Cancel" />
       <Label fx:id="leftLabel" layoutX="31.0" layoutY="17.0" prefHeight="16.0" prefWidth="170.0" />
+      <Button fx:id="removeButton" layoutX="901.0" layoutY="12.0" mnemonicParsing="false" onAction="#remove" text="Remove" />
    </children>
 </Pane>

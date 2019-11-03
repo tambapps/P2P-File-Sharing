@@ -4,6 +4,7 @@ import com.tambapps.p2p.fandem.FileSharer;
 import com.tambapps.p2p.fandem.Peer;
 import com.tambapps.p2p.fandem.desktop.model.SharingTask;
 import com.tambapps.p2p.fandem.listener.TransferListener;
+import com.tambapps.p2p.fandem.util.FileUtils;
 import com.tambapps.p2p.fandem.util.IPUtils;
 
 import java.io.File;
@@ -30,7 +31,7 @@ public class FileSharingService {
       throw new IOException("Couldn't retrieve IP. Are you connected to internet?");
     }
     sendingTask.peer.set(peer);
-    Future future = fileSharer.sendFile(file, peer, new TransferListener() {
+    Future future = fileSharer.sendFile(file, peer, 30 * 1000, new TransferListener() {
       @Override
       public void onConnected(Peer selfPeer, Peer remotePeer, String fileName, long fileSize) {
         sendingTask.remotePeer.set(remotePeer);
@@ -43,6 +44,7 @@ public class FileSharingService {
         sendingTask.bytesProcessed.set(byteProcessed);
       }
     }, e -> {
+      sendingTask.error.set(e.getMessage());
       // TODO
     });
     sendingTask.setCanceler(() -> future.cancel(true));
@@ -54,7 +56,7 @@ public class FileSharingService {
     task.remotePeer.set(peer);
 
     Future future = fileSharer.receiveFile(name -> {
-      File file = new File(folder, name);
+      File file = FileUtils.newAvailableFile(folder, name);
       task.file.set(file);
       return file;
     }, peer, new TransferListener() {

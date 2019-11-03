@@ -3,6 +3,8 @@ package com.tambapps.p2p.fandem.desktop.controller;
 import com.tambapps.p2p.fandem.Peer;
 import com.tambapps.p2p.fandem.desktop.App;
 import com.tambapps.p2p.fandem.desktop.model.SharingTask;
+import com.tambapps.p2p.fandem.listener.SharingErrorListener;
+import com.tambapps.p2p.fandem.listener.TransferListener;
 import javafx.beans.property.Property;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -11,9 +13,10 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 
+import java.io.IOException;
 import java.util.stream.Stream;
 
-public class TaskController {
+public class TaskController implements TransferListener, SharingErrorListener {
 
   @FXML
   private ProgressBar progressBar;
@@ -23,6 +26,8 @@ public class TaskController {
   private Label leftLabel;
   @FXML
   private Button cancelButton;
+  @FXML
+  private Button removeButton;
 
   private SharingTask task;
 
@@ -35,6 +40,7 @@ public class TaskController {
       text = "Connecting to " + task.remotePeer.get() + " ...";
     }
     centerLabel.textProperty().set(text);
+    progressBar.progressProperty().bind(task.percentage);
     sharingTask.remotePeer.addListener((observable, oldValue, newValue) -> {
       if (newValue != null) {
         centerLabel.setVisible(false);
@@ -43,16 +49,25 @@ public class TaskController {
         leftLabel.setText((sharingTask.sender ? "Sending to " : "Receiving from ") + newValue);
       }
     });
-
+    sharingTask.error.addListener((observable, oldValue, newValue) -> {
+      if (newValue != null) {
+        unBindAll();
+      }
+    });
   }
 
   @FXML
   private void initialize() {
     progressBar.setVisible(false);
     leftLabel.setVisible(false);
+    removeButton.setVisible(false);
   }
   private void unBindAll() {
-    Stream.of(centerLabel.textProperty(), progressBar.progressProperty()).forEach(Property::unbind);
+    Stream.of(centerLabel.textProperty(), progressBar.progressProperty(), progressBar.progressProperty()).forEach(Property::unbind);
+    leftLabel.setVisible(false);
+    progressBar.setVisible(false);
+    cancelButton.setVisible(false);
+    removeButton.setVisible(true);
   }
 
   @FXML
@@ -61,12 +76,26 @@ public class TaskController {
       task.cancel();
       unBindAll();
       centerLabel.setText("Task cancelled");
-      leftLabel.setVisible(false);
-      progressBar.setVisible(false);
-      cancelButton.setText("Remove");
-    } else {
-      App.sharingTasks.remove(task);
     }
+  }
+
+  @FXML
+  private void remove() {
+    App.sharingTasks.remove(task);
+  }
+
+  @Override
+  public void onError(IOException e) {
+
+  }
+
+  @Override
+  public void onConnected(Peer selfPeer, Peer remotePeer, String fileName, long fileSize) {
+
+  }
+
+  @Override
+  public void onProgressUpdate(int progress, long byteProcessed, long totalBytes) {
 
   }
 }
