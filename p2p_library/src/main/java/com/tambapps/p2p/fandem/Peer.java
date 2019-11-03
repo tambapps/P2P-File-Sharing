@@ -1,5 +1,7 @@
 package com.tambapps.p2p.fandem;
 
+import lombok.Data;
+
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -7,6 +9,7 @@ import java.net.UnknownHostException;
 /**
  * Representation of peer
  */
+@Data
 public class Peer {
 
   private final InetAddress ip;
@@ -20,6 +23,14 @@ public class Peer {
     return new Peer(socket.getInetAddress(), socket.getPort());
   }
 
+  public static Peer parse(String peer) throws UnknownHostException {
+    int index = peer.indexOf(":");
+    if (index < 0) {
+      throw new IllegalArgumentException("peer is malformed");
+    }
+    return new Peer(InetAddress.getByName(peer.substring(0, index)), Integer.parseInt(peer.substring(index + 1)));
+  }
+
   public static Peer of(String address, int port) throws UnknownHostException {
     return of(InetAddress.getByName(address), port);
   }
@@ -27,22 +38,6 @@ public class Peer {
   private Peer(InetAddress ip, int port) {
     this.ip = ip;
     this.port = port;
-  }
-
-  public InetAddress getIp() {
-    return ip;
-  }
-
-  public int getPort() {
-    return port;
-  }
-
-  public static Peer parse(String peer) throws UnknownHostException {
-    int index = peer.indexOf(":");
-    if (index < 0) {
-      throw new IllegalArgumentException("peer is malformed");
-    }
-    return new Peer(InetAddress.getByName(peer.substring(0, index)), Integer.parseInt(peer.substring(index + 1)));
   }
 
   @Override
