@@ -24,7 +24,7 @@ public class SendPaneController {
 
   @FXML
   private void initialize() {
-    pathLabel.textProperty().bind(PropertyUtils.nullableToStringProperty(fileProperty, File::getPath));
+    PropertyUtils.bindMapNullableToStringProperty(fileProperty, File::getPath, pathLabel.textProperty());
   }
 
   @FXML

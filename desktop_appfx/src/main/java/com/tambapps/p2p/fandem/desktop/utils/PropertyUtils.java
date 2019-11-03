@@ -1,25 +1,21 @@
 package com.tambapps.p2p.fandem.desktop.utils;
 
 import javafx.beans.property.Property;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.StringProperty;
 
-import java.util.Objects;
 import java.util.function.Function;
 
 public class PropertyUtils {
 
-  public static <T, R> Property<R> mapProperty(Property<T> property, Function<T, R> mapper) {
-    Property<R> mapped;
-    mapped = new SimpleObjectProperty<>(mapper.apply(property.getValue()));
-    property.addListener((observableValue, oldValue, newValue) -> mapped.setValue(mapper.apply(newValue)));
-    return mapped;
+  public static <T, R> void bindMapProperty(Property<T> property, Function<T, R> mapper, Property<R> mappedProperty) {
+    property.addListener((observable, oldValue, newValue) -> mappedProperty.setValue(mapper.apply(newValue)));
   }
 
-  public static <T> Property<String> nullableToStringProperty(Property<T> property, Function<T, String> mapper) {
-    return mapProperty(property, o -> o == null ? "" : mapper.apply(o));
+  public static <T> void bindMapToStringProperty(Property<T> property, Function<T, String> mapper, StringProperty stringProperty) {
+    property.addListener((observable, oldValue, newValue) -> stringProperty.setValue(mapper.apply(newValue)));
   }
 
-  public static <T> Property<String> nullableToStringProperty(Property<T> property) {
-    return nullableToStringProperty(property, Objects::toString);
+  public static <T> void bindMapNullableToStringProperty(Property<T> property, Function<T, String> mapper, StringProperty stringProperty) {
+    property.addListener((observable, oldValue, newValue) -> stringProperty.setValue(newValue == null ? "" : mapper.apply(newValue)));
   }
 }

@@ -1,11 +1,12 @@
 package com.tambapps.p2p.fandem.desktop.model;
 
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 
 import java.io.File;
 
 public class SendingTask extends SharingTask {
 
-  public ObjectProperty<File> file;
+  public ObjectProperty<File> file = new SimpleObjectProperty<>();
 
 }

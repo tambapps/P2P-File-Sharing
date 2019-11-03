@@ -4,8 +4,8 @@ import com.tambapps.p2p.fandem.desktop.model.SharingTask;
 import com.tambapps.p2p.fandem.desktop.service.FileSharingService;
 import com.tambapps.p2p.fandem.desktop.style.Colors;
 import javafx.application.Application;
-import javafx.beans.property.ListProperty;
-import javafx.beans.property.SimpleListProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.Background;
@@ -25,12 +25,14 @@ public class App extends Application {
 
     public static final int MAX_SHARING_TASKS = 4;
     public static FileSharingService sharingService;
-    public static final ListProperty<SharingTask> sharingTasks = new SimpleListProperty<>();
+    public static final ObservableList<SharingTask> sharingTasks = FXCollections.observableArrayList();
     private static Stage stage;
 
     @Override
     public void start(Stage stage) throws IOException {
         App.stage = stage;
+       // stage.getIcons().add(new Image(App.class.getResourceAsStream("icon.png")));
+
         stage.setTitle("Fandem: P2P File Sharing");
 
         VBox vBox = (VBox) load("app");
