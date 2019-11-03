@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.tambapps.p2p.fandem</groupId>
-	<artifactId>fandem-desktop</artifactId>
+	<artifactId>fandem</artifactId>
 	<version>1.2</version>
     <build>
         <plugins>

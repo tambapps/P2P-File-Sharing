@@ -24,7 +24,6 @@ public class ReceivePaneController {
 
   @FXML
   private Label pathLabel;
-
   @FXML
   private TextField ipField0;
   @FXML
