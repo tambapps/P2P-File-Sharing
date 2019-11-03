@@ -11,9 +11,7 @@ public class PropertyUtils {
   public static <T, R> Property<R> mapProperty(Property<T> property, Function<T, R> mapper) {
     Property<R> mapped;
     mapped = new SimpleObjectProperty<>(mapper.apply(property.getValue()));
-    property.addListener((observableValue, oldValue, newValue) -> {
-      mapped.setValue(mapper.apply(newValue));
-    });
+    property.addListener((observableValue, oldValue, newValue) -> mapped.setValue(mapper.apply(newValue)));
     return mapped;
   }
 
@@ -22,6 +20,6 @@ public class PropertyUtils {
   }
 
   public static <T> Property<String> nullableToStringProperty(Property<T> property) {
-    return mapProperty(property, Objects::toString);
+    return nullableToStringProperty(property, Objects::toString);
   }
 }

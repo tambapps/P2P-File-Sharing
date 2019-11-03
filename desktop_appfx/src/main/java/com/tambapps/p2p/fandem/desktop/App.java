@@ -15,6 +15,8 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * JavaFX App
@@ -22,7 +24,7 @@ import java.io.IOException;
 public class App extends Application {
 
     public static final int MAX_SHARING_TASKS = 4;
-    public static final FileSharingService sharingService = new FileSharingService();
+    public static FileSharingService sharingService;
     public static final ListProperty<SharingTask> sharingTasks = new SimpleListProperty<>();
     private static Stage stage;
 
@@ -51,7 +53,10 @@ public class App extends Application {
     }
 
     public static void main(String[] args) {
+        ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() + 1);
+        sharingService = new FileSharingService(executor);
         launch();
+        executor.shutdownNow();
     }
 
     public static Stage getStage() {

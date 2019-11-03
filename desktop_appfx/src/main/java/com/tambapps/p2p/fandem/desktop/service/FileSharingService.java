@@ -9,11 +9,16 @@ import com.tambapps.p2p.fandem.util.IPUtils;
 import java.io.File;
 import java.io.IOException;
 import java.net.SocketException;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
 public class FileSharingService {
 
-  private final FileSharer fileSharer = new FileSharer();
+  private final FileSharer fileSharer;
+
+  public FileSharingService(ExecutorService executorService) {
+    this.fileSharer = new FileSharer(executorService);
+  }
 
   public SendingTask sendFile(File file) throws IOException {
     SendingTask sendingTask = new SendingTask();
