@@ -48,6 +48,7 @@ public class App extends Application {
 
         Pair<Region, SendPaneController> sendPair = load("sendPane");
         Pair<Region, ReceivePaneController> receivePair = load("receivePane");
+        configureControllers(appPair.getValue(), sendPair.getValue(), receivePair.getValue());
 
         HBox panesContainer = (HBox) vBox.getChildren().get(0);
         panesContainer.getChildren().addAll(sendPair.getKey(), receivePair.getKey());
@@ -59,8 +60,8 @@ public class App extends Application {
 
     private void configureControllers(AppController appController,
                                       SendPaneController sendController, ReceivePaneController receiveController) {
-        BiConsumer<SharingTask, Region> taskConsumer = appController::addTask;
-        sendController.setTaskRegionBiConsumer(taskConsumer);
+        Consumer<Region> taskViewConsumer = appController::addTaskView;
+        sendController.setTaskViewConsumer(taskViewConsumer);
 
     }
     public static <N extends Region, C> Pair<N, C> load(String name) throws IOException {

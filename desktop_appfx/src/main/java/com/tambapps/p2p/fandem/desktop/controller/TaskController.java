@@ -13,6 +13,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.stream.Stream;
 
@@ -31,29 +32,19 @@ public class TaskController implements TransferListener, SharingErrorListener {
 
   private SharingTask task;
 
-  public void setTask(SharingTask sharingTask) {
-    this.task = sharingTask;
+  public void initSendingTask(File file) {
+    try {
+      this.task = App.sharingService.sendFile(file, this);
+    } catch (IOException e) {
+      //TODO handle me better
+    }
     String text;
     if (task.sender) {
       text = "Waiting for other peer on " + task.peer.get() + " ...";
     } else {
       text = "Connecting to " + task.remotePeer.get() + " ...";
     }
-    centerLabel.textProperty().set(text);
-    progressBar.progressProperty().bind(task.percentage);
-    sharingTask.remotePeer.addListener((observable, oldValue, newValue) -> {
-      if (newValue != null) {
-        centerLabel.setVisible(false);
-        progressBar.setVisible(true);
-        leftLabel.setVisible(true);
-        leftLabel.setText((sharingTask.sender ? "Sending to " : "Receiving from ") + newValue);
-      }
-    });
-    sharingTask.error.addListener((observable, oldValue, newValue) -> {
-      if (newValue != null) {
-        unBindAll();
-      }
-    });
+    // TODO update view
   }
 
   @FXML
@@ -62,21 +53,10 @@ public class TaskController implements TransferListener, SharingErrorListener {
     leftLabel.setVisible(false);
     removeButton.setVisible(false);
   }
-  private void unBindAll() {
-    Stream.of(centerLabel.textProperty(), progressBar.progressProperty(), progressBar.progressProperty()).forEach(Property::unbind);
-    leftLabel.setVisible(false);
-    progressBar.setVisible(false);
-    cancelButton.setVisible(false);
-    removeButton.setVisible(true);
-  }
 
   @FXML
   private void cancel() {
-    if (!task.canceled) {
-      task.cancel();
-      unBindAll();
-      centerLabel.setText("Task cancelled");
-    }
+
   }
 
   @FXML

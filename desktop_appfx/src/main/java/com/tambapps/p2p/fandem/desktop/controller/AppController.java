@@ -1,47 +1,34 @@
 package com.tambapps.p2p.fandem.desktop.controller;
 
-import com.tambapps.p2p.fandem.desktop.App;
 import com.tambapps.p2p.fandem.desktop.model.SharingTask;
-import com.tambapps.p2p.fandem.desktop.utils.CollectionsUtils;
 
+import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.layout.Background;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 
-import java.io.File;
-import java.io.IOException;
-
-import static com.tambapps.p2p.fandem.desktop.App.sharingService;
 import static com.tambapps.p2p.fandem.desktop.App.sharingTasks;
 
-public class AppController {
+public class AppController implements ListChangeListener<SharingTask> {
 
   @FXML
   private VBox tasksVBox;
 
   @FXML
   private void initialize() {
-
+    sharingTasks.addListener(this);
   }
 
-  private Region generateTaskView(SharingTask sharingTask) {
-    FXMLLoader loader = new FXMLLoader(App.class.getResource("taskView.fxml"));
-    Region taskView = null;
-    try {
-      taskView = loader.load();
-    } catch (IOException e) {
-      throw new RuntimeException("Coudln't load taskView", e);
-    }
-    taskView.setBackground(Background.EMPTY);
-    TaskController controller = loader.getController();
-    controller.setTask(sharingTask);
-    return taskView;
-  }
-
-  public void addTask(SharingTask task, Region taskView) {
-    sharingTasks.add(task); // TODO think of a better way ??
+  public void addTaskView(Region taskView) {
     tasksVBox.getChildren().add(taskView);
+  }
+
+  @Override
+  public void onChanged(Change<? extends SharingTask> change) {
+    while (change.next()) {
+      if (change.wasRemoved()) {
+        tasksVBox.getChildren().remove(change.getTo()); //taskView and sharing task share the same index
+      }
+    }
   }
 }

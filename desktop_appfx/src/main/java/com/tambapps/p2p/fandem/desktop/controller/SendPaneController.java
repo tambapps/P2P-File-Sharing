@@ -55,14 +55,6 @@ public class SendPaneController extends SharingPaneController {
       alert.show();
       return;
     }
-    try {
-      Pair<Region, TaskController> taskPair = App.loadQuietly("taskView");
-      SharingTask sharingTask = sharingService.sendFile(file, taskPair.getValue());
-      taskRegionBiConsumer.accept(sharingTask, taskPair.getKey());
-      fileProperty.set(null);
-    } catch (IOException e) {
-      Alert alert = new Alert(Alert.AlertType.ERROR, e.getMessage(), ButtonType.OK);
-      alert.show();
-    }
+    submitTaskView(controller -> controller.initSendingTask(file));
   }
 }
