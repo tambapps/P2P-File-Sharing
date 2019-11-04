@@ -12,7 +12,6 @@ public class SharingTask {
   public long totalBytes;
   public double percentage;
   public File file;
-  public String error;
   private Runnable canceler;
   public boolean canceled = false;
 

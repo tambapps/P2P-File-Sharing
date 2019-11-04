@@ -13,14 +13,15 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.stage.DirectoryChooser;
 
+import static com.tambapps.p2p.fandem.desktop.App.MAX_SHARING_TASKS;
+import static com.tambapps.p2p.fandem.desktop.App.sharingTasks;
+
 import java.io.File;
 import java.net.UnknownHostException;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.tambapps.p2p.fandem.desktop.App.*;
-
-public class ReceivePaneController {
+public class ReceivePaneController extends SharingPaneController {
 
   @FXML
   private Label pathLabel;
@@ -82,8 +83,10 @@ public class ReceivePaneController {
     }
     try {
       Peer peer = Peer.of(getAddress(), Integer.parseInt(portField.textProperty().get()));
-      sharingTasks.add(sharingService.receiveFile(file, peer));
+      submitTaskView(controller -> controller.initReceivingTask(file, peer));
       folderProperty.set(null);
+      ipFields.forEach(field -> field.setText(""));
+      portField.setText("");
     } catch (UnknownHostException e) {
       Alert alert = new Alert(Alert.AlertType.ERROR, "Couldn't find the host", ButtonType.OK);
       alert.show();

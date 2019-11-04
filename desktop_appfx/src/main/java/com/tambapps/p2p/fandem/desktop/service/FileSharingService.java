@@ -37,7 +37,7 @@ public class FileSharingService {
     return sendingTask;
   }
 
-  public SharingTask receiveFile(File folder, Peer peer) { // TODO pass taskController as parameter
+  public SharingTask receiveFile(File folder, Peer peer, TaskController controller) {
     SharingTask task = new SharingTask(false);
     task.remotePeer = peer;
 
@@ -45,22 +45,7 @@ public class FileSharingService {
       File file = FileUtils.newAvailableFile(folder, name);
       task.file = file;
       return file;
-    }, peer, new TransferListener() {
-      @Override
-      public void onConnected(Peer selfPeer, Peer remotePeer, String fileName, long fileSize) {
-        task.remotePeer = remotePeer;
-        task.peer = selfPeer;
-        task.totalBytes = fileSize;
-      }
-
-      @Override
-      public void onProgressUpdate(int progress, long byteProcessed, long totalBytes) {
-        task.percentage = ((double)byteProcessed) / ((double)totalBytes);
-        task.bytesProcessed = byteProcessed;
-      }
-    }, e -> {
-
-    });
+    }, peer, controller, controller);
     task.setCanceler(() -> future.cancel(true));
     return task;
   }

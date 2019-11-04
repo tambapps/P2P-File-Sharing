@@ -21,7 +21,6 @@ import javafx.util.Pair;
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 /**
@@ -62,8 +61,9 @@ public class App extends Application {
                                       SendPaneController sendController, ReceivePaneController receiveController) {
         Consumer<Region> taskViewConsumer = appController::addTaskView;
         sendController.setTaskViewConsumer(taskViewConsumer);
-
+        receiveController.setTaskViewConsumer(taskViewConsumer);
     }
+
     public static <N extends Region, C> Pair<N, C> load(String name) throws IOException {
         FXMLLoader loader = new FXMLLoader(App.class.getResource(name + ".fxml"));
         N node = loader.load();
