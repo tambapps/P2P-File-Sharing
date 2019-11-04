@@ -40,11 +40,11 @@ public class TaskController implements TransferListener, SharingErrorListener {
     }
     String text;
     if (task.sender) {
-      text = "Waiting for other peer on " + task.peer.get() + " ...";
+      text = "Waiting for other peer on " + task.peer + " ...";
     } else {
-      text = "Connecting to " + task.remotePeer.get() + " ...";
+      text = "Connecting to " + task.remotePeer + " ...";
     }
-    // TODO update view
+    centerLabel.setText(text);
   }
 
   @FXML

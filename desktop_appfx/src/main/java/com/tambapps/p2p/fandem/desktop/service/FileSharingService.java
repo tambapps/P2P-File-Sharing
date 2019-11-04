@@ -24,39 +24,39 @@ public class FileSharingService {
 
   public SharingTask sendFile(File file, TaskController controller) throws IOException {
     SharingTask sendingTask = new SharingTask(true);
-    sendingTask.file.set(file);
+    sendingTask.file = file;
     Peer peer;
     try {
       peer = IPUtils.getAvailablePeer();
     } catch (SocketException e) {
       throw new IOException("Couldn't retrieve IP. Are you connected to internet?");
     }
-    sendingTask.peer.set(peer);
+    sendingTask.peer = peer;
     Future future = fileSharer.sendFile(file, peer, 30 * 1000, controller, controller);
     sendingTask.setCanceler(() -> future.cancel(true));
     return sendingTask;
   }
 
-  public SharingTask receiveFile(File folder, Peer peer) {
+  public SharingTask receiveFile(File folder, Peer peer) { // TODO pass taskController as parameter
     SharingTask task = new SharingTask(false);
-    task.remotePeer.set(peer);
+    task.remotePeer = peer;
 
     Future future = fileSharer.receiveFile(name -> {
       File file = FileUtils.newAvailableFile(folder, name);
-      task.file.set(file);
+      task.file = file;
       return file;
     }, peer, new TransferListener() {
       @Override
       public void onConnected(Peer selfPeer, Peer remotePeer, String fileName, long fileSize) {
-        task.remotePeer.set(remotePeer);
-        task.peer.set(selfPeer);
-        task.totalBytes.set(fileSize);
+        task.remotePeer = remotePeer;
+        task.peer = selfPeer;
+        task.totalBytes = fileSize;
       }
 
       @Override
       public void onProgressUpdate(int progress, long byteProcessed, long totalBytes) {
-        task.percentage.setValue(((double)byteProcessed) / ((double)totalBytes));
-        task.bytesProcessed.set(byteProcessed);
+        task.percentage = ((double)byteProcessed) / ((double)totalBytes);
+        task.bytesProcessed = byteProcessed;
       }
     }, e -> {
 
