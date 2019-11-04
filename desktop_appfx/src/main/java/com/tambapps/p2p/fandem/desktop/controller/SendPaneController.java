@@ -1,21 +1,26 @@
 package com.tambapps.p2p.fandem.desktop.controller;
 
 import com.tambapps.p2p.fandem.desktop.App;
+import com.tambapps.p2p.fandem.desktop.model.SharingTask;
 import com.tambapps.p2p.fandem.desktop.utils.PropertyUtils;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.Region;
 import javafx.stage.FileChooser;
+import javafx.util.Pair;
 
 import java.io.File;
 import java.io.IOException;
 
 import static com.tambapps.p2p.fandem.desktop.App.*;
 
-public class SendPaneController {
+public class SendPaneController extends SharingPaneController {
 
   @FXML
   private Label pathLabel;
@@ -51,7 +56,9 @@ public class SendPaneController {
       return;
     }
     try {
-      sharingTasks.add(sharingService.sendFile(file));
+      Pair<Region, TaskController> taskPair = App.loadQuietly("taskView");
+      SharingTask sharingTask = sharingService.sendFile(file, taskPair.getValue());
+      taskRegionBiConsumer.accept(sharingTask, taskPair.getKey());
       fileProperty.set(null);
     } catch (IOException e) {
       Alert alert = new Alert(Alert.AlertType.ERROR, e.getMessage(), ButtonType.OK);

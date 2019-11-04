@@ -1,5 +1,8 @@
 package com.tambapps.p2p.fandem.desktop;
 
+import com.tambapps.p2p.fandem.desktop.controller.AppController;
+import com.tambapps.p2p.fandem.desktop.controller.ReceivePaneController;
+import com.tambapps.p2p.fandem.desktop.controller.SendPaneController;
 import com.tambapps.p2p.fandem.desktop.model.SharingTask;
 import com.tambapps.p2p.fandem.desktop.service.FileSharingService;
 import com.tambapps.p2p.fandem.desktop.style.Colors;
@@ -13,10 +16,13 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.util.Pair;
 
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 /**
  * JavaFX App
@@ -31,34 +37,44 @@ public class App extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         App.stage = stage;
-       // stage.getIcons().add(new Image(App.class.getResourceAsStream("icon.png")));
+        // stage.getIcons().add(new Image(App.class.getResourceAsStream("icon.png")));
 
         stage.setTitle("Fandem: P2P File Sharing");
 
-        VBox vBox = (VBox) load("app");
+        Pair<VBox, AppController> appPair = load("app");
+        VBox vBox = appPair.getKey();
         vBox.setStyle(String.format("-fx-background-color: linear-gradient(to top, %s, %s)",
           Colors.GRADIENT_BOTTOM, Colors.GRADIENT_TOP));
 
+        Pair<Region, SendPaneController> sendPair = load("sendPane");
+        Pair<Region, ReceivePaneController> receivePair = load("receivePane");
+
         HBox panesContainer = (HBox) vBox.getChildren().get(0);
-        panesContainer.getChildren().addAll(load("sendPane"), load("receivePane"));
+        panesContainer.getChildren().addAll(sendPair.getKey(), receivePair.getKey());
 
         Scene scene = new Scene(vBox);
         stage.setScene(scene);
         stage.show();
     }
 
-    public static Region load(String name) throws IOException {
+    private void configureControllers(AppController appController,
+                                      SendPaneController sendController, ReceivePaneController receiveController) {
+        BiConsumer<SharingTask, Region> taskConsumer = appController::addTask;
+        sendController.setTaskRegionBiConsumer(taskConsumer);
+
+    }
+    public static <N extends Region, C> Pair<N, C> load(String name) throws IOException {
         FXMLLoader loader = new FXMLLoader(App.class.getResource(name + ".fxml"));
-        Region node = loader.load();
+        N node = loader.load();
         node.setBackground(Background.EMPTY);
-        return node;
+        return new Pair<>(node, loader.getController());
     }
 
-    public static Region loadQuietly(String name) {
+    public static <N extends Region, C> Pair<N, C> loadQuietly(String name) {
         try {
             return load(name);
         } catch (IOException e) {
-            throw new RuntimeException("Failed to get region", e);
+            throw new RuntimeException("Couldn't load " + name, e);
         }
     }
 

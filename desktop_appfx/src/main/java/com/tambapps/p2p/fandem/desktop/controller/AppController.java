@@ -10,8 +10,10 @@ import javafx.scene.layout.Background;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 
+import java.io.File;
 import java.io.IOException;
 
+import static com.tambapps.p2p.fandem.desktop.App.sharingService;
 import static com.tambapps.p2p.fandem.desktop.App.sharingTasks;
 
 public class AppController {
@@ -21,7 +23,7 @@ public class AppController {
 
   @FXML
   private void initialize() {
-    CollectionsUtils.bindMapList(sharingTasks, this::generateTaskView, tasksVBox.getChildren());
+
   }
 
   private Region generateTaskView(SharingTask sharingTask) {
@@ -36,5 +38,10 @@ public class AppController {
     TaskController controller = loader.getController();
     controller.setTask(sharingTask);
     return taskView;
+  }
+
+  public void addTask(SharingTask task, Region taskView) {
+    sharingTasks.add(task); // TODO think of a better way ??
+    tasksVBox.getChildren().add(taskView);
   }
 }

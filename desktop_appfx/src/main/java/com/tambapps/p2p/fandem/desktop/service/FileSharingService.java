@@ -2,6 +2,7 @@ package com.tambapps.p2p.fandem.desktop.service;
 
 import com.tambapps.p2p.fandem.FileSharer;
 import com.tambapps.p2p.fandem.Peer;
+import com.tambapps.p2p.fandem.desktop.controller.TaskController;
 import com.tambapps.p2p.fandem.desktop.model.SharingTask;
 import com.tambapps.p2p.fandem.listener.TransferListener;
 import com.tambapps.p2p.fandem.util.FileUtils;
@@ -21,7 +22,7 @@ public class FileSharingService {
     this.fileSharer = new FileSharer(executorService);
   }
 
-  public SharingTask sendFile(File file) throws IOException {
+  public SharingTask sendFile(File file, TaskController controller) throws IOException {
     SharingTask sendingTask = new SharingTask(true);
     sendingTask.file.set(file);
     Peer peer;
@@ -31,22 +32,7 @@ public class FileSharingService {
       throw new IOException("Couldn't retrieve IP. Are you connected to internet?");
     }
     sendingTask.peer.set(peer);
-    Future future = fileSharer.sendFile(file, peer, 30 * 1000, new TransferListener() {
-      @Override
-      public void onConnected(Peer selfPeer, Peer remotePeer, String fileName, long fileSize) {
-        sendingTask.remotePeer.set(remotePeer);
-        sendingTask.totalBytes.set(fileSize);
-      }
-
-      @Override
-      public void onProgressUpdate(int progress, long byteProcessed, long totalBytes) {
-        sendingTask.percentage.setValue(((double)byteProcessed) / ((double)totalBytes));
-        sendingTask.bytesProcessed.set(byteProcessed);
-      }
-    }, e -> {
-      sendingTask.error.set(e.getMessage());
-      // TODO
-    });
+    Future future = fileSharer.sendFile(file, peer, 30 * 1000, controller, controller);
     sendingTask.setCanceler(() -> future.cancel(true));
     return sendingTask;
   }
