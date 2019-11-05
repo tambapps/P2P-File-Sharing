@@ -1,5 +1,7 @@
 package com.tambapps.p2p.fandem.desktop.controller;
 
+import static com.tambapps.p2p.fandem.desktop.App.sharingTasks;
+
 import com.tambapps.p2p.fandem.Peer;
 import com.tambapps.p2p.fandem.desktop.App;
 import com.tambapps.p2p.fandem.desktop.model.SharingTask;
@@ -36,6 +38,7 @@ public class TaskController implements TransferListener, SharingErrorListener {
     try {
       Peer peer = IPUtils.getAvailablePeer();
       this.task = App.sharingService.sendFile(peer, file, this);
+      sharingTasks.add(this.task);
       centerLabel.setText("Waiting for other peer on " + peer + " ...");
     } catch (SocketException e) {
       setEndMessage("Couldn't retrieve IP. Are you connected to internet?");
@@ -73,7 +76,7 @@ public class TaskController implements TransferListener, SharingErrorListener {
 
   @FXML
   private void remove() {
-    App.sharingTasks.remove(task);
+    sharingTasks.remove(task);
   }
 
   @Override
@@ -97,10 +100,6 @@ public class TaskController implements TransferListener, SharingErrorListener {
 
   @Override
   public void onProgressUpdate(int progress, long byteProcessed, long totalBytes) {
-    double newProgress = ((double)byteProcessed) / ((double)totalBytes);
-    if (newProgress > progressBar.getProgress() + 0.5) {
-      Platform.runLater(() -> progressBar.setProgress(newProgress));
-    }
     if (progress == 100) { // transfer finished
       Platform.runLater(() -> {
         String text;
@@ -112,6 +111,11 @@ public class TaskController implements TransferListener, SharingErrorListener {
         }
         setEndMessage(text);
       });
+      return;
+    }
+    double newProgress = ((double)byteProcessed) / ((double)totalBytes);
+    if (newProgress > progressBar.getProgress() + 0.5) {
+      Platform.runLater(() -> progressBar.setProgress(newProgress));
     }
   }
 }
