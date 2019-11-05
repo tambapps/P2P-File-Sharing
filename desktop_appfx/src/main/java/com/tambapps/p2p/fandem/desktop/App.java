@@ -11,6 +11,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
@@ -64,7 +65,7 @@ public class App extends Application {
   @Override
   public void start(Stage stage) throws IOException {
     App.stage = stage;
-    // stage.getIcons().add(new Image(App.class.getResourceAsStream("icon.png")));
+    stage.getIcons().add(new Image(App.class.getResourceAsStream("icon.png")));
 
     stage.setTitle("Fandem: P2P File Sharing");
 
