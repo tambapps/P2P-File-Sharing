@@ -4,7 +4,6 @@ import com.tambapps.p2p.fandem.FileSharer;
 import com.tambapps.p2p.fandem.Peer;
 import com.tambapps.p2p.fandem.desktop.controller.TaskController;
 import com.tambapps.p2p.fandem.desktop.model.SharingTask;
-import com.tambapps.p2p.fandem.listener.TransferListener;
 import com.tambapps.p2p.fandem.util.FileUtils;
 import com.tambapps.p2p.fandem.util.IPUtils;
 

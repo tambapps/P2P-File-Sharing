@@ -8,12 +8,9 @@ public class SharingTask {
   public final boolean sender;
   public Peer peer;
   public Peer remotePeer;
-  public long bytesProcessed;
-  public long totalBytes;
-  public double percentage;
   public File file;
-  private Runnable canceler;
   public boolean canceled = false;
+  private Runnable canceler;
 
   public SharingTask(boolean sender) {
     this.sender = sender;

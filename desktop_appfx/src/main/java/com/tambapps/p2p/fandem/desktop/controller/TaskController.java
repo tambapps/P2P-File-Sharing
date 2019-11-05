@@ -5,6 +5,7 @@ import com.tambapps.p2p.fandem.desktop.App;
 import com.tambapps.p2p.fandem.desktop.model.SharingTask;
 import com.tambapps.p2p.fandem.listener.SharingErrorListener;
 import com.tambapps.p2p.fandem.listener.TransferListener;
+
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;

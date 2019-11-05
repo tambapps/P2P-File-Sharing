@@ -1,9 +1,13 @@
 package com.tambapps.p2p.fandem.desktop.controller;
 
+import static com.tambapps.p2p.fandem.desktop.App.MAX_SHARING_TASKS;
+import static com.tambapps.p2p.fandem.desktop.App.sharingTasks;
+
 import com.tambapps.p2p.fandem.Peer;
 import com.tambapps.p2p.fandem.desktop.App;
 import com.tambapps.p2p.fandem.desktop.utils.NodeUtils;
 import com.tambapps.p2p.fandem.desktop.utils.PropertyUtils;
+
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXML;
@@ -12,9 +16,6 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.stage.DirectoryChooser;
-
-import static com.tambapps.p2p.fandem.desktop.App.MAX_SHARING_TASKS;
-import static com.tambapps.p2p.fandem.desktop.App.sharingTasks;
 
 import java.io.File;
 import java.net.UnknownHostException;
@@ -45,7 +46,8 @@ public class ReceivePaneController extends SharingPaneController {
     ipFields = List.of(ipField0, ipField1, ipField2, ipField3);
     ipFields.forEach(NodeUtils::numberTextField);
     NodeUtils.numberTextField(portField);
-    PropertyUtils.bindMapNullableToStringProperty(folderProperty, File::getPath, pathLabel.textProperty());
+    PropertyUtils
+        .bindMapNullableToStringProperty(folderProperty, File::getPath, pathLabel.textProperty());
   }
 
   @FXML
@@ -62,22 +64,27 @@ public class ReceivePaneController extends SharingPaneController {
   private void receiveFile() {
     File file = folderProperty.get();
     if (ipFields.stream().anyMatch(ipField -> ipField.textProperty().get().isEmpty())) {
-      Alert alert = new Alert(Alert.AlertType.INFORMATION, "You must provide the sender's IP", ButtonType.OK);
+      Alert alert =
+          new Alert(Alert.AlertType.INFORMATION, "You must provide the sender's IP", ButtonType.OK);
       alert.show();
       return;
     }
     if (portField.textProperty().get().isEmpty()) {
-      Alert alert = new Alert(Alert.AlertType.INFORMATION, "You must provide the sender's port", ButtonType.OK);
+      Alert alert = new Alert(Alert.AlertType.INFORMATION, "You must provide the sender's port",
+          ButtonType.OK);
       alert.show();
       return;
     }
     if (file == null) {
-      Alert alert = new Alert(Alert.AlertType.INFORMATION, "You haven't picked a directory yet", ButtonType.OK);
+      Alert alert = new Alert(Alert.AlertType.INFORMATION, "You haven't picked a directory yet",
+          ButtonType.OK);
       alert.show();
       return;
     }
     if (sharingTasks.size() >= MAX_SHARING_TASKS) {
-      Alert alert = new Alert(Alert.AlertType.INFORMATION, "Maximum tasks number reached. Wait until one task is over to start another.", ButtonType.OK);
+      Alert alert = new Alert(Alert.AlertType.INFORMATION,
+          "Maximum tasks number reached. Wait until one task is over to start another.",
+          ButtonType.OK);
       alert.show();
       return;
     }
@@ -95,7 +102,7 @@ public class ReceivePaneController extends SharingPaneController {
 
   private String getAddress() {
     return ipFields.stream()
-      .map(field -> field.textProperty().get())
-      .collect(Collectors.joining("."));
+        .map(field -> field.textProperty().get())
+        .collect(Collectors.joining("."));
   }
 }
