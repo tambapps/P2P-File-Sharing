@@ -35,31 +35,12 @@ public class App extends Application {
   public static FileSharingService sharingService;
   private static Stage stage;
 
-  public static <N extends Region, C> Pair<N, C> load(String name) throws IOException {
-    FXMLLoader loader = new FXMLLoader(App.class.getResource(name + ".fxml"));
-    N node = loader.load();
-    node.setBackground(Background.EMPTY);
-    return new Pair<>(node, loader.getController());
-  }
-
-  public static <N extends Region, C> Pair<N, C> loadQuietly(String name) {
-    try {
-      return load(name);
-    } catch (IOException e) {
-      throw new RuntimeException("Couldn't load " + name, e);
-    }
-  }
-
   public static void main(String[] args) {
     ExecutorService executor =
         Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() + 1);
     sharingService = new FileSharingService(executor);
     launch();
     executor.shutdownNow();
-  }
-
-  public static Stage getStage() {
-    return stage;
   }
 
   @Override
@@ -84,6 +65,17 @@ public class App extends Application {
     Scene scene = new Scene(vBox);
     stage.setScene(scene);
     stage.show();
+  }
+
+  private static <N extends Region, C> Pair<N, C> load(String name) throws IOException {
+    FXMLLoader loader = new FXMLLoader(App.class.getResource(name + ".fxml"));
+    N node = loader.load();
+    node.setBackground(Background.EMPTY);
+    return new Pair<>(node, loader.getController());
+  }
+
+  public static Stage getStage() {
+    return stage;
   }
 
   private void configureControllers(AppController appController,
