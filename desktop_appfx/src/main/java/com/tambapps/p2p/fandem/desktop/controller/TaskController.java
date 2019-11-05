@@ -7,6 +7,7 @@ import com.tambapps.p2p.fandem.listener.SharingErrorListener;
 import com.tambapps.p2p.fandem.listener.TransferListener;
 
 import com.tambapps.p2p.fandem.util.IPUtils;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -54,12 +55,14 @@ public class TaskController implements TransferListener, SharingErrorListener {
   }
 
   private void setEndMessage(String message) {
-    leftLabel.setVisible(false);
-    progressBar.setVisible(false);
-    cancelButton.setVisible(false);
-    removeButton.setVisible(true);
-    centerLabel.setVisible(true);
-    centerLabel.setText(message);
+    Platform.runLater(() -> {
+      leftLabel.setVisible(false);
+      progressBar.setVisible(false);
+      cancelButton.setVisible(false);
+      removeButton.setVisible(true);
+      centerLabel.setVisible(true);
+      centerLabel.setText(message);
+    });
   }
 
   @FXML
@@ -80,27 +83,35 @@ public class TaskController implements TransferListener, SharingErrorListener {
 
   @Override
   public void onConnected(Peer selfPeer, Peer remotePeer, String fileName, long fileSize) {
-    leftLabel.setVisible(true);
     String text;
     if (task.sender) {
       text = String.format("Sending %s to peer %s", fileName, remotePeer);
     } else {
       text = String.format("Receiving %s from peer %s", fileName, remotePeer);
     }
-    leftLabel.setText(text);
+    Platform.runLater(() -> {
+      leftLabel.setVisible(true);
+      leftLabel.setText(text);
+    });
   }
 
   @Override
   public void onProgressUpdate(int progress, long byteProcessed, long totalBytes) {
-    progressBar.setProgress(((double)byteProcessed) / ((double)totalBytes));
-    if (progress == 100) { // end
-      String text;
-      if (task.sender) {
-        text = String.format("%s was successfully sent ", task.file);
-      } else {
-        text = String.format("%s was received successfully in %s", task.file.getName(), task.file.getParent());
-      }
-      setEndMessage(text);
+    double newProgress = ((double)byteProcessed) / ((double)totalBytes);
+    if (newProgress > progressBar.getProgress() + 0.5) {
+      Platform.runLater(() -> progressBar.setProgress(newProgress));
+    }
+    if (progress == 100) { // transfer finished
+      Platform.runLater(() -> {
+        String text;
+        if (task.sender) {
+          text = String.format("%s was successfully sent ", task.file);
+        } else {
+          text = String.format("%s was received successfully in %s", task.file.getName(),
+              task.file.getParent());
+        }
+        setEndMessage(text);
+      });
     }
   }
 }
