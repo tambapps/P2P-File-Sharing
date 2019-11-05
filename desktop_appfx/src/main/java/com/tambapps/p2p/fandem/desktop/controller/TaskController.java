@@ -6,6 +6,7 @@ import com.tambapps.p2p.fandem.desktop.model.SharingTask;
 import com.tambapps.p2p.fandem.listener.SharingErrorListener;
 import com.tambapps.p2p.fandem.listener.TransferListener;
 
+import com.tambapps.p2p.fandem.util.IPUtils;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -13,6 +14,7 @@ import javafx.scene.control.ProgressBar;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.SocketException;
 
 public class TaskController implements TransferListener, SharingErrorListener {
 
@@ -31,16 +33,17 @@ public class TaskController implements TransferListener, SharingErrorListener {
 
   public void initSendingTask(File file) {
     try {
-      this.task = App.sharingService.sendFile(file, this);
-      centerLabel.setText("Waiting for other peer on " + task.peer + " ...");
-    } catch (IOException e) {
-      setError(e.getMessage());
+      Peer peer = IPUtils.getAvailablePeer();
+      this.task = App.sharingService.sendFile(peer, file, this);
+      centerLabel.setText("Waiting for other peer on " + peer + " ...");
+    } catch (SocketException e) {
+      setEndMessage("Couldn't retrieve IP. Are you connected to internet?");
     }
   }
 
   public void initReceivingTask(File file, Peer peer) {
     this.task = App.sharingService.receiveFile(file, peer, this);
-    centerLabel.setText("Connecting to " + task.remotePeer + " ...");
+    centerLabel.setText("Connecting to " + peer + " ...");
   }
 
   @FXML
@@ -50,18 +53,19 @@ public class TaskController implements TransferListener, SharingErrorListener {
     removeButton.setVisible(false);
   }
 
-  private void setError(String error) {
+  private void setEndMessage(String message) {
     leftLabel.setVisible(false);
     progressBar.setVisible(false);
     cancelButton.setVisible(false);
     removeButton.setVisible(true);
     centerLabel.setVisible(true);
-    centerLabel.setText(error);
+    centerLabel.setText(message);
   }
 
   @FXML
   private void cancel() {
-
+    task.cancel();
+    setEndMessage("Task canceled");
   }
 
   @FXML
@@ -71,16 +75,32 @@ public class TaskController implements TransferListener, SharingErrorListener {
 
   @Override
   public void onError(IOException e) {
-
+    setEndMessage("An error occurred: " + e.getMessage());
   }
 
   @Override
   public void onConnected(Peer selfPeer, Peer remotePeer, String fileName, long fileSize) {
-
+    leftLabel.setVisible(true);
+    String text;
+    if (task.sender) {
+      text = String.format("Sending %s to peer %s", fileName, remotePeer);
+    } else {
+      text = String.format("Receiving %s from peer %s", fileName, remotePeer);
+    }
+    leftLabel.setText(text);
   }
 
   @Override
   public void onProgressUpdate(int progress, long byteProcessed, long totalBytes) {
-
+    progressBar.setProgress(((double)byteProcessed) / ((double)totalBytes));
+    if (progress == 100) { // end
+      String text;
+      if (task.sender) {
+        text = String.format("%s was successfully sent ", task.file);
+      } else {
+        text = String.format("%s was received successfully in %s", task.file.getName(), task.file.getParent());
+      }
+      setEndMessage(text);
+    }
   }
 }

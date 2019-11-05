@@ -1,13 +1,9 @@
 package com.tambapps.p2p.fandem.desktop.model;
 
-import com.tambapps.p2p.fandem.Peer;
-
 import java.io.File;
 
 public class SharingTask {
   public final boolean sender;
-  public Peer peer;
-  public Peer remotePeer;
   public File file;
   public boolean canceled = false;
   private Runnable canceler;
