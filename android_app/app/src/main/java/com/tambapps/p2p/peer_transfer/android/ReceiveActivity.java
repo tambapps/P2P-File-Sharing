@@ -24,7 +24,6 @@ import com.tambapps.p2p.peer_transfer.android.service.FileReceivingJobService;
 
 public class ReceiveActivity extends AppCompatActivity {
 
-    private static final int RECEIVING_JOB_ID = 1;
     private TextInputLayout portInput;
     private IpInputHandler ipInputHandler;
     private FirebaseAnalytics analytics;
@@ -85,7 +84,6 @@ public class ReceiveActivity extends AppCompatActivity {
 
             bundle.putString("downloadPath", downloadPath);
             bundle.putString("peer", ipInputHandler.getIp() + ":" + port);
-            bundle.putInt("id", RECEIVING_JOB_ID);
 
             JobInfo.Builder jobInfoBuilder = new JobInfo.Builder(1,
                     new ComponentName(this, FileReceivingJobService.class))

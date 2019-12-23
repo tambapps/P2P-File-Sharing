@@ -32,7 +32,6 @@ import java.util.Locale;
 
 public class SendActivity extends AppCompatActivity {
 
-    private static final int SENDING_JOB_ID = 0;
     private final static int PICK_FILE = 1;
     private FirebaseAnalytics analytics;
 
@@ -91,7 +90,6 @@ public class SendActivity extends AppCompatActivity {
 
         Pair<String, Long> fileInfos = getFileInfos(uri);
         bundle.putString("fileUri", uri.toString());
-        bundle.putInt("id", SENDING_JOB_ID);
 
         if (fileInfos.first != null) {
             bundle.putString("fileName", fileInfos.first);

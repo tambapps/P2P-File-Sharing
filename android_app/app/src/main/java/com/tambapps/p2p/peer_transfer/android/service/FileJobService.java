@@ -25,6 +25,7 @@ import com.tambapps.p2p.peer_transfer.android.R;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Created by fonkoua on 13/05/18.
@@ -57,7 +58,7 @@ public abstract class FileJobService extends JobService {
     public boolean onStartJob(final JobParameters params) {
         PersistableBundle bundle = params.getExtras();
         NotificationManager notificationManager  = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        int notifId = bundle.getInt("id");
+        int notifId = ThreadLocalRandom.current().nextInt();
         Runnable endRunnable = new Runnable() {
             @Override
             public void run() {
@@ -96,7 +97,6 @@ public abstract class FileJobService extends JobService {
         }
         NotificationCompat.Builder notifBuilder = new NotificationCompat.Builder(this, getClass().getName());
         notifBuilder
-                .setOngoing(true)
                 .setSmallIcon(smallIcon())
                 .setLargeIcon(BitmapFactory.decodeResource(getResources(), largeIcon()))
                 .setColor(getResources().getColor(R.color.colorSmallIcon));
@@ -160,12 +160,7 @@ public abstract class FileJobService extends JobService {
                 @Override
                 public void run() {
                     FileTask.this.run(params);
-                    try {
-                        Thread.sleep(500); //wait to ensure that the notification is well updated
-                    } catch (InterruptedException e) {
-                        Crashlytics.logException(e);
-                    }
-                    updateNotification();
+                    showFinishNotification();
                     endRunnable.run();
                     dispose();
                 }
@@ -196,7 +191,12 @@ public abstract class FileJobService extends JobService {
             notificationManager.notify(notifId, notifBuilder.build());
         }
 
+        void showFinishNotification() {
+            notificationManager.notify(notifId + 1, notifBuilder.build());
+        }
+
         NotificationCompat.Builder finishNotification() {
+            notificationManager.cancel(notifId);
             notifBuilder.mActions.clear();
             return notifBuilder.setStyle(null)
                     .setAutoCancel(true)

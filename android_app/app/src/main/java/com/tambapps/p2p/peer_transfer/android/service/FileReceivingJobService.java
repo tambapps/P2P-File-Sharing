@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.PersistableBundle;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.FileProvider;
@@ -102,34 +103,8 @@ public class FileReceivingJobService extends FileJobService {
 
             try {
                 fileReceiver.receiveFrom(Peer.parse(params[1]));
-                File file = fileReceiver.getOutputFile();
-                if (fileReceiver.isCanceled()) {
-                    NotificationCompat.Builder builder = finishNotification()
-                            .setContentTitle("Transfer canceled");
-                    if (file.exists() && !file.delete()) {
-                        builder.setStyle(notifStyle.bigText("The file couldn't be downloaded entirely. Please, delete it."));
-                    }
-                } else {
-                    finishNotification()
-                            .setContentTitle("Transfer completed")
-                            .setContentIntent(fileIntentProvider.ofFile(file));
-
-                    Bitmap image = null;
-                    if (isImage(file)) {
-                        try (InputStream inputStream = new FileInputStream(file)) {
-                            image = BitmapFactory.decodeStream(inputStream);
-                        } catch (IOException e) {
-                            Crashlytics.log("Couldn't decode img");
-                            Crashlytics.logException(e);
-                        }
-                    }
-                    if (image != null) {
-                        getNotifBuilder().setStyle(new NotificationCompat.BigPictureStyle()
-                                .bigPicture(image).setSummaryText(fileName));
-                    } else {
-                        getNotifBuilder().setStyle(notifStyle.bigText(fileName + " was successfully received"));
-                    }
-                }
+                final File file = fileReceiver.getOutputFile();
+                completeNotification(file);
             } catch (SocketTimeoutException e) {
                 Crashlytics.logException(e);
                 finishNotification()
@@ -153,6 +128,36 @@ public class FileReceivingJobService extends FileJobService {
                 }
             }
             getAnalytics().logEvent(FirebaseAnalytics.Event.SHARE, bundle);
+        }
+
+        private void completeNotification(File file) {
+            if (fileReceiver.isCanceled()) {
+                NotificationCompat.Builder builder = finishNotification()
+                        .setContentTitle("Transfer canceled");
+                if (file.exists() && !file.delete()) {
+                    builder.setStyle(notifStyle.bigText("The file couldn't be downloaded entirely. Please, delete it."));
+                }
+            } else {
+                finishNotification()
+                        .setContentTitle("Transfer completed")
+                        .setContentIntent(fileIntentProvider.ofFile(file));
+
+                Bitmap image = null;
+                if (isImage(file)) {
+                    try (InputStream inputStream = new FileInputStream(file)) {
+                        image = BitmapFactory.decodeStream(inputStream);
+                    } catch (IOException e) {
+                        Crashlytics.log("Couldn't decode img");
+                        Crashlytics.logException(e);
+                    }
+                }
+                if (image != null) {
+                    getNotifBuilder().setStyle(new NotificationCompat.BigPictureStyle()
+                            .bigPicture(image).setSummaryText(fileName));
+                } else {
+                    getNotifBuilder().setStyle(notifStyle.bigText(fileName + " was successfully received"));
+                }
+            }
         }
 
         private boolean isImage(File file) {
