@@ -1,28 +1,12 @@
 package com.tambapps.p2p.fandem.desktop.model;
 
-import com.tambapps.p2p.fandem.Peer;
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.LongProperty;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.property.SimpleLongProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
-
 import java.io.File;
 
 public class SharingTask {
-  public final ObjectProperty<Peer> peer = new SimpleObjectProperty<>();
-  public final ObjectProperty<Peer> remotePeer = new SimpleObjectProperty<>();
-  public final LongProperty bytesProcessed = new SimpleLongProperty();
-  public final LongProperty totalBytes = new SimpleLongProperty();
-  public final DoubleProperty percentage = new SimpleDoubleProperty();
-  public ObjectProperty<File> file = new SimpleObjectProperty<>();
-  public final StringProperty error = new SimpleStringProperty();
   public final boolean sender;
-  private Runnable canceler;
+  public File file;
   public boolean canceled = false;
+  private Runnable canceler;
 
   public SharingTask(boolean sender) {
     this.sender = sender;

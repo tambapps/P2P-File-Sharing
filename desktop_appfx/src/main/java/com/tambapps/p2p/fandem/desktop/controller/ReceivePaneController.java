@@ -1,9 +1,13 @@
 package com.tambapps.p2p.fandem.desktop.controller;
 
+import static com.tambapps.p2p.fandem.desktop.App.MAX_SHARING_TASKS;
+import static com.tambapps.p2p.fandem.desktop.App.sharingTasks;
+
 import com.tambapps.p2p.fandem.Peer;
 import com.tambapps.p2p.fandem.desktop.App;
 import com.tambapps.p2p.fandem.desktop.utils.NodeUtils;
 import com.tambapps.p2p.fandem.desktop.utils.PropertyUtils;
+
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXML;
@@ -18,9 +22,7 @@ import java.net.UnknownHostException;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.tambapps.p2p.fandem.desktop.App.*;
-
-public class ReceivePaneController {
+public class ReceivePaneController extends SharingPaneController {
 
   @FXML
   private Label pathLabel;
@@ -44,7 +46,8 @@ public class ReceivePaneController {
     ipFields = List.of(ipField0, ipField1, ipField2, ipField3);
     ipFields.forEach(NodeUtils::numberTextField);
     NodeUtils.numberTextField(portField);
-    PropertyUtils.bindMapNullableToStringProperty(folderProperty, File::getPath, pathLabel.textProperty());
+    PropertyUtils
+        .bindMapNullableToStringProperty(folderProperty, File::getPath, pathLabel.textProperty());
   }
 
   @FXML
@@ -61,29 +64,36 @@ public class ReceivePaneController {
   private void receiveFile() {
     File file = folderProperty.get();
     if (ipFields.stream().anyMatch(ipField -> ipField.textProperty().get().isEmpty())) {
-      Alert alert = new Alert(Alert.AlertType.INFORMATION, "You must provide the sender's IP", ButtonType.OK);
+      Alert alert =
+          new Alert(Alert.AlertType.INFORMATION, "You must provide the sender's IP", ButtonType.OK);
       alert.show();
       return;
     }
     if (portField.textProperty().get().isEmpty()) {
-      Alert alert = new Alert(Alert.AlertType.INFORMATION, "You must provide the sender's port", ButtonType.OK);
+      Alert alert = new Alert(Alert.AlertType.INFORMATION, "You must provide the sender's port",
+          ButtonType.OK);
       alert.show();
       return;
     }
     if (file == null) {
-      Alert alert = new Alert(Alert.AlertType.INFORMATION, "You haven't picked a directory yet", ButtonType.OK);
+      Alert alert = new Alert(Alert.AlertType.INFORMATION, "You haven't picked a directory yet",
+          ButtonType.OK);
       alert.show();
       return;
     }
     if (sharingTasks.size() >= MAX_SHARING_TASKS) {
-      Alert alert = new Alert(Alert.AlertType.INFORMATION, "Maximum tasks number reached. Wait until one task is over to start another.", ButtonType.OK);
+      Alert alert = new Alert(Alert.AlertType.INFORMATION,
+          "Maximum tasks number reached. Wait until one task is over to start another.",
+          ButtonType.OK);
       alert.show();
       return;
     }
     try {
       Peer peer = Peer.of(getAddress(), Integer.parseInt(portField.textProperty().get()));
-      sharingTasks.add(sharingService.receiveFile(file, peer));
+      submitTaskView(controller -> controller.initReceivingTask(file, peer));
       folderProperty.set(null);
+      ipFields.forEach(field -> field.setText(""));
+      portField.setText("");
     } catch (UnknownHostException e) {
       Alert alert = new Alert(Alert.AlertType.ERROR, "Couldn't find the host", ButtonType.OK);
       alert.show();
@@ -92,7 +102,7 @@ public class ReceivePaneController {
 
   private String getAddress() {
     return ipFields.stream()
-      .map(field -> field.textProperty().get())
-      .collect(Collectors.joining("."));
+        .map(field -> field.textProperty().get())
+        .collect(Collectors.joining("."));
   }
 }
