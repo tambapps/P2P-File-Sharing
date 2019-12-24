@@ -130,7 +130,7 @@ public abstract class FileJobService extends JobService {
         private final int notifId;
         private FirebaseAnalytics analytics;
         private Runnable endRunnable;
-        private String remotePeer;
+        private long lastNotificationUpdate = 0L;
 
         FileTask(NotificationCompat.Builder notifBuilder,
                  NotificationManager notificationManager,
@@ -152,7 +152,11 @@ public abstract class FileJobService extends JobService {
                 notifBuilder.setProgress(100, progress, false);
                 notifStyle.bigText(FileJobService.bytesToString(bytesProcessed) + "/ " + FileJobService.bytesToString(totalBytes));
             }
-            updateNotification();
+            long now = System.currentTimeMillis();
+            if (now - lastNotificationUpdate >= 500L) {
+                updateNotification();
+                lastNotificationUpdate = now;
+            }
         }
 
         FileTask execute(final String... params) {
@@ -160,7 +164,7 @@ public abstract class FileJobService extends JobService {
                 @Override
                 public void run() {
                     FileTask.this.run(params);
-                    showFinishNotification();
+                    updateNotification();
                     endRunnable.run();
                     dispose();
                 }
@@ -170,11 +174,11 @@ public abstract class FileJobService extends JobService {
 
         @Override
         public final void onConnected(Peer selfPeer, Peer remotePeer, String fileName, long fileSize) {
-            this.remotePeer = remotePeer.toString();
+            String remotePeer1 = remotePeer.toString();
             getNotifBuilder()
                     .setProgress(100, 0, false)
                     .setContentText("")
-                    .setContentTitle(onConnected(this.remotePeer, fileName))
+                    .setContentTitle(onConnected(remotePeer1, fileName))
                     .setStyle(notifStyle.bigText(""));
             updateNotification();
         }
@@ -191,12 +195,7 @@ public abstract class FileJobService extends JobService {
             notificationManager.notify(notifId, notifBuilder.build());
         }
 
-        void showFinishNotification() {
-            notificationManager.notify(notifId + 1, notifBuilder.build());
-        }
-
         NotificationCompat.Builder finishNotification() {
-            notificationManager.cancel(notifId);
             notifBuilder.mActions.clear();
             return notifBuilder.setStyle(null)
                     .setAutoCancel(true)
