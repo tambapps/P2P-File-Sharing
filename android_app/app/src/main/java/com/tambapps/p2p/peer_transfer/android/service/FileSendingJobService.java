@@ -18,6 +18,7 @@ import com.tambapps.p2p.peer_transfer.android.analytics.AnalyticsValues;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 
 /**
  * Created by fonkoua on 05/05/18.
@@ -82,8 +83,13 @@ public class FileSendingJobService extends FileJobService {
                             .setContentTitle(getString(R.string.transfer_canceled));
                 } else {
                     finishNotification().setContentTitle(getString(R.string.transfer_complete))
-                            .setStyle(notifStyle.bigText(fileName + getString(R.string.success_send)));
+                            .setStyle(notifStyle.bigText(getString(R.string.success_send, fileName)));
                 }
+            } catch (SocketTimeoutException e) {
+                Crashlytics.logException(e);
+                finishNotification()
+                        .setContentTitle(getString(R.string.transfer_canceled))
+                        .setContentText(getString(R.string.connection_timeout));
             } catch (FileNotFoundException e) {
                 Crashlytics.logException(e);
                 finishNotification()

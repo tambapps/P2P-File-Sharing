@@ -15,7 +15,7 @@
     <string name="peer_key_input">Enter the peer key</string>
     <string name="peer_key_malformed">Peer key is malformed</string>
     <string name="started_send_service_title">Started send service</string>
-    <string name="started_send_service_message">Provide the following peer key to the other device %s</string>
+    <string name="started_send_service_message">Provide the following peer key to the other device\n%s\n\nSee the progress on the notification bar</string>
     <string name="copy_to_clipboard">Copy to clipboard</string>
     <string name="copied_clipboard">Key copied to clipboard</string>
     <string name="couldnt_copy_clipboard">Couldn\'t copy to clipboard</string>
@@ -34,7 +34,7 @@
     <string name="incomplete_transfer">The file couldn\'t be downloaded entirely. You should delete it.</string>
     <string name="error_incomplete">An error occurred during the transfer. The file couldn\'t be downloaded entirely. You should delete it.</string>
     <string name="connection_timeout">Connection timeout</string>
-    <string name="connecting">Connecting...</string>
+    <string name="connecting">Connecting…</string>
     <string name="connecting_to">connecting to %s</string>
     <string name="permissions_not_granted">You didn\'t grant write permissions</string>
     <string name="grant_permission">Please, grant file writing permission</string>
