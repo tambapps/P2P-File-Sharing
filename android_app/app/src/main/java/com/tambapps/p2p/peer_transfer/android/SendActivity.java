@@ -1,9 +1,13 @@
 package com.tambapps.p2p.peer_transfer.android;
 
+import android.app.AlertDialog;
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -18,7 +22,6 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.crashlytics.android.Crashlytics;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
 import com.tambapps.p2p.fandem.Peer;
@@ -27,10 +30,7 @@ import com.tambapps.p2p.peer_transfer.android.analytics.AnalyticsValues;
 import com.tambapps.p2p.peer_transfer.android.service.FileSendingJobService;
 
 import java.io.File;
-import java.io.IOException;
-import java.net.InetAddress;
 import java.net.SocketException;
-import java.util.Locale;
 
 public class SendActivity extends AppCompatActivity {
 
@@ -69,15 +69,40 @@ public class SendActivity extends AppCompatActivity {
             if (peer == null) {
                 return;
             }
-
             if (sendFile(uri, peer)) {
-                TextView textView = findViewById(R.id.text_view);
-                textView.setText(getString(R.string.started_send_service, peer.toHexString()));
-                textView.setGravity(Gravity.CENTER_HORIZONTAL);
+                sendContent(peer);
             }
-
         }
 
+    }
+
+    private void sendContent(Peer peer) {
+        final String hexKey = peer.toHexString().toUpperCase();
+        TextView textView = findViewById(R.id.text_view);
+        textView.setText((
+                getString(R.string.started_send_service_title) + ". " +
+                        getString(R.string.started_send_service_message, hexKey)
+        ));
+        textView.setGravity(Gravity.CENTER_HORIZONTAL);
+        textView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                copyToClipboard(hexKey);
+                return true;
+            }
+        });
+        FloatingActionButton fab = findViewById(R.id.fab);
+        fab.hide();
+    }
+
+    private void copyToClipboard(String key) {
+        ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+        if (clipboard != null) {
+            clipboard.setPrimaryClip(ClipData.newPlainText("Fandem peer key", key));
+            Toast.makeText(getApplicationContext(), R.string.copied_clipboard, Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(getApplicationContext(), R.string.couldnt_copy_clipboard, Toast.LENGTH_SHORT).show();
+        }
     }
 
     private boolean sendFile(Uri uri, Peer peer) {
@@ -126,21 +151,15 @@ public class SendActivity extends AppCompatActivity {
         if (requestCode == PICK_FILE) {
             if (resultCode == RESULT_OK) {
 
-                Peer peer = getPeer();
+                final Peer peer = getPeer();
                 if (peer == null) {
                     Toast.makeText(this, "Network error, Couldn't start sending", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
                 if (sendFile(data.getData(), peer)) {
-                    Intent returnIntent = new Intent();
-
-                    String message = getString(R.string.started_send_service, peer.toHexString());
-                    returnIntent.putExtra(MainActivity.RETURN_TEXT_KEY, message);
-                    setResult(RESULT_OK, returnIntent);
-                    finish();
+                    sendContent(peer);
                 }
-
             } else {
                 Toast.makeText(this, "Couldn't get a file", Toast.LENGTH_SHORT).show();
             }

@@ -14,5 +14,9 @@
     <string name="send_description">\t\t\t\tPour envoyer un fichier, allez sur la page d\'envoi, puis choisissez un fichier à envoyer en cliquant sur le bouton en bas de l\'écran. Ensuite, votre clé d\'expéditeur sera affichée sur l\'écran, vous devrez la transmettre à l\'appareil récepteur.\nUne fois que l\'appareil récepteur aura entré votre clé, le transfert commencera. Vous pouvez voir le progrès dans la notification crée.</string>
     <string name="peer_key_input">Entrez la clé de l\'expediteur</string>
     <string name="peer_key_malformed">La clé est malformée</string>
-    <string name="started_send_service">Prêt à envoyer. Fournissez la clé suivante à l\'autre appareil %s</string>
+    <string name="started_send_service_title">Prêt à envoyer</string>
+    <string name="started_send_service_message">Fournissez la clé suivante à l\'autre appareil %s</string>
+    <string name="copy_to_clipboard">Copie presse-papier</string>
+    <string name="copied_clipboard">Clé copiée dans le presse-papier</string>
+    <string name="couldnt_copy_clipboard">Echec de la copie dans le presse-papier</string>
 </resources>

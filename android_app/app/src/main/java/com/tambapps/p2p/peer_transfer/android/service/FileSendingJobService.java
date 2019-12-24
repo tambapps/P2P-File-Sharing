@@ -125,8 +125,8 @@ public class FileSendingJobService extends FileJobService {
 
         @Override
         public void onStart(Peer peer, String s) {
-            getNotifBuilder().setContentTitle("Waiting for a connection on: ")
-                    .setContentText(peer.toHexString());
+            getNotifBuilder().setContentTitle("Waiting for a connection")
+                    .setContentText("Waiting on " + peer + " (");
             updateNotification();
         }
     }

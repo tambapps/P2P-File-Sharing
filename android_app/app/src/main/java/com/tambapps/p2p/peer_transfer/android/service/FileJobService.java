@@ -175,6 +175,7 @@ public abstract class FileJobService extends JobService {
         public final void onConnected(Peer selfPeer, Peer remotePeer, String fileName, long fileSize) {
             String remotePeer1 = remotePeer.toString();
             getNotifBuilder()
+                    .setOngoing(true)
                     .setProgress(100, 0, false)
                     .setContentText("")
                     .setContentTitle(onConnected(remotePeer1, fileName))
