@@ -7,8 +7,8 @@ android {
         applicationId "com.tambapps.p2p.peer_transfer.android"
         minSdkVersion 21
         targetSdkVersion 28
-        versionCode 8
-        versionName "1.6"
+        versionCode 10
+        versionName "2.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
