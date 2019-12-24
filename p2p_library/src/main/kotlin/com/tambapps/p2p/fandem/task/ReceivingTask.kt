@@ -25,8 +25,8 @@ class ReceivingTask(transferListener: TransferListener?, private val fileProvide
   }
 
   @Throws(IOException::class)
-  fun receiveFrom(address: InetAddress?, port: Int) {
-    receiveFrom(Peer.Companion.of(address, port))
+  fun receiveFrom(address: InetAddress, port: Int) {
+    receiveFrom(Peer.of(address, port))
   }
 
   @Throws(IOException::class)
@@ -52,7 +52,7 @@ class ReceivingTask(transferListener: TransferListener?, private val fileProvide
           val totalBytes = dis.readLong()
           val bufferSize = dis.readInt()
           val fileName = readName(dis)
-          transferListener?.onConnected(peer, Peer.Companion.of(socket.inetAddress, socket.port),
+          transferListener?.onConnected(peer, Peer.of(socket.inetAddress, socket.port),
               fileName, totalBytes)
           outputFile = fileProvider.newFile(fileName)
           FileOutputStream(outputFile).use { fos -> share(bufferSize, dis, fos, totalBytes) }

@@ -8,13 +8,13 @@ import java.net.UnknownHostException
  * Representation of peer
  */
 
-data class Peer private constructor(val ip: InetAddress?, val port: Int) {
+data class Peer private constructor(val ip: InetAddress, val port: Int) {
   override fun toString(): String {
-    return ip!!.hostAddress.replace("/", "") + ":" + port
+    return ip.hostAddress.replace("/", "") + ":" + port
   }
 
   fun toHexString(): String {
-    val address = ip!!.address
+    val address = ip.address
     val builder = StringBuilder()
     for (field in address) {
       builder.append(toHexString(field))
@@ -37,7 +37,7 @@ data class Peer private constructor(val ip: InetAddress?, val port: Int) {
 
   companion object {
     const val DEFAULT_PORT = 8081
-    fun of(address: InetAddress?, port: Int): Peer {
+    fun of(address: InetAddress, port: Int): Peer {
       return Peer(address, port)
     }
 

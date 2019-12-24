@@ -22,11 +22,11 @@ class SendingTask(transferListener: TransferListener?, private val peer: Peer,
       : ServerSocket? = null
 
   @JvmOverloads
-  constructor(address: InetAddress?, port: Int = 0, socketTimeout: Int = 0, bufferSize: Int = BUFFER_SIZE) : this(null, Peer.Companion.of(address, port), socketTimeout, bufferSize) {
+  constructor(address: InetAddress, port: Int = 0, socketTimeout: Int = 0, bufferSize: Int = BUFFER_SIZE) : this(null, Peer.of(address, port), socketTimeout, bufferSize) {
   }
 
-  constructor(transferListener: TransferListener?, address: InetAddress?,
-              port: Int, socketTimeout: Int, bufferSize: Int) : this(transferListener, Peer.Companion.of(address, port), socketTimeout, bufferSize) {
+  constructor(transferListener: TransferListener?, address: InetAddress,
+              port: Int, socketTimeout: Int, bufferSize: Int) : this(transferListener, Peer.of(address, port), socketTimeout, bufferSize) {
   }
 
   constructor(senderPeer: Peer, socketTimeout: Int) : this(senderPeer.ip, senderPeer.port, socketTimeout) {}
@@ -50,7 +50,7 @@ class SendingTask(transferListener: TransferListener?, private val peer: Peer,
     try {
       createServerSocket(fileName).use { serverSocket ->
         serverSocket.accept().use { socket ->
-          transferListener?.onConnected(peer, Peer.Companion.of(socket), fileName, fileSize)
+          transferListener?.onConnected(peer, Peer.of(socket), fileName, fileSize)
           DataOutputStream(socket.getOutputStream()).use { dos ->
             dos.writeLong(fileSize)
             dos.writeInt(bufferSize)

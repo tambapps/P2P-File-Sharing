@@ -50,9 +50,10 @@ object IPUtils {//is ipv4
   }
 
   @get:Throws(SocketException::class)
-  val availablePeer: Peer
+  val availablePeer: Peer?
     get() {
       val address = iPAddress
-      return Peer.of(address, getAvailablePort(address))
+
+      return if (address == null) null else Peer.of(address, getAvailablePort(address))
     }
 }

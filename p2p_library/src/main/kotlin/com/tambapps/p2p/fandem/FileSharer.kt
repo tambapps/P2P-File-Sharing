@@ -18,19 +18,19 @@ import java.util.concurrent.Future
  */
 class FileSharer(private val executorService: ExecutorService) {
   fun sendFile(filePath: String, peer: Peer, errorListener: SharingErrorListener): Future<Boolean> {
-    return sendFile(File(filePath), peer, SendingTask.Companion.DEFAULT_SOCKET_TIMEOUT, null, errorListener)
+    return sendFile(File(filePath), peer, SendingTask.DEFAULT_SOCKET_TIMEOUT, null, errorListener)
   }
 
   fun sendFile(filePath: String, peer: Peer, transferListener: TransferListener?, errorListener: SharingErrorListener): Future<Boolean> {
-    return sendFile(File(filePath), peer, SendingTask.Companion.DEFAULT_SOCKET_TIMEOUT, transferListener, errorListener)
+    return sendFile(File(filePath), peer, SendingTask.DEFAULT_SOCKET_TIMEOUT, transferListener, errorListener)
   }
 
   fun sendFile(file: File, peer: Peer, errorListener: SharingErrorListener): Future<Boolean> {
-    return sendFile(file, peer, SendingTask.Companion.DEFAULT_SOCKET_TIMEOUT, null, errorListener)
+    return sendFile(file, peer, SendingTask.DEFAULT_SOCKET_TIMEOUT, null, errorListener)
   }
 
   fun sendFile(file: File, peer: Peer, transferListener: TransferListener?, errorListener: SharingErrorListener): Future<Boolean> {
-    return sendFile(file, peer, SendingTask.Companion.DEFAULT_SOCKET_TIMEOUT, transferListener, errorListener)
+    return sendFile(file, peer, SendingTask.DEFAULT_SOCKET_TIMEOUT, transferListener, errorListener)
   }
 
   fun sendFile(file: File, peer: Peer, socketTimout: Int, transferListener: TransferListener?, errorListener: SharingErrorListener): Future<Boolean> {
