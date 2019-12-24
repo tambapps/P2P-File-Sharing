@@ -16,7 +16,6 @@ import android.os.Build;
 import android.os.PersistableBundle;
 import androidx.core.app.NotificationCompat;
 
-import com.crashlytics.android.Crashlytics;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.tambapps.p2p.fandem.Peer;
 import com.tambapps.p2p.fandem.listener.TransferListener;

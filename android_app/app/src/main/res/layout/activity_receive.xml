@@ -12,51 +12,25 @@
         android:layout_height="wrap_content"
         android:layout_margin="15dp"
         android:paddingTop="40dp"
+        android:layout_centerInParent="true"
         android:orientation="vertical">
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="#fff"
-        android:text="@string/ip_address"
-        android:layout_marginBottom="10dp"/>
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/ip_input"
-        android:orientation="horizontal">
-        <EditText
-            style="@style/IpEditText"
-            android:imeOptions="actionNext"
-            android:nextFocusForward="@+id/ip2"
-            />
         <TextView
-            style="@style/dot"
-            />
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#fff"
+            android:layout_gravity="center_horizontal"
+            android:text="@string/peer_key_input"
+            android:textSize="22sp"
+            android:layout_marginBottom="10dp"/>
+
         <EditText
-            style="@style/IpEditText"
-            android:id="@+id/ip2"
-            android:imeOptions="actionNext"
-            android:nextFocusForward="@+id/ip3"
+            android:layout_width="180dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:textSize="18sp"
+            android:id="@+id/peer_key"
             />
-        <TextView
-            style="@style/dot"
-            />
-        <EditText
-            style="@style/IpEditText"
-            android:id="@+id/ip3"
-            android:imeOptions="actionNext"
-            android:nextFocusForward="@+id/ip4"
-            />
-        <TextView
-            style="@style/dot"
-            />
-        <EditText
-            style="@style/IpEditText"
-            android:id="@+id/ip4"
-            android:imeOptions="actionNext"
-            android:nextFocusForward="@+id/port_input"
-            />
-    </LinearLayout>
 
         <TextView
             android:layout_width="wrap_content"
@@ -64,25 +38,10 @@
             android:textColor="#f00"
             android:alpha="0"
             android:layout_marginStart="2dp"
-            android:id="@+id/ip_error"
-            android:textSize="12sp"
-            android:text="@string/the_ip_is_malformed"/>
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:layout_width="match_parent"
-        android:id="@+id/port_input"
-        android:hint="@string/port"
-        app:errorTextAppearance="@style/ErrorAppearance"
-        android:layout_marginTop="10dp"
-        android:theme="@style/TextLayoutStyle"
-        android:layout_height="wrap_content">
-        <com.google.android.material.textfield.TextInputEditText
-            android:layout_width="80dp"
-            android:inputType="number"
-            android:textColor="#fff"
-            android:textCursorDrawable="@drawable/edittext_cursor"
-            android:layout_height="wrap_content" />
-    </com.google.android.material.textfield.TextInputLayout>
+            android:id="@+id/peer_key_error"
+            android:textSize="16sp"
+            android:layout_gravity="center_horizontal"
+            android:text="@string/peer_key_malformed"/>
     </LinearLayout>
 
     <ScrollView

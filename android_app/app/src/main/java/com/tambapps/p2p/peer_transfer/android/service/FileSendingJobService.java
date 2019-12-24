@@ -5,7 +5,6 @@ import android.app.PendingIntent;
 import android.content.ContentResolver;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.PersistableBundle;
 import androidx.core.app.NotificationCompat;
 
@@ -34,8 +33,9 @@ public class FileSendingJobService extends FileJobService {
                        Runnable endRunnable,
                        PendingIntent cancelIntent, FirebaseAnalytics analytics) {
         return new SendingTask(notifBuilder, notificationManager, notifId, getContentResolver(), endRunnable, cancelIntent, analytics)
-                .execute(bundle.getString("address"), String.valueOf(bundle.getInt("port")),
-                        bundle.getString("fileUri"), bundle.getString("fileName"),
+                .execute(bundle.getString("peer"),
+                        bundle.getString("fileUri"),
+                        bundle.getString("fileName"),
                         bundle.getString("fileSize"));
     }
 
@@ -70,21 +70,11 @@ public class FileSendingJobService extends FileJobService {
             bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, AnalyticsValues.SERVICE);
             bundle.putString(FirebaseAnalytics.Param.METHOD, "SEND");
 
-            try {
-                fileSender = new com.tambapps.p2p.fandem.task.SendingTask(this, Peer.of(params[0], Integer.parseInt(params[1])),
-                        SOCKET_TIMEOUT);
-            } catch (IOException e) {
-                Crashlytics.logException(e);
-                finishNotification()
-                        .setContentTitle("Failed to start service")
-                        .setContentText("Please, check your network connection");
-                updateNotification();
-                return;
-            }
-
-            Uri fileUri = Uri.parse(params[2]);
-            fileName = params[3];
-            long fileSize = Long.parseLong(params[4]);
+            fileSender = new com.tambapps.p2p.fandem.task.SendingTask(this, Peer.fromHexString(params[0]),
+                    SOCKET_TIMEOUT);
+            Uri fileUri = Uri.parse(params[1]);
+            fileName = params[2];
+            long fileSize = Long.parseLong(params[3]);
             try {
                 fileSender.send(contentResolver.openInputStream(fileUri), fileName, fileSize);
                 if (fileSender.isCanceled()) {
@@ -135,8 +125,8 @@ public class FileSendingJobService extends FileJobService {
 
         @Override
         public void onStart(Peer peer, String s) {
-            getNotifBuilder().setContentTitle("Waiting for a connection")
-                    .setContentText(peer.getIp() + ":" + peer.getPort());
+            getNotifBuilder().setContentTitle("Waiting for a connection on: ")
+                    .setContentText(peer.toHexString());
             updateNotification();
         }
     }

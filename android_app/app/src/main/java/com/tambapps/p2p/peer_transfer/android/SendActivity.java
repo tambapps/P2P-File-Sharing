@@ -21,6 +21,7 @@ import android.widget.Toast;
 import com.crashlytics.android.Crashlytics;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
+import com.tambapps.p2p.fandem.Peer;
 import com.tambapps.p2p.fandem.util.IPUtils;
 import com.tambapps.p2p.peer_transfer.android.analytics.AnalyticsValues;
 import com.tambapps.p2p.peer_transfer.android.service.FileSendingJobService;
@@ -28,6 +29,7 @@ import com.tambapps.p2p.peer_transfer.android.service.FileSendingJobService;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.SocketException;
 import java.util.Locale;
 
 public class SendActivity extends AppCompatActivity {
@@ -63,19 +65,14 @@ public class SendActivity extends AppCompatActivity {
                 return;
             }
 
-            Pair<InetAddress, Integer> peer = getPeer();
+            Peer peer = getPeer();
             if (peer == null) {
                 return;
             }
-            InetAddress address = peer.first;
-            int port = peer.second;
 
-            if (sendFile(uri, address, port)) {
+            if (sendFile(uri, peer)) {
                 TextView textView = findViewById(R.id.text_view);
-                textView.setText(("Started send service on\n" + address.getHostAddress() + ":"
-                        + port +
-                        "\n" +
-                        "You can see the progress on the notification"));
+                textView.setText(getString(R.string.started_send_service, peer.toHexString()));
                 textView.setGravity(Gravity.CENTER_HORIZONTAL);
             }
 
@@ -83,10 +80,9 @@ public class SendActivity extends AppCompatActivity {
 
     }
 
-    private boolean sendFile(Uri uri, InetAddress address, int port) {
+    private boolean sendFile(Uri uri, Peer peer) {
         PersistableBundle bundle = new PersistableBundle();
-        bundle.putString("address", address.getHostAddress());
-        bundle.putInt("port", port);
+        bundle.putString("peer", peer.toHexString());
 
         Pair<String, Long> fileInfos = getFileInfos(uri);
         bundle.putString("fileUri", uri.toString());
@@ -130,19 +126,16 @@ public class SendActivity extends AppCompatActivity {
         if (requestCode == PICK_FILE) {
             if (resultCode == RESULT_OK) {
 
-                Pair<InetAddress, Integer> peer = getPeer();
+                Peer peer = getPeer();
                 if (peer == null) {
                     Toast.makeText(this, "Network error, Couldn't start sending", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                InetAddress address = peer.first;
-                int port = peer.second;
 
-                if (sendFile(data.getData(), address, port)) {
+                if (sendFile(data.getData(), peer)) {
                     Intent returnIntent = new Intent();
 
-                    String message = "Service started. " + String.format(Locale.US, "Waiting connection on %s:%d",
-                            address.getHostAddress(), port);
+                    String message = getString(R.string.started_send_service, peer.toHexString());
                     returnIntent.putExtra(MainActivity.RETURN_TEXT_KEY, message);
                     setResult(RESULT_OK, returnIntent);
                     finish();
@@ -156,23 +149,13 @@ public class SendActivity extends AppCompatActivity {
         }
     }
 
-    private Pair<InetAddress, Integer> getPeer() {
-        InetAddress address;
-        int port;
-
+    private Peer getPeer() {
         try {
-            address = IPUtils.getIPAddress();
-            if (address == null) {
-                Toast.makeText(this, "Couldn't get ip address. Please verify your internet connection", Toast.LENGTH_SHORT).show();
-                return null;
-            }
-            port = IPUtils.getAvalaiblePort(address);
-        } catch (IOException e) {
-            Crashlytics.logException(e);
-            Toast.makeText(this, "Error: couldn't get ip address", Toast.LENGTH_SHORT).show();
+            return IPUtils.getAvailablePeer();
+        } catch (SocketException e) {
+            Toast.makeText(this, "Couldn't get ip address. Please verify your internet connection", Toast.LENGTH_SHORT).show();
             return null;
         }
-        return Pair.create(address, port);
     }
 
     private Pair<String, Long> getFileInfos(Uri uri) {

@@ -102,7 +102,7 @@ public class FileReceivingJobService extends FileJobService {
             updateNotification();
 
             try {
-                fileReceiver.receiveFrom(Peer.parse(params[1]));
+                fileReceiver.receiveFrom(Peer.fromHexString(params[1]));
                 final File file = fileReceiver.getOutputFile();
                 completeNotification(file);
             } catch (SocketTimeoutException e) {
