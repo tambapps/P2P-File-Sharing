@@ -36,10 +36,10 @@ object IPUtils {//is ipv4
    * @return an available port
    */
   fun getAvailablePort(inetAddress: InetAddress?): Int {
-    var port = 8081
+    var port = Peer.DEFAULT_PORT
     while (port < 65536) {
       try {
-        ServerSocket(port, 0, inetAddress).use { serverSocket -> }
+        ServerSocket(port, 0, inetAddress).use { }
       } catch (e: IOException) {
         port++
         continue
@@ -53,6 +53,6 @@ object IPUtils {//is ipv4
   val availablePeer: Peer
     get() {
       val address = iPAddress
-      return Peer.Companion.of(address, getAvailablePort(address))
+      return Peer.of(address, getAvailablePort(address))
     }
 }
