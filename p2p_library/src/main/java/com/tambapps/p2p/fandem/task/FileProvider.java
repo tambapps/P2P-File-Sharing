@@ -8,6 +8,6 @@ import java.io.IOException;
  */
 public interface FileProvider {
 
-  File newFile(String name) throws IOException;
+  public File newFile(String name) throws IOException;
 
 }
