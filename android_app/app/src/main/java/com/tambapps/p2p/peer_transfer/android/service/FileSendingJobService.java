@@ -79,27 +79,26 @@ public class FileSendingJobService extends FileJobService {
                 fileSender.send(contentResolver.openInputStream(fileUri), fileName, fileSize);
                 if (fileSender.isCanceled()) {
                     finishNotification()
-                            .setContentTitle("Transfer canceled");
+                            .setContentTitle(getString(R.string.transfer_canceled));
                 } else {
-                    finishNotification().setContentTitle("Transfer completed")
-                            .setStyle(notifStyle.bigText(fileName + " was successfully sent"));
+                    finishNotification().setContentTitle(getString(R.string.transfer_complete))
+                            .setStyle(notifStyle.bigText(fileName + getString(R.string.success_send)));
                 }
             } catch (FileNotFoundException e) {
                 Crashlytics.logException(e);
                 finishNotification()
-                        .setContentTitle("Transfer aborted")
-                        .setContentText("The file couldn't be found");
+                        .setContentTitle(getString(R.string.transfer_aborted))
+                        .setContentText(getString(R.string.couldnt_find_file));
             } catch (IOException e) {
                 Crashlytics.logException(e);
                 finishNotification()
-                        .setContentTitle("Transfer aborted")
-                        .setStyle(notifStyle.bigText("An error occurred during the transfer:\n" +
-                        e.getMessage()));
+                        .setContentTitle(getString(R.string.transfer_aborted))
+                        .setStyle(notifStyle.bigText(getString(R.string.error_occured, e.getMessage())));
             } catch (IllegalArgumentException e) {
                 Crashlytics.logException(e);
                 finishNotification()
-                        .setContentTitle("Transfer aborted")
-                        .setContentText("The file selected couldn't be sent");
+                        .setContentTitle(getString(R.string.transfer_aborted))
+                        .setContentText(getString(R.string.coudlnt_send));
             }
 
             getAnalytics().logEvent(FirebaseAnalytics.Event.SHARE, bundle);
@@ -114,7 +113,7 @@ public class FileSendingJobService extends FileJobService {
 
         @Override
         public String onConnected(String remoteAddress, String fileName) {
-            return "Sending " + fileName + "...";
+            return getString(R.string.sending_connected, fileName);
         }
 
         @Override
@@ -125,8 +124,8 @@ public class FileSendingJobService extends FileJobService {
 
         @Override
         public void onStart(Peer peer, String s) {
-            getNotifBuilder().setContentTitle("Waiting for a connection")
-                    .setContentText("Waiting on " + peer + " (");
+            getNotifBuilder().setContentTitle(getString(R.string.waiting_connection))
+                    .setContentText(getString(R.string.waiting_connection_message, peer, peer.toHexString()));
             updateNotification();
         }
     }

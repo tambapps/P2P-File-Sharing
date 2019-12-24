@@ -1,13 +1,11 @@
 package com.tambapps.p2p.peer_transfer.android;
 
-import android.app.AlertDialog;
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -61,7 +59,7 @@ public class SendActivity extends AppCompatActivity {
         if (Intent.ACTION_SEND.equals(receivedAction)) {
             Uri uri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
             if (uri == null) {
-                Toast.makeText(this, "Couldn't get file, sending canceled", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, this.getString(R.string.couldnt_get_file), Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -115,14 +113,14 @@ public class SendActivity extends AppCompatActivity {
         if (fileInfos.first != null) {
             bundle.putString("fileName", fileInfos.first);
         } else {
-            Toast.makeText(this, "Error: couldn't get name of file", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, this.getString(R.string.couldn_get_name_file), Toast.LENGTH_SHORT).show();
             return false;
         }
 
         if (fileInfos.second != null) {
             bundle.putString("fileSize", String.valueOf(fileInfos.second));
         } else {
-            Toast.makeText(this, "Error: couldn't get size of file", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, this.getString(R.string.couldnt_get_size_of_file), Toast.LENGTH_SHORT).show();
             return false;
         }
 
@@ -153,7 +151,7 @@ public class SendActivity extends AppCompatActivity {
 
                 final Peer peer = getPeer();
                 if (peer == null) {
-                    Toast.makeText(this, "Network error, Couldn't start sending", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, this.getString(R.string.network_error), Toast.LENGTH_SHORT).show();
                     return;
                 }
 
@@ -161,7 +159,7 @@ public class SendActivity extends AppCompatActivity {
                     sendContent(peer);
                 }
             } else {
-                Toast.makeText(this, "Couldn't get a file", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, this.getString(R.string.couldnt_get_file_short), Toast.LENGTH_SHORT).show();
             }
         } else {
             super.onActivityResult(requestCode, resultCode, data);
@@ -172,7 +170,7 @@ public class SendActivity extends AppCompatActivity {
         try {
             return IPUtils.getAvailablePeer();
         } catch (SocketException e) {
-            Toast.makeText(this, "Couldn't get ip address. Please verify your internet connection", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, this.getString(R.string.couldn_get_ip_address), Toast.LENGTH_SHORT).show();
             return null;
         }
     }

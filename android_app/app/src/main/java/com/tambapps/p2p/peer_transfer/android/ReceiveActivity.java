@@ -15,7 +15,6 @@ import android.text.TextWatcher;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.tambapps.p2p.fandem.Peer;
@@ -82,7 +81,7 @@ public class ReceiveActivity extends AppCompatActivity {
             logReceive();
             jobScheduler.schedule(jobInfoBuilder.build());
             Intent returnIntent = new Intent();
-            returnIntent.putExtra(MainActivity.RETURN_TEXT_KEY, "Service started. You can see the progress in the notification bar");
+            returnIntent.putExtra(MainActivity.RETURN_TEXT_KEY, getString(R.string.service_started));
             setResult(RESULT_OK, returnIntent);
             finish();
         } else {

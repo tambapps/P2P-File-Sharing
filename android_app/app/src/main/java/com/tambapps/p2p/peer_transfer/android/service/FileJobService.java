@@ -216,6 +216,14 @@ public abstract class FileJobService extends JobService {
         public FirebaseAnalytics getAnalytics() {
             return analytics;
         }
+
+        private Context getContext() {
+            return notifBuilder.mContext;
+        }
+
+        String getString(int rId, Object... args) {
+            return getContext().getString(rId, args);
+        }
     }
 
     public class NotificationBroadcastReceiver extends BroadcastReceiver {

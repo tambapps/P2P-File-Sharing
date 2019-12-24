@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == WRITE_PERMISSION_REQUEST) {
             if (grantResults.length > 0
                     && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(this, "You didn't grant write permissions", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, this.getString(R.string.permissions_not_granted), Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -61,8 +61,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void writePermissionDialog() {
         new AlertDialog.Builder(this)
-                .setTitle("Please, grant file writing permission")
-                .setNeutralButton("no", null)
+                .setTitle(this.getString(R.string.grant_permission))
+                .setNeutralButton(this.getString(R.string.no), null)
                 .setPositiveButton("ok", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {

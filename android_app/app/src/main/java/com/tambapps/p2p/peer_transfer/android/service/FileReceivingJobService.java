@@ -97,8 +97,8 @@ public class FileReceivingJobService extends FileJobService {
                 }
             });
 
-            getNotifBuilder().setContentTitle("Connecting...")
-                    .setContentText("connecting to " + params[1]);
+            getNotifBuilder().setContentTitle(getString(R.string.connecting))
+                    .setContentText(getString(R.string.connecting_to, params[1]));
             updateNotification();
 
             try {
@@ -108,23 +108,21 @@ public class FileReceivingJobService extends FileJobService {
             } catch (SocketTimeoutException e) {
                 Crashlytics.logException(e);
                 finishNotification()
-                        .setContentTitle("Transfer canceled")
-                        .setContentText("Connection timeout");
+                        .setContentTitle(getString(R.string.transfer_canceled))
+                        .setContentText(getString(R.string.connection_timeout));
             } catch (AsynchronousCloseException e) {
                 Crashlytics.logException(e);
                 finishNotification()
-                        .setContentTitle("Transfer canceled");
+                        .setContentTitle(getString(R.string.transfer_canceled));
             } catch (IOException e) {
                 Log.e("FileReceivingJobService", "error while receiving", e);
                 Crashlytics.logException(e);
                 finishNotification()
-                        .setContentTitle("Transfer aborted")
-                        .setStyle(notifStyle.bigText("An error occurred during the transfer:\n" +
-                                e.getMessage()));
+                        .setContentTitle(getString(R.string.transfer_aborted))
+                        .setStyle(notifStyle.bigText(getString(R.string.error_occured, e.getMessage())));
                 File file = fileReceiver.getOutputFile();
                 if (file != null && file.exists() && !file.delete()) {
-                    getNotifBuilder().setStyle(notifStyle.bigText("An error occurred during the transfer.\n" +
-                            "The file couldn't be downloaded entirely. Please, delete it."));
+                    getNotifBuilder().setStyle(notifStyle.bigText(getString(R.string.error_incomplete)));
                 }
             }
             getAnalytics().logEvent(FirebaseAnalytics.Event.SHARE, bundle);
@@ -133,13 +131,13 @@ public class FileReceivingJobService extends FileJobService {
         private void completeNotification(File file) {
             if (fileReceiver.isCanceled()) {
                 NotificationCompat.Builder builder = finishNotification()
-                        .setContentTitle("Transfer canceled");
+                        .setContentTitle(getString(R.string.transfer_canceled));
                 if (file.exists() && !file.delete()) {
-                    builder.setStyle(notifStyle.bigText("The file couldn't be downloaded entirely. Please, delete it."));
+                    builder.setStyle(notifStyle.bigText(getString(R.string.incomplete_transfer)));
                 }
             } else {
                 finishNotification()
-                        .setContentTitle("Transfer completed")
+                        .setContentTitle(getString(R.string.transfer_complete))
                         .setContentIntent(fileIntentProvider.ofFile(file));
 
                 Bitmap image = null;
@@ -155,7 +153,7 @@ public class FileReceivingJobService extends FileJobService {
                     getNotifBuilder().setStyle(new NotificationCompat.BigPictureStyle()
                             .bigPicture(image).setSummaryText(fileName));
                 } else {
-                    getNotifBuilder().setStyle(notifStyle.bigText(fileName + " was successfully received"));
+                    getNotifBuilder().setStyle(notifStyle.bigText(getString(R.string.success_received, fileName)));
                 }
             }
         }
@@ -189,7 +187,7 @@ public class FileReceivingJobService extends FileJobService {
         @Override
         public String onConnected(String remoteAddress, String fileName) {
             this.fileName = fileName;
-            return "Receiving " + fileName;
+            return getString(R.string.receveiving_connected, fileName);
         }
     }
 }
