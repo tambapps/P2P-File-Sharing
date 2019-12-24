@@ -14,6 +14,7 @@ object FileUtils {
    * @param bytes the bytes to display
    * @return a String representing the bytes in the appropriate unit
    */
+  @JvmStatic
   fun bytesToString(bytes: Long): String {
     val units = "kMG"
     var denominator: Long = 1
@@ -35,6 +36,7 @@ object FileUtils {
    * @return an non-existing file in the given directory with a name starting with to the given one
    * @throws IOException
    */
+  @JvmStatic
   @Throws(IOException::class)
   fun newAvailableFile(directory: File?, name: String): File {
     var file = File(directory, name)
@@ -62,10 +64,12 @@ object FileUtils {
     return file
   }
 
+  @JvmStatic
   fun newAvailableFileProvider(directory: File?): FileProvider {
     return FileProvider { name -> newAvailableFile(directory, name) }
   }
 
+  @JvmStatic
   @Throws(IOException::class)
   fun newAvailableFile(directory: String, name: String): File {
     return newAvailableFile(File(directory), name)

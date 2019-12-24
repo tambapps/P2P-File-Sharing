@@ -2,13 +2,14 @@ package com.tambapps.p2p.fandem
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.net.InetAddress
 
 class PeerTest {
 
   companion object {
-    private val LOCALHOST = InetAddress.getLocalHost()
+    private val LOCALHOST = InetAddress.getByName("192.168.23.0")
   }
 
   @Test
@@ -39,5 +40,6 @@ class PeerTest {
     println(peer1.toHexString())
     val peer2 = Peer.fromHexString(peer1.toHexString())
     assertEquals(peer1, peer2)
+    assertTrue(Peer.isCorrectPeerKey(peer1.toHexString()))
   }
 }

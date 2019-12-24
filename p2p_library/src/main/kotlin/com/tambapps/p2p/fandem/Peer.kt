@@ -9,55 +9,62 @@ import java.net.UnknownHostException
  */
 
 data class Peer private constructor(val ip: InetAddress, val port: Int) {
+
+  private val ipString: String
+    get() {
+      return ip.hostAddress.replace("/", "")
+    }
+
   override fun toString(): String {
-    return ip.hostAddress.replace("/", "") + ":" + port
+    return "$ipString:$port"
   }
 
   fun toHexString(): String {
-    val address = ip.address
-    val builder = StringBuilder()
-    for (field in address) {
-      builder.append(toHexString(field))
+    val ipHex = ipString.split(".").joinToString(prefix = "", postfix = "", separator = "") { s -> toHexString(s) }
+    return if (port != DEFAULT_PORT) {
+      ipHex + toHexString(port - DEFAULT_PORT)
+    } else {
+      ipHex
     }
-    if (port != DEFAULT_PORT) {
-      builder.append(toHexString(port - DEFAULT_PORT))
-    }
-    return builder.toString().toUpperCase()
   }
 
-  private fun toHexString(n: Byte): String {
-    val hex = n.toString(16)
-    return if (hex.length == 1) "0$hex" else hex
+  private fun toHexString(s: String): String {
+    return toHexString(s.toInt())
   }
 
-  private fun toHexString(n: Int): String {
-    val hex = n.toString(16)
-    return if (hex.length == 1) "0$hex" else hex
+  private fun toHexString(i: Int): String {
+    val  n = i.toString(16)
+    return if (n.length == 1) "0$n" else n
   }
 
   companion object {
     const val DEFAULT_PORT = 8081
+
+    @JvmStatic
     fun of(address: InetAddress, port: Int): Peer {
       return Peer(address, port)
     }
 
+    @JvmStatic
     fun of(socket: Socket): Peer {
       return Peer(socket.inetAddress, socket.port)
     }
 
+    @JvmStatic
     fun fromHexString(hexString: String): Peer {
-      val address = ByteArray(4)
+      val address = IntArray(4)
       for (i in address.indices) {
-        address[i] = hexString.substring(i * 2, i * 2 + 2).toByte(16)
+        address[i] = hexString.substring(i * 2, i * 2 + 2).toInt(16)
       }
       val port: Int =
           if(hexString.length == 10)
             DEFAULT_PORT + hexString.substring(8, 10).toInt(16)
           else
             DEFAULT_PORT
-      return of(InetAddress.getByAddress(address), port)
+      return of(InetAddress.getByName(address.joinToString(prefix = "", separator = ".", postfix = "") { it.toString() }), port)
     }
 
+    @JvmStatic
     @Throws(UnknownHostException::class)
     fun parse(peer: String): Peer {
       val index = peer.indexOf(":")
@@ -65,11 +72,28 @@ data class Peer private constructor(val ip: InetAddress, val port: Int) {
       return Peer(InetAddress.getByName(peer.substring(0, index)), peer.substring(index + 1).toInt())
     }
 
+    @JvmStatic
     @Throws(UnknownHostException::class)
     fun of(address: String?, port: Int): Peer {
       return of(InetAddress.getByName(address), port)
     }
-  }
 
+    @JvmStatic
+    fun isCorrectPeerKey(peerKey: String?): Boolean {
+      if (peerKey == null) {
+        return false
+      }
+      val peerKey = peerKey.toUpperCase()
+      if (peerKey.length != 8 && peerKey.length != 10) {
+        return false
+      }
+      for (element in peerKey) {
+        if (!(element in 'A'..'F' || element in '0'..'9')) {
+          return false
+        }
+      }
+      return true
+    }
+  }
 
 }

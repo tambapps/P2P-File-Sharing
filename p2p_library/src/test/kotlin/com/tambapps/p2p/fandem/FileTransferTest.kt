@@ -2,7 +2,7 @@ package com.tambapps.p2p.fandem
 
 import com.tambapps.p2p.fandem.task.ReceivingTask
 import com.tambapps.p2p.fandem.task.SendingTask
-import com.tambapps.p2p.fandem.util.FileUtils.decodePath
+import com.tambapps.p2p.fandem.util.FileUtils
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
@@ -25,7 +25,7 @@ class FileTransferTest {
     private const val FILE_PATH = "./file.txt"
     private val FILE = File("./file.txt")
     private var ORIGIN_FILE: File = try {
-      File(decodePath(FileTransferTest::class.java.classLoader
+      File(FileUtils.decodePath(FileTransferTest::class.java.classLoader
           .getResource(FILE_PATH)!!
           .file))
     } catch (e: UnsupportedEncodingException) {

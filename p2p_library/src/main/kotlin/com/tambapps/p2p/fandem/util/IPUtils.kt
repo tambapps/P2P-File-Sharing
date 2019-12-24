@@ -13,6 +13,7 @@ object IPUtils {//is ipv4
    * from https://stackoverflow.com/questions/6064510/how-to-get-ip-address-of-the-device-from-code
    * @return return the ip address of the device
    */
+  @JvmStatic
   @get:Throws(SocketException::class)
   val iPAddress: InetAddress?
     get() {
@@ -35,6 +36,7 @@ object IPUtils {//is ipv4
    * @param inetAddress the address of the host
    * @return an available port
    */
+  @JvmStatic
   fun getAvailablePort(inetAddress: InetAddress?): Int {
     var port = Peer.DEFAULT_PORT
     while (port < 65536) {
@@ -49,6 +51,7 @@ object IPUtils {//is ipv4
     throw RuntimeException("No available port was found")
   }
 
+  @JvmStatic
   @get:Throws(SocketException::class)
   val availablePeer: Peer?
     get() {
