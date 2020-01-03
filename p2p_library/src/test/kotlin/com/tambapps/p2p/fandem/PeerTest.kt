@@ -4,6 +4,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import java.lang.IllegalArgumentException
 import java.net.InetAddress
 
 class PeerTest {
@@ -41,5 +42,10 @@ class PeerTest {
     val peer2 = Peer.fromHexString(peer1.toHexString())
     assertEquals(peer1, peer2)
     assertTrue(Peer.isCorrectPeerKey(peer1.toHexString()))
+  }
+
+  @Test(expected = IllegalArgumentException::class)
+  fun testHexException() {
+    Peer.fromHexString("ABCDEFGH")
   }
 }

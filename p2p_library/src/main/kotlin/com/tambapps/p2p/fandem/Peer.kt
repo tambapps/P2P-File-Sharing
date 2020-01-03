@@ -1,5 +1,6 @@
 package com.tambapps.p2p.fandem
 
+import java.lang.IllegalArgumentException
 import java.net.InetAddress
 import java.net.Socket
 import java.net.UnknownHostException
@@ -51,7 +52,12 @@ data class Peer private constructor(val ip: InetAddress, val port: Int) {
     }
 
     @JvmStatic
+    @Throws(IllegalArgumentException::class)
     fun fromHexString(hexString: String): Peer {
+      if (hexString.length != 8 && hexString.length != 10 ||
+          !hexString.all { it.isDigit() || it.toUpperCase() in 'A'..'F' }) {
+        throw IllegalArgumentException("$hexString is malformed");
+      }
       val address = IntArray(4)
       for (i in address.indices) {
         address[i] = hexString.substring(i * 2, i * 2 + 2).toInt(16)
