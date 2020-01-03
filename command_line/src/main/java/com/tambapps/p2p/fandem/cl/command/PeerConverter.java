@@ -10,7 +10,11 @@ public class PeerConverter implements IStringConverter<Peer> {
     @Override
     public Peer convert(String value) {
         try {
-            return Peer.parse(value);
+            if (value.contains(".")) {
+                return Peer.parse(value);
+            } else {
+                return Peer.fromHexString(value);
+            }
         } catch (UnknownHostException e) {
             throw new ParameterException("Couldn't parse peer " + value);
         }

@@ -74,7 +74,7 @@ public class Main {
 		if (sendCommand.getIp() == null) {
 			try {
 				address = Objects.requireNonNull(IPUtils.getIPAddress());
-			} catch (SocketException|NullPointerException e) {
+			} catch (Exception e) {
 				System.out.println("Couldn't get ip address (are you connected to the internet?)");
 				return;
 			}
@@ -112,6 +112,7 @@ public class Main {
 			public void onStart(Peer self, String fileName) {
 				System.out.println("Sending " + fileName);
 				System.out.println("Waiting for a connection on " + self);
+				System.out.println("Hex string: " + self.toHexString().toUpperCase());
 			}
 		};
 		for (String filePath : sendCommand.getFilePath()) {
