@@ -15,7 +15,7 @@
     <string name="peer_key_input">Enter the peer key</string>
     <string name="peer_key_malformed">Peer key is malformed</string>
     <string name="started_send_service_title">Started send service</string>
-    <string name="started_send_service_message">Provide the following peer key to the other device\n%s\n\nSee the progress on the notification bar</string>
+    <string name="started_send_service_message">Provide the following peer key to the other device\n%s\nor\n%s for desktop\n\nSee the progress on the notification bar</string>
     <string name="copy_to_clipboard">Copy to clipboard</string>
     <string name="copied_clipboard">Key copied to clipboard</string>
     <string name="couldnt_copy_clipboard">Couldn\'t copy to clipboard</string>

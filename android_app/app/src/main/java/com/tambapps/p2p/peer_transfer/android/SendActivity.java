@@ -79,7 +79,7 @@ public class SendActivity extends AppCompatActivity {
         TextView textView = findViewById(R.id.text_view);
         textView.setText((
                 getString(R.string.started_send_service_title) + ". " +
-                        getString(R.string.started_send_service_message, hexKey)
+                        getString(R.string.started_send_service_message, hexKey, peer.toString())
         ));
         textView.setGravity(Gravity.CENTER_HORIZONTAL);
         textView.setOnLongClickListener(new View.OnLongClickListener() {

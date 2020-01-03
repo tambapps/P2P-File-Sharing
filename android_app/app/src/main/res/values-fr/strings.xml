@@ -15,7 +15,7 @@
     <string name="peer_key_input">Entrez la clé de l\'expediteur</string>
     <string name="peer_key_malformed">La clé est malformée</string>
     <string name="started_send_service_title">Prêt à envoyer</string>
-    <string name="started_send_service_message">Fournissez la clé suivante à l\'autre appareil\n%s\n\nSuivez le progrès depuis la barre de notifications.</string>
+    <string name="started_send_service_message">Fournissez la clé suivante à l\'autre appareil\n%s\nou\n%s pour l\'ordinateur\n\nSuivez le progrès depuis la barre de notifications.</string>
     <string name="copy_to_clipboard">Copier dans presse-papier</string>
     <string name="copied_clipboard">Clé copiée dans le presse-papier</string>
     <string name="couldnt_copy_clipboard">Echec de la copie dans le presse-papier</string>
