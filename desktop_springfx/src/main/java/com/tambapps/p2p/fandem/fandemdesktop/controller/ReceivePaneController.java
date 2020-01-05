@@ -59,6 +59,7 @@ public class ReceivePaneController {
   private void initialize() {
     ipFields = List.of(ipField0, ipField1, ipField2, ipField3);
     ipFields.forEach(NodeUtils::numberTextField);
+    portField.setText("8081");
     NodeUtils.numberTextField(portField);
     PropertyUtils
       .bindMapNullableToStringProperty(folderProperty, File::getPath, pathLabel.textProperty());
@@ -107,7 +108,7 @@ public class ReceivePaneController {
       receiveTaskLauncher.accept(file, peer);
       folderProperty.set(null);
       ipFields.forEach(field -> field.setText(""));
-      portField.setText("");
+      portField.setText("8081");
     } catch (UnknownHostException e) {
       Alert alert = new Alert(Alert.AlertType.ERROR, "Couldn't find the host", ButtonType.OK);
       alert.show();

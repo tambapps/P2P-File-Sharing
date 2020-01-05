@@ -21,6 +21,6 @@
       <Text layoutX="310.0" layoutY="126.0" strokeType="OUTSIDE" strokeWidth="0.0" text="." />
       <TextField fx:id="ipField3" layoutX="329.0" layoutY="109.0" prefHeight="26.0" prefWidth="48.0" />
       <Text layoutX="387.0" layoutY="129.0" strokeType="OUTSIDE" strokeWidth="0.0" text=":" />
-      <TextField fx:id="portField" layoutX="403.0" layoutY="108.0" prefHeight="26.0" prefWidth="48.0" />
+      <TextField fx:id="portField" layoutX="403.0" layoutY="108.0" prefHeight="26.0" prefWidth="64.0" />
    </children>
 </Pane>
