@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.AtomicReference;
 @Component // for dependency injection
 public class StageInitializer implements ApplicationListener<FandemDesktopFXApplication.StageReadyEvent> {
 
-  @Value("classpath:/view/chart.fxml")
+  @Value("classpath:/view/app.fxml")
   private Resource chartResource;
   @Value("classpath:/view/sendPane.fxml")
   private Resource sendPaneResource;
