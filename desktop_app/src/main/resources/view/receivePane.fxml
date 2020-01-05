@@ -27,6 +27,6 @@
       <Label layoutX="376.0" layoutY="115.0" styleClass="separator" text=":" />
       <Label layoutX="243.0" layoutY="149.0" text="or" />
       <Label layoutX="164.0" layoutY="177.0" text="Hex code" />
-      <TextField id="hexCodeField" fx:id="ipField01" layoutX="245.0" layoutY="174.0" prefHeight="26.0" prefWidth="125.0" />
+      <TextField fx:id="hexCodeField" layoutX="245.0" layoutY="174.0" prefHeight="26.0" prefWidth="125.0" />
    </children>
 </Pane>

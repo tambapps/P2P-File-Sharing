@@ -82,12 +82,16 @@ public class TaskViewController implements TransferListener, SharingErrorListene
   @Override
   public void onConnected(Peer selfPeer, Peer remotePeer, String fileName, long fileSize) {
     String text;
+    fileName = formattedFileName(fileName, 10);
     if (task.sender) {
       text = String.format("Sending %s to peer %s", fileName, remotePeer);
     } else {
       text = String.format("Receiving %s from peer %s", fileName, remotePeer);
     }
     Platform.runLater(() -> {
+      centerLabel.setText("");
+      centerLabel.setVisible(false);
+      progressBar.setVisible(true);
       leftLabel.setVisible(true);
       leftLabel.setText(text);
     });
@@ -98,22 +102,29 @@ public class TaskViewController implements TransferListener, SharingErrorListene
     if (progress == 100) { // transfer finished
       Platform.runLater(() -> {
         String text;
+        String filename = formattedFileName(task.file.getName(), 30);
         if (task.sender) {
-          text = String.format("%s was successfully sent ", task.file);
+          text = String.format("%s was successfully sent ", filename);
         } else {
-          text = String.format("%s was received successfully in %s", task.file.getName(),
-            task.file.getParent());
+          text = String.format("%s was received successfully in %s", filename,
+            task.file.getParentFile().getName());
         }
         setEndMessage(text);
       });
       return;
     }
     double newProgress = ((double)byteProcessed) / ((double)totalBytes);
-    if (newProgress > progressBar.getProgress() + 0.5) {
+    if (newProgress > progressBar.getProgress() + 0.025) {
       Platform.runLater(() -> progressBar.setProgress(newProgress));
     }
   }
 
+  private String formattedFileName(String name, int maxLength) {
+    if (name.length() > maxLength) {
+      return name.substring(0, maxLength) + "...";
+    }
+    return name;
+  }
   public void sendTask(File file) {
     Peer peer;
     try {
@@ -124,7 +135,7 @@ public class TaskViewController implements TransferListener, SharingErrorListene
     }
     task = fileSharingService.sendFile(peer, file, this);
     sharingTasks.add(task);
-    centerLabel.setText("Waiting for other peer on " + peer + " ...");
+    centerLabel.setText(String.format("Waiting for other peer on %s (hex code: %s)...", peer, peer.toHexString().toUpperCase()));
   }
 
   public void receiveTask(File folder, Peer peer) {

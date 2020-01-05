@@ -1,21 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.net.URL?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ProgressBar?>
 <?import javafx.scene.layout.Pane?>
 
-
-<?import java.net.URL?>
 <Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="50.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.tambapps.p2p.fandem.fandemdesktop.controller.TaskViewController">
    <stylesheets>
       <URL value="@../style/style.css" />
    </stylesheets>
    <children>
-      <ProgressBar fx:id="progressBar" layoutX="400.0" layoutY="15.0" prefWidth="200.0" progress="0.0" />
-      <Label fx:id="centerLabel" alignment="CENTER" layoutX="324.0" layoutY="17.0" prefHeight="16.0" prefWidth="350.0" textAlignment="CENTER" />
+      <ProgressBar fx:id="progressBar" layoutX="358.0" layoutY="15.0" prefHeight="20.0" prefWidth="306.0" progress="0.0" />
+      <Label fx:id="centerLabel" alignment="CENTER" layoutX="217.0" layoutY="11.0" prefHeight="29.0" prefWidth="589.0" textAlignment="CENTER" />
       <Button fx:id="cancelButton" layoutX="901.0" layoutY="12.0" mnemonicParsing="false" onAction="#cancel" text="Cancel" />
-      <Label fx:id="leftLabel" layoutX="31.0" layoutY="17.0" prefHeight="16.0" prefWidth="170.0" />
+      <Label fx:id="leftLabel" layoutX="14.0" layoutY="11.0" prefHeight="29.0" prefWidth="324.0" />
       <Button fx:id="removeButton" layoutX="901.0" layoutY="12.0" mnemonicParsing="false" onAction="#remove" text="Remove" />
    </children>
 </Pane>

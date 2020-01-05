@@ -19,18 +19,16 @@ import java.io.IOException;
 @Component
 public class AppController implements ListChangeListener<SharingTask> {
 
-  @Value("classpath:/view/taskView.fxml")
-  private Resource taskViewResource;
-
-  private final ObservableList<SharingTask> sharingTasks;
   private final RegionLoader regionLoader;
 
+  @Value("classpath:/view/taskView.fxml")
+  private Resource taskViewResource;
   @FXML
   private VBox tasksVBox;
 
-  public AppController(ObservableList<SharingTask> sharingTasks, RegionLoader regionLoader) {
-    this.sharingTasks = sharingTasks;
+  public AppController(RegionLoader regionLoader, ObservableList<SharingTask> sharingTasks) {
     this.regionLoader = regionLoader;
+    sharingTasks.addListener(this);
   }
 
   @Override
