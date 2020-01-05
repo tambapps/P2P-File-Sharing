@@ -1,12 +1,10 @@
 package com.tambapps.p2p.fandem.fandemdesktop.controller;
 
 import com.tambapps.p2p.fandem.Peer;
-import com.tambapps.p2p.fandem.fandemdesktop.model.SharingTask;
 import com.tambapps.p2p.fandem.fandemdesktop.util.NodeUtils;
 import com.tambapps.p2p.fandem.fandemdesktop.util.PropertyUtils;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
@@ -14,7 +12,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -43,6 +40,8 @@ public class ReceivePaneController {
   private TextField ipField3;
   @FXML
   private TextField portField;
+  @FXML
+  private TextField hexCodeField;
 
   private List<TextField> ipFields;
   private ObjectProperty<File> folderProperty = new SimpleObjectProperty<>();
@@ -75,21 +74,39 @@ public class ReceivePaneController {
     folderProperty.set(file);
   }
 
-  @FXML
-  private void receiveFile() {
-    File file = folderProperty.get();
+  private Peer verifiedPeer() throws UnknownHostException, IllegalArgumentException {
+    String hexCode = hexCodeField.getText();
+    if (hexCode != null && !hexCode.isEmpty()) {
+      try {
+        return Peer.fromHexString(hexCode);
+      } catch (IllegalArgumentException e) {
+        throw new IllegalArgumentException("Hex code is malformed");
+      }
+    }
     if (ipFields.stream().anyMatch(ipField -> ipField.textProperty().get().isEmpty())) {
-      Alert alert =
-        new Alert(Alert.AlertType.INFORMATION, "You must provide the sender's IP", ButtonType.OK);
-      alert.show();
-      return;
+      throw new IllegalArgumentException("You must provide the sender's IP");
     }
     if (portField.textProperty().get().isEmpty()) {
-      Alert alert = new Alert(Alert.AlertType.INFORMATION, "You must provide the sender's port",
-        ButtonType.OK);
+      throw new IllegalArgumentException("You must provide the sender's port");
+    }
+    return Peer.of(getAddress(), Integer.parseInt(portField.textProperty().get()));
+  }
+
+  @FXML
+  private void receiveFile() {
+    Peer peer;
+    try {
+      peer = verifiedPeer();
+    } catch (IllegalArgumentException e) {
+      Alert alert = new Alert(Alert.AlertType.ERROR, e.getMessage(), ButtonType.OK);
+      alert.show();
+      return;
+    } catch (UnknownHostException e) {
+      Alert alert = new Alert(Alert.AlertType.ERROR, "Couldn't find the host", ButtonType.OK);
       alert.show();
       return;
     }
+    File file = folderProperty.get();
     if (file == null) {
       Alert alert = new Alert(Alert.AlertType.INFORMATION, "You haven't picked a directory yet",
         ButtonType.OK);
@@ -103,16 +120,11 @@ public class ReceivePaneController {
       alert.show();
       return;
     }
-    try {
-      Peer peer = Peer.of(getAddress(), Integer.parseInt(portField.textProperty().get()));
-      receiveTaskLauncher.accept(file, peer);
-      folderProperty.set(null);
-      ipFields.forEach(field -> field.setText(""));
-      portField.setText("8081");
-    } catch (UnknownHostException e) {
-      Alert alert = new Alert(Alert.AlertType.ERROR, "Couldn't find the host", ButtonType.OK);
-      alert.show();
-    }
+    receiveTaskLauncher.accept(file, peer);
+    folderProperty.set(null);
+    ipFields.forEach(field -> field.setText(""));
+    hexCodeField.setText("");
+    portField.setText("8081");
   }
 
   private String getAddress() {
