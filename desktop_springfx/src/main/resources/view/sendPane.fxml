@@ -5,14 +5,14 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.Pane?>
 
-<Pane fx:id="root" prefHeight="400.0" prefWidth="500.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.tambapps.p2p.fandem.fandemdesktop.controller.SendPaneController">
+<Pane prefHeight="400.0" prefWidth="500.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.tambapps.p2p.fandem.fandemdesktop.controller.SendPaneController">
    <stylesheets>
       <URL value="@../style/style.css" />
    </stylesheets>
    <children>
       <Label layoutX="173.0" layoutY="30.0" styleClass="title" text="Send File" />
-      <Button fx:id="pickFileButton" layoutX="30.0" layoutY="217.0" mnemonicParsing="false" onAction="#pickFile" text="pick file" />
-      <Label fx:id="pathLabel" layoutX="125.0" layoutY="217.0" prefHeight="29.0" prefWidth="352.0" />
-      <Button layoutX="231.0" layoutY="323.0" mnemonicParsing="false" onAction="#sendFile" text="Send" />
+      <Button fx:id="pickFileButton" layoutX="30.0" layoutY="251.0" mnemonicParsing="false" onAction="#pickFile" text="Pick file" />
+      <Label fx:id="pathLabel" layoutX="125.0" layoutY="251.0" prefHeight="29.0" prefWidth="352.0" />
+      <Button layoutX="231.0" layoutY="344.0" mnemonicParsing="false" onAction="#sendFile" text="Send" />
    </children>
 </Pane>
