@@ -38,6 +38,9 @@ data class Peer private constructor(val ip: InetAddress, val port: Int) {
     return if (n.length == 1) "0$n" else n
   }
 
+  fun ipFields(): IntArray {
+    return ipString.split('.').map { s -> s.toInt() }.toIntArray()
+  }
   companion object {
     const val DEFAULT_PORT = 8081
 
