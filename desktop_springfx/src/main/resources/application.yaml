@@ -1,0 +1,6 @@
+spring:
+  application.title: Fandem Desktop
+  main.web-application-type: none
+
+sharing.tasks.max: 4
+socket.timeout.seconds: 60

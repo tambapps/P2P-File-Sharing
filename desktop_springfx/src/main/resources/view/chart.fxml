@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+      prefHeight="600.0" prefWidth="1000.0"
+      style="-fx-background-color: linear-gradient(to top, #43cea2, #3F51B5)"
+      xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.tambapps.p2p.fandem.fandemdesktop.controller.AppController">
+   <children>
+      <HBox prefHeight="400.0" prefWidth="1000.0" />
+      <VBox fx:id="tasksVBox" prefHeight="200.0" prefWidth="1000.0" />
+   </children>
+</VBox>
