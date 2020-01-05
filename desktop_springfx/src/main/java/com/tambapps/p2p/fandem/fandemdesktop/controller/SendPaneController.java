@@ -7,8 +7,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
-import javafx.stage.FileChooser;
-import javafx.stage.Stage;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -18,7 +17,7 @@ import java.util.function.Supplier;
 @Component
 public class SendPaneController {
 
-  private final Stage stage;
+  private final Supplier<File> fileChooser;
   private final Supplier<Boolean> canAddTaskSupplier;
   private final Consumer<File> sendTaskLauncher;
 
@@ -26,10 +25,10 @@ public class SendPaneController {
   private Label pathLabel;
   private ObjectProperty<File> fileProperty = new SimpleObjectProperty<>();
 
-  public SendPaneController(Supplier<Stage> stageSupplier,
+  public SendPaneController(@Qualifier("fileChooser") Supplier<File> fileChooser,
                             Supplier<Boolean> canAddTaskSupplier,
                             Consumer<File> sendTaskLauncher) {
-    this.stage = stageSupplier.get();
+    this.fileChooser = fileChooser;
     this.canAddTaskSupplier = canAddTaskSupplier;
     this.sendTaskLauncher = sendTaskLauncher;
   }
@@ -43,8 +42,7 @@ public class SendPaneController {
 
   @FXML
   private void pickFile() {
-    FileChooser fileChooser = new FileChooser();
-    File file = fileChooser.showOpenDialog(stage);
+    File file = fileChooser.get();
     if (file == null) {
       return;
     }

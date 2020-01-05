@@ -10,8 +10,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.stage.DirectoryChooser;
-import javafx.stage.Stage;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -24,7 +23,7 @@ import java.util.stream.Collectors;
 @Component
 public class ReceivePaneController {
 
-  private final Stage stage;
+  private final Supplier<File> directoryChooser;
   private final Supplier<Boolean> canAddTaskSupplier;
   private final BiConsumer<File, Peer> receiveTaskLauncher;
 
@@ -46,10 +45,10 @@ public class ReceivePaneController {
   private List<TextField> ipFields;
   private ObjectProperty<File> folderProperty = new SimpleObjectProperty<>();
 
-  public ReceivePaneController(Supplier<Stage> stageSupplier,
+  public ReceivePaneController(@Qualifier("directoryChooser") Supplier<File> directoryChooser,
                                Supplier<Boolean> canAddTaskSupplier,
                                BiConsumer<File, Peer> receiveTaskLauncher) {
-    this.stage = stageSupplier.get();
+    this.directoryChooser = directoryChooser;
     this.canAddTaskSupplier = canAddTaskSupplier;
     this.receiveTaskLauncher = receiveTaskLauncher;
   }
@@ -66,8 +65,7 @@ public class ReceivePaneController {
 
   @FXML
   private void pickFolder() {
-    DirectoryChooser fileChooser = new DirectoryChooser();
-    File file = fileChooser.showDialog(stage);
+    File file = directoryChooser.get();
     if (file == null) {
       return;
     }

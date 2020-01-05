@@ -5,6 +5,8 @@ import com.tambapps.p2p.fandem.fandemdesktop.controller.AppController;
 import com.tambapps.p2p.fandem.fandemdesktop.model.SharingTask;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.stage.DirectoryChooser;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -27,11 +29,6 @@ public class AppConfiguration {
   @Bean
   public AtomicReference<Stage> stageReference() {
     return new AtomicReference<>();
-  }
-
-  @Bean
-  public Supplier<Stage> stageSupplier(AtomicReference<Stage> stageReference) {
-    return stageReference::get;
   }
 
   @Bean
@@ -59,4 +56,13 @@ public class AppConfiguration {
     return Executors.newFixedThreadPool(maxSharingTasks);
   }
 
+  @Bean
+  public Supplier<File> directoryChooser(AtomicReference<Stage> stageReference) {
+    return () -> new DirectoryChooser().showDialog(stageReference.get());
+  }
+
+  @Bean
+  public Supplier<File> fileChooser(AtomicReference<Stage> stageReference) {
+    return () -> new FileChooser().showOpenDialog(stageReference.get());
+  }
 }
