@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -8,64 +8,38 @@
     android:background="@drawable/gradient_drawable"
     tools:context="com.tambapps.p2p.peer_transfer.android.MainActivity">
 
-    <RelativeLayout
-        android:layout_width="wrap_content"
-        android:layout_weight="1"
-        android:layout_marginBottom="10dp"
-        android:layout_gravity="center_horizontal"
-        android:layout_height="0dp">
+    <ImageButton
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:src="@drawable/question"
+        android:scaleType="fitCenter"
+        style="?android:attr/borderlessButtonStyle"
+        android:contentDescription="help"
+        android:onClick="helpIntent" />
 
-        <ImageButton
-            android:layout_width="match_parent"
-            android:layout_height="300dp"
-            android:src="@drawable/upload"
-            android:scaleType="fitCenter"
-            android:paddingBottom="80dp"
-            style="?android:attr/borderlessButtonStyle"
-            android:onClick="sendIntent" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_centerInParent="true"
+        android:paddingBottom="50dp"
+        >
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="#fff"
-            android:textSize="30sp"
-            android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true"
-            android:text="@string/send_file"/>
+            android:layout_gravity="center_horizontal"
+            android:text="@string/send_file"
+            style="@style/mainButton"
+            android:onClick="sendIntent"
+            />
 
-        <ImageButton
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:src="@drawable/question"
-            android:scaleType="fitCenter"
-            style="?android:attr/borderlessButtonStyle"
-            android:onClick="helpIntent" />
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:layout_width="wrap_content"
-        android:layout_weight="1"
-        android:layout_marginTop="10dp"
-        android:layout_gravity="center_horizontal"
-        android:layout_height="0dp">
-
-        <ImageButton
-            android:layout_width="match_parent"
-            android:layout_height="300dp"
-            android:src="@drawable/download"
-            android:scaleType="fitCenter"
-            android:paddingBottom="80dp"
-            style="?android:attr/borderlessButtonStyle"
-            android:onClick="receiveIntent" />
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="#fff"
-            android:textSize="30sp"
-            android:layout_marginBottom="10dp"
-            android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true"
-            android:text="@string/receive_file"/>
-    </RelativeLayout>
-
-
-</LinearLayout>
+            android:text="@string/receive_file"
+            android:layout_gravity="center_horizontal"
+            style="@style/mainButton"
+            android:onClick="receiveIntent"
+            />
+    </LinearLayout>
+</RelativeLayout>
