@@ -206,7 +206,6 @@ public class ReceiveActivity extends AppCompatActivity implements PeerSniffer.Sn
             holder.position = position;
             holder.filenameText.setText(discoveredPeer.getFileName());
             holder.hexCodeText.setText(peer.toHexString());
-            holder.addressText.setText(peer.toString());
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -234,14 +233,12 @@ public class ReceiveActivity extends AppCompatActivity implements PeerSniffer.Sn
 
             private final TextView filenameText;
             private final TextView hexCodeText;
-            private final TextView addressText;
             int position;
 
             public MyViewHolder(@NonNull View itemView) {
                 super(itemView);
                 filenameText = itemView.findViewById(R.id.element_peer_filename);
                 hexCodeText = itemView.findViewById(R.id.element_peer_hexcode);
-                addressText = itemView.findViewById(R.id.element_peer_address);
             }
         }
     }
