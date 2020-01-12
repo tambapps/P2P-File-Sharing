@@ -80,6 +80,6 @@ object IPUtils {//is ipv4
   @JvmStatic
   fun toHexString(i: Int): String {
     val  n = i.toString(16)
-    return if (n.length == 1) "0$n" else n
+    return (if (n.length == 1) "0$n" else n).toUpperCase()
   }
 }
