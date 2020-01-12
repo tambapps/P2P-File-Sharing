@@ -44,6 +44,6 @@
     <string name="transfer_canceled">Trasfert annulé</string>
     <string name="transfer_complete">Transfert fini avec succès</string>
     <string name="waiting_connection">En attente d\'une connexion</string>
-    <string name="waiting_connection_message">En attente sur %s (clé: %s)</string>
+    <string name="waiting_connection_message">%s (clé: %s)</string>
     <string name="transfer_aborted">Transfert interrompu</string>
 </resources>

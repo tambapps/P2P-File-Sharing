@@ -24,6 +24,7 @@ import com.tambapps.p2p.peer_transfer.android.R;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -32,8 +33,8 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public abstract class FileJobService extends JobService {
 
-    private final static ExecutorService executor = Executors.newFixedThreadPool(2);
-    final static int SOCKET_TIMEOUT = 1000 * 90; //in ms
+    private final static ExecutorService executor = Executors.newCachedThreadPool();
+    final static int SOCKET_TIMEOUT = 1000 * 60 * 2; //in ms
     private FirebaseAnalytics analytics;
 
 
@@ -115,11 +116,14 @@ public abstract class FileJobService extends JobService {
 
     @Override
     public boolean onStopJob(JobParameters params) {
+       cancel();
+        return false;
+    }
+
+    void cancel() {
         if (fileTask != null) {
             fileTask.cancel();
-
         }
-        return false;
     }
 
     static abstract class FileTask implements TransferListener {
@@ -230,8 +234,8 @@ public abstract class FileJobService extends JobService {
 
         @Override
         public final void onReceive(Context context, Intent intent) {
-            if (ACTION_CANCEL.equals(intent.getAction()) && fileTask != null) {
-                fileTask.cancel();
+            if (ACTION_CANCEL.equals(intent.getAction())) {
+                cancel();
             }
         }
     }
@@ -247,6 +251,10 @@ public abstract class FileJobService extends JobService {
         }
         return String.format(Locale.US, "%.1f %sB", ((float)bytes)/((float)denominator),
                 i == 0 ? "" : units.charAt(i - 1));
+    }
+
+    Future startSideTask(Runnable runnable) {
+        return executor.submit(runnable);
     }
 
 }

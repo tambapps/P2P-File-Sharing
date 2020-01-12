@@ -20,7 +20,7 @@
     <string name="copied_clipboard">Key copied to clipboard</string>
     <string name="couldnt_copy_clipboard">Couldn\'t copy to clipboard</string>
     <string name="waiting_connection">Waiting for a connection</string>
-    <string name="waiting_connection_message">Waiting on %s (peer key: %s)</string>
+    <string name="waiting_connection_message">%s (key: %s)</string>
     <string name="sending_connected">Sending %s…</string>
     <string name="transfer_aborted">Transfer aborted</string>
     <string name="couldnt_find_file">The file couldn\'t be found</string>
@@ -46,4 +46,7 @@
     <string name="couldnt_get_file_short">Couldn\'t get a file</string>
     <string name="network_error">Network error, Couldn\'t start sending</string>
     <string name="couldn_get_ip_address">Couldn\'t get ip address. Please verify your internet connection</string>
+    <string name="alert_receive_file">Receive %s</string>
+    <string name="alert_receive_file_message">Do you want to receive %s from peer %s?</string>
+    <string name="yes">yes</string>
 </resources>

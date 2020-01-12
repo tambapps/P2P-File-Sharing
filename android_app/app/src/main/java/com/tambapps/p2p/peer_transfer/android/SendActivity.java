@@ -23,11 +23,11 @@ import android.widget.Toast;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
 import com.tambapps.p2p.fandem.Peer;
-import com.tambapps.p2p.fandem.util.IPUtils;
 import com.tambapps.p2p.peer_transfer.android.analytics.AnalyticsValues;
 import com.tambapps.p2p.peer_transfer.android.service.FileSendingJobService;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.SocketException;
 
 public class SendActivity extends AppCompatActivity {
@@ -168,8 +168,8 @@ public class SendActivity extends AppCompatActivity {
 
     private Peer getPeer() {
         try {
-            return IPUtils.getAvailablePeer();
-        } catch (SocketException e) {
+            return Peer.getAvailablePeer();
+        } catch (IOException e) {
             Toast.makeText(this, this.getString(R.string.couldn_get_ip_address), Toast.LENGTH_SHORT).show();
             return null;
         }

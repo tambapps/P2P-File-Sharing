@@ -4,8 +4,11 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.ContentResolver;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.PersistableBundle;
+import android.util.Log;
+
 import androidx.core.app.NotificationCompat;
 
 import com.crashlytics.android.Crashlytics;
@@ -13,18 +16,23 @@ import com.google.firebase.analytics.FirebaseAnalytics;
 import com.tambapps.p2p.fandem.Peer;
 import com.tambapps.p2p.fandem.listener.SendingListener;
 
+import com.tambapps.p2p.fandem.sniff.PeerSniffHandler;
 import com.tambapps.p2p.peer_transfer.android.R;
 import com.tambapps.p2p.peer_transfer.android.analytics.AnalyticsValues;
+import com.tambapps.p2p.peer_transfer.android.task.PeerSniffHandlerTask;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
+import java.util.concurrent.Future;
 
 /**
  * Created by fonkoua on 05/05/18.
  */
 
 public class FileSendingJobService extends FileJobService {
+
+    private Future sniffHandlingTask;
 
     @Override
     FileTask startTask(NotificationCompat.Builder notifBuilder,
@@ -33,12 +41,30 @@ public class FileSendingJobService extends FileJobService {
                        PersistableBundle bundle,
                        Runnable endRunnable,
                        PendingIntent cancelIntent, FirebaseAnalytics analytics) {
+
+        String peerHexCode = bundle.getString("peer");
+        String fileName = bundle.getString("fileName");
+        startSniffHandlerTask(peerHexCode, fileName);
         return new SendingTask(notifBuilder, notificationManager, notifId, getContentResolver(), endRunnable, cancelIntent, analytics)
-                .execute(bundle.getString("peer"),
+                .execute(peerHexCode,
                         bundle.getString("fileUri"),
-                        bundle.getString("fileName"),
+                        fileName,
                         bundle.getString("fileSize"));
     }
+
+    private void startSniffHandlerTask(final String peerHexCode, final String fileName) {
+        sniffHandlingTask = startSideTask(new Runnable() {
+            @Override
+            public void run() {
+                Peer peer = Peer.fromHexString(peerHexCode);
+                String deviceName = Build.MANUFACTURER + " " + Build.MODEL;
+                PeerSniffHandler sniffHandler = new PeerSniffHandler(peer, deviceName, fileName);
+                sniffHandler.handleSniff();
+                //new PeerSniffHandlerTask(peer, deviceName).execute();
+            }
+        });
+    }
+
 
     @Override
     int smallIcon() {
@@ -133,6 +159,14 @@ public class FileSendingJobService extends FileJobService {
             getNotifBuilder().setContentTitle(getString(R.string.waiting_connection))
                     .setContentText(getString(R.string.waiting_connection_message, peer, peer.toHexString()));
             updateNotification();
+        }
+    }
+
+    @Override
+    void cancel() {
+        super.cancel();
+        if (sniffHandlingTask != null && !sniffHandlingTask.isCancelled()) {
+            sniffHandlingTask.cancel(true);
         }
     }
 }
