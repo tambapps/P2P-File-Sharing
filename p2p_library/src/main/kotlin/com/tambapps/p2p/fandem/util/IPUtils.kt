@@ -1,6 +1,7 @@
 package com.tambapps.p2p.fandem.util
 
 import com.tambapps.p2p.fandem.Peer
+import com.tambapps.p2p.fandem.exception.NoPortAvailableException
 import java.io.IOException
 import java.net.InetAddress
 import java.net.NetworkInterface
@@ -15,7 +16,7 @@ object IPUtils {//is ipv4
    */
   @JvmStatic
   @get:Throws(SocketException::class)
-  val iPAddress: InetAddress?
+  val ipAddress: InetAddress?
     get() {
       val interfaces: List<NetworkInterface> = Collections.list(NetworkInterface.getNetworkInterfaces())
       for (intf in interfaces) {
@@ -48,16 +49,8 @@ object IPUtils {//is ipv4
       }
       return port
     }
-    throw RuntimeException("No available port was found")
+    throw NoPortAvailableException("No available port was found")
   }
-
-  @JvmStatic
-  @get:Throws(SocketException::class)
-  val availablePeer: Peer?
-    get() {
-      val address = iPAddress
-      return if (address == null) null else Peer.of(address, getAvailablePort(address))
-    }
 
   /**
    * Returns a well formatted string of the given ip

@@ -1,9 +1,11 @@
 package com.tambapps.p2p.fandem
 
+import com.tambapps.p2p.fandem.exception.NoPortAvailableException
 import com.tambapps.p2p.fandem.util.IPUtils
 import java.lang.IllegalArgumentException
 import java.net.InetAddress
 import java.net.Socket
+import java.net.SocketException
 import java.net.UnknownHostException
 
 /**
@@ -95,6 +97,20 @@ data class Peer private constructor(val ip: InetAddress, val port: Int) {
       }
       return true
     }
+
+    @JvmStatic
+    @get:Throws(SocketException::class)
+    val availablePeer: Peer?
+      get() {
+        val address = IPUtils.ipAddress ?: return null
+        val port: Int
+        try {
+          port = IPUtils.getAvailablePort(address)
+        } catch (e: NoPortAvailableException) {
+          return null
+        }
+        return of(address, port)
+      }
   }
 
 }
