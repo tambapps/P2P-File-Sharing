@@ -5,7 +5,7 @@
 
 	<groupId>com.tambapps.p2p.fandem</groupId>
 	<artifactId>fandem</artifactId>
-	<version>1.2</version>
+	<version>1.3</version>
 	<name>File Sharing Library</name>
 
     <dependencies>
