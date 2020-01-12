@@ -1,5 +1,6 @@
 package com.tambapps.p2p.fandem
 
+import com.tambapps.p2p.fandem.util.IPUtils
 import java.lang.IllegalArgumentException
 import java.net.InetAddress
 import java.net.Socket
@@ -13,7 +14,7 @@ data class Peer private constructor(val ip: InetAddress, val port: Int) {
 
   private val ipString: String
     get() {
-      return ip.hostAddress.replace("/", "")
+      return IPUtils.toString(ip)
     }
 
   override fun toString(): String {
@@ -21,21 +22,12 @@ data class Peer private constructor(val ip: InetAddress, val port: Int) {
   }
 
   fun toHexString(): String {
-    val ipHex = ipString.split(".").joinToString(prefix = "", postfix = "", separator = "") { s -> toHexString(s) }
+    val ipHex = IPUtils.toHexString(ip)
     return if (port != DEFAULT_PORT) {
-      ipHex + toHexString(port - DEFAULT_PORT)
+      ipHex + IPUtils.toHexString(port - DEFAULT_PORT)
     } else {
       ipHex
     }
-  }
-
-  private fun toHexString(s: String): String {
-    return toHexString(s.toInt())
-  }
-
-  private fun toHexString(i: Int): String {
-    val  n = i.toString(16)
-    return if (n.length == 1) "0$n" else n
   }
 
   fun ipFields(): IntArray {

@@ -39,7 +39,7 @@ object IPUtils {//is ipv4
   @JvmStatic
   fun getAvailablePort(inetAddress: InetAddress?): Int {
     var port = Peer.DEFAULT_PORT
-    while (port < 65536) {
+    while (port < Peer.DEFAULT_PORT + 16 * 16) {
       try {
         ServerSocket(port, 0, inetAddress).use { }
       } catch (e: IOException) {
@@ -56,7 +56,37 @@ object IPUtils {//is ipv4
   val availablePeer: Peer?
     get() {
       val address = iPAddress
-
       return if (address == null) null else Peer.of(address, getAvailablePort(address))
     }
+
+  /**
+   * Returns a well formatted string of the given ip
+   * @param inetAddress the address
+   * @return a well formatted string of the given ip
+   */
+  @JvmStatic
+  fun toString(inetAddress: InetAddress): String {
+    return inetAddress.hostAddress.replace("/", "")
+  }
+
+  /**
+   * Returns the hex string of the given ip
+   * @param inetAddress the address
+   * @return the hex string of the given ip
+   */
+  @JvmStatic
+  fun toHexString(inetAddress: InetAddress): String {
+    return toString(inetAddress).split(".").joinToString(prefix = "", postfix = "", separator = "") { s -> toHexString(s) }
+  }
+
+  @JvmStatic
+  fun toHexString(s: String): String {
+    return toHexString(s.toInt())
+  }
+
+  @JvmStatic
+  fun toHexString(i: Int): String {
+    val  n = i.toString(16)
+    return if (n.length == 1) "0$n" else n
+  }
 }
