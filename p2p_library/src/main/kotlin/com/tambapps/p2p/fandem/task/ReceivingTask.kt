@@ -1,9 +1,9 @@
 package com.tambapps.p2p.fandem.task
 
 import com.tambapps.p2p.fandem.Peer
+import com.tambapps.p2p.fandem.io.CustomDataInputStream
 import com.tambapps.p2p.fandem.listener.ReceivingListener
 import com.tambapps.p2p.fandem.listener.TransferListener
-import java.io.DataInputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -48,10 +48,10 @@ class ReceivingTask(transferListener: TransferListener?, private val fileProvide
         return
       }
       socketChannel.socket().use { socket ->
-        DataInputStream(socket.getInputStream()).use { dis ->
+        CustomDataInputStream(socket.getInputStream()).use { dis ->
           val totalBytes = dis.readLong()
           val bufferSize = dis.readInt()
-          val fileName = readName(dis)
+          val fileName = dis.readString()
           transferListener?.onConnected(peer, Peer.of(socket.inetAddress, socket.port),
               fileName, totalBytes)
           outputFile = fileProvider.newFile(fileName)
@@ -62,15 +62,6 @@ class ReceivingTask(transferListener: TransferListener?, private val fileProvide
         }
       }
     }
-  }
-
-  @Throws(IOException::class)
-  private fun readName(dis: DataInputStream): String {
-    val name = CharArray(dis.readInt())
-    for (i in name.indices) {
-      name[i] = dis.readChar()
-    }
-    return String(name)
   }
 
 }

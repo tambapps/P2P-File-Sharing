@@ -1,6 +1,7 @@
 package com.tambapps.p2p.fandem.task
 
 import com.tambapps.p2p.fandem.Peer
+import com.tambapps.p2p.fandem.io.CustomDataOutputStream
 import com.tambapps.p2p.fandem.listener.SendingListener
 import com.tambapps.p2p.fandem.listener.TransferListener
 import com.tambapps.p2p.fandem.util.FileUtils
@@ -51,11 +52,10 @@ class SendingTask(transferListener: TransferListener?, private val peer: Peer,
       createServerSocket(fileName).use { serverSocket ->
         serverSocket.accept().use { socket ->
           transferListener?.onConnected(peer, Peer.of(socket), fileName, fileSize)
-          DataOutputStream(socket.getOutputStream()).use { dos ->
+          CustomDataOutputStream(socket.getOutputStream()).use { dos ->
             dos.writeLong(fileSize)
             dos.writeInt(bufferSize)
-            dos.writeInt(fileName.length)
-            dos.writeChars(fileName)
+            dos.writeString(fileName)
             share(bufferSize, fis!!, dos, fileSize)
           }
         }

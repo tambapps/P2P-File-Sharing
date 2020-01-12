@@ -6,17 +6,16 @@ import java.io.IOException
 import java.net.InetAddress
 import java.net.NetworkInterface
 import java.net.ServerSocket
-import java.net.SocketException
-import java.util.*
+import java.util.Collections
 
-object IPUtils {//is ipv4
+object IPUtils {
   /**
    * from https://stackoverflow.com/questions/6064510/how-to-get-ip-address-of-the-device-from-code
    * @return return the ip address of the device
    */
   @JvmStatic
-  @get:Throws(SocketException::class)
-  val ipAddress: InetAddress?
+  @get:Throws(IOException::class)
+  val ipAddress: InetAddress
     get() {
       val interfaces: List<NetworkInterface> = Collections.list(NetworkInterface.getNetworkInterfaces())
       for (intf in interfaces) {
@@ -29,7 +28,7 @@ object IPUtils {//is ipv4
           }
         }
       }
-      return null
+      throw IOException("Couldn't find IP")
     }
 
   /**
