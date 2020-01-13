@@ -13,6 +13,7 @@ class PeerSniffHandler(private val peer: Peer,
   constructor(port: Int, deviceName: String, fileName: String) :
       this(Peer.of(IPUtils.ipAddress, port), deviceName, fileName)
 
+  @Throws(IOException::class)
   fun newServerSocket(): ServerSocket {
     return ServerSocket(PeerSniffer.PORT, SOCKET_BACKLOG, peer.ip)
   }
