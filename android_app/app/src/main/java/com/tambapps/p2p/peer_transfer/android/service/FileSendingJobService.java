@@ -43,7 +43,7 @@ public class FileSendingJobService extends FileJobService {
         String peerHexCode = bundle.getString("peer");
         String fileName = bundle.getString("fileName");
         startSniffHandlerTask(peerHexCode, fileName);
-        return new SendingTask(notifBuilder, notificationManager, notifId, getContentResolver(), endRunnable, cancelIntent, analytics)
+        return new SendingTask(notifBuilder, notificationManager, notifId, getContentResolver(), endRunnable, cancelIntent, analytics, sniffHandlingTask)
                 .execute(peerHexCode,
                         bundle.getString("fileUri"),
                         fileName,
@@ -79,6 +79,7 @@ public class FileSendingJobService extends FileJobService {
 
     static class SendingTask extends FileTask implements SendingListener {
 
+        private final Future sniffHandlerFuture;
         private com.tambapps.p2p.fandem.task.SendingTask fileSender;
         private ContentResolver contentResolver;
         private String fileName;
@@ -88,9 +89,10 @@ public class FileSendingJobService extends FileJobService {
                     int notifId,
                     ContentResolver contentResolver,
                     Runnable endRunnable,
-                    PendingIntent cancelIntent, FirebaseAnalytics analytics) {
+                    PendingIntent cancelIntent, FirebaseAnalytics analytics, Future sniffHandlerFuture) {
             super(notifBuilder, notificationManager, notifId, endRunnable, cancelIntent, analytics);
             this.contentResolver = contentResolver;
+            this.sniffHandlerFuture = sniffHandlerFuture;
         }
 
         void run(String... params) {
@@ -153,6 +155,9 @@ public class FileSendingJobService extends FileJobService {
         void dispose() {
             super.dispose();
             contentResolver = null;
+            if (!sniffHandlerFuture.isCancelled()) {
+                sniffHandlerFuture.cancel(true);
+            }
         }
 
         @Override
