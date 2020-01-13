@@ -7,7 +7,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.PersistableBundle;
-import android.util.Log;
 
 import androidx.core.app.NotificationCompat;
 
@@ -19,7 +18,6 @@ import com.tambapps.p2p.fandem.listener.SendingListener;
 import com.tambapps.p2p.fandem.sniff.PeerSniffHandler;
 import com.tambapps.p2p.peer_transfer.android.R;
 import com.tambapps.p2p.peer_transfer.android.analytics.AnalyticsValues;
-import com.tambapps.p2p.peer_transfer.android.task.PeerSniffHandlerTask;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -64,7 +62,6 @@ public class FileSendingJobService extends FileJobService {
                 } catch (IOException e) {
                     e.printStackTrace(); // TODO handle me better
                 }
-                //new PeerSniffHandlerTask(peer, deviceName).execute();
             }
         });
     }
