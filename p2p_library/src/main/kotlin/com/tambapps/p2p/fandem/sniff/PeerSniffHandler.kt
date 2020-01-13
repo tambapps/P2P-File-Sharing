@@ -13,23 +13,25 @@ class PeerSniffHandler(private val peer: Peer,
   constructor(port: Int, deviceName: String, fileName: String) :
       this(Peer.of(IPUtils.ipAddress, port), deviceName, fileName)
 
+  @Throws(IOException::class)
   fun handleSniff() {
-    try {
-      ServerSocket(PeerSniffer.PORT, SOCKET_BACKLOG, peer.ip).use { serverSocket ->
-        for (i in 0 until SOCKET_BACKLOG) {
-          val socket = serverSocket.accept()
-          CustomDataOutputStream(socket.getOutputStream()).use { dis ->
-            dis.writeString(deviceName)
-            dis.writeInt(peer.port)
-            dis.writeString(fileName)
-          }
-        }
-      }
-    } catch (e: IOException) {
-      e.printStackTrace()
+    ServerSocket(PeerSniffer.PORT, SOCKET_BACKLOG, peer.ip).use { serverSocket ->
+      handleSniffServerSocket(serverSocket)
     }
   }
 
+  @Throws(IOException::class)
+  internal fun handleSniffServerSocket(serverSocket: ServerSocket) {
+    for (i in 0 until SOCKET_BACKLOG) {
+      val socket = serverSocket.accept()
+      CustomDataOutputStream(socket.getOutputStream()).use { dis ->
+        dis.writeString(deviceName)
+        dis.writeInt(peer.port)
+        dis.writeString(fileName)
+      }
+    }
+
+  }
   companion object {
     private const val SOCKET_BACKLOG = 50
   }
