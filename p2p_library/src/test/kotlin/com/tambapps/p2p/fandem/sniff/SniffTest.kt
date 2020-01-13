@@ -13,7 +13,6 @@ import java.net.InetAddress
 import java.net.ServerSocket
 import java.util.concurrent.ExecutorCompletionService
 import java.util.concurrent.Executors
-import java.util.concurrent.Future
 import java.util.concurrent.atomic.AtomicBoolean
 
 class SniffTest: PeerSniffer.SniffListener {
@@ -42,7 +41,7 @@ class SniffTest: PeerSniffer.SniffListener {
     sniffHandler = PeerSniffHandler(sniffedPeer, deviceName, filename)
     peerSniffer = PeerSniffer(this, InetAddress.getByAddress(snifferAddress))
     finished.set(false)
-    serverSocket = ServerSocket(PeerSniffer.PORT, 50, sniffedPeer.ip)
+    serverSocket = sniffHandler.newServerSocket()
   }
 
   @After
@@ -84,7 +83,7 @@ class SniffTest: PeerSniffer.SniffListener {
 
   fun test(sniffCallable: () -> Boolean) {
     completionService.submit {
-      sniffHandler.handleSniffServerSocket(serverSocket)
+      sniffHandler.handleSniff(serverSocket)
       true
     }
     completionService.submit(sniffCallable)
