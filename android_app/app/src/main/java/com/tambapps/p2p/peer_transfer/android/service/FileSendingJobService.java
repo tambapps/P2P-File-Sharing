@@ -4,7 +4,6 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.ContentResolver;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 
@@ -15,14 +14,13 @@ import com.google.firebase.analytics.FirebaseAnalytics;
 import com.tambapps.p2p.fandem.Peer;
 import com.tambapps.p2p.fandem.listener.SendingListener;
 
-import com.tambapps.p2p.fandem.sniff.PeerSniffHandler;
 import com.tambapps.p2p.peer_transfer.android.R;
 import com.tambapps.p2p.peer_transfer.android.analytics.AnalyticsValues;
+import com.tambapps.p2p.peer_transfer.android.service.sniff.SniffHandlerService;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
-import java.util.concurrent.Future;
 
 /**
  * Created by fonkoua on 05/05/18.
@@ -30,7 +28,7 @@ import java.util.concurrent.Future;
 
 public class FileSendingJobService extends FileJobService {
 
-    private Future sniffHandlingTask;
+    private final SniffHandlerService sniffHandlerService = new SniffHandlerService();
 
     @Override
     FileTask startTask(NotificationCompat.Builder notifBuilder,
@@ -42,28 +40,13 @@ public class FileSendingJobService extends FileJobService {
 
         String peerHexCode = bundle.getString("peer");
         String fileName = bundle.getString("fileName");
-        startSniffHandlerTask(peerHexCode, fileName);
-        return new SendingTask(notifBuilder, notificationManager, notifId, getContentResolver(), endRunnable, cancelIntent, analytics, sniffHandlingTask)
+        sniffHandlerService.startInBackground(this, peerHexCode, fileName);
+        return new SendingTask(notifBuilder, notificationManager, notifId, getContentResolver(),
+                endRunnable, cancelIntent, analytics, sniffHandlerService)
                 .execute(peerHexCode,
                         bundle.getString("fileUri"),
                         fileName,
                         bundle.getString("fileSize"));
-    }
-
-    private void startSniffHandlerTask(final String peerHexCode, final String fileName) {
-        sniffHandlingTask = startSideTask(new Runnable() {
-            @Override
-            public void run() {
-                Peer peer = Peer.fromHexString(peerHexCode);
-                String deviceName = Build.MANUFACTURER + " " + Build.MODEL;
-                PeerSniffHandler sniffHandler = new PeerSniffHandler(peer, deviceName, fileName);
-                try {
-                    sniffHandler.handleSniff();
-                } catch (IOException e) {
-                    Crashlytics.logException(e);
-                }
-            }
-        });
     }
 
 
@@ -79,7 +62,7 @@ public class FileSendingJobService extends FileJobService {
 
     static class SendingTask extends FileTask implements SendingListener {
 
-        private final Future sniffHandlerFuture;
+        private final SniffHandlerService sniffHandlerService;
         private com.tambapps.p2p.fandem.task.SendingTask fileSender;
         private ContentResolver contentResolver;
         private String fileName;
@@ -89,10 +72,10 @@ public class FileSendingJobService extends FileJobService {
                     int notifId,
                     ContentResolver contentResolver,
                     Runnable endRunnable,
-                    PendingIntent cancelIntent, FirebaseAnalytics analytics, Future sniffHandlerFuture) {
+                    PendingIntent cancelIntent, FirebaseAnalytics analytics, SniffHandlerService sniffHandlerService) {
             super(notifBuilder, notificationManager, notifId, endRunnable, cancelIntent, analytics);
             this.contentResolver = contentResolver;
-            this.sniffHandlerFuture = sniffHandlerFuture;
+            this.sniffHandlerService = sniffHandlerService;
         }
 
         void run(String... params) {
@@ -155,9 +138,7 @@ public class FileSendingJobService extends FileJobService {
         void dispose() {
             super.dispose();
             contentResolver = null;
-            if (!sniffHandlerFuture.isCancelled()) {
-                sniffHandlerFuture.cancel(true);
-            }
+            sniffHandlerService.stop();
         }
 
         @Override
@@ -171,8 +152,6 @@ public class FileSendingJobService extends FileJobService {
     @Override
     void cancel() {
         super.cancel();
-        if (sniffHandlingTask != null && !sniffHandlingTask.isCancelled()) {
-            sniffHandlingTask.cancel(true);
-        }
+        sniffHandlerService.stop();
     }
 }

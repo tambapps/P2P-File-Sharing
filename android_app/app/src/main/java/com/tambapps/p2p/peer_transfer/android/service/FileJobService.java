@@ -253,7 +253,7 @@ public abstract class FileJobService extends JobService {
                 i == 0 ? "" : units.charAt(i - 1));
     }
 
-    Future startSideTask(Runnable runnable) {
+    public Future startSideTask(Runnable runnable) {
         return executor.submit(runnable);
     }
 
