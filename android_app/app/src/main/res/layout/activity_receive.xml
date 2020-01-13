@@ -19,7 +19,7 @@
 
     <ProgressBar
         android:layout_width="match_parent"
-        android:layout_height="4dp"
+        android:layout_height="6dp"
         android:id="@+id/progress_bar"
         style="?android:attr/progressBarStyleHorizontal"
         android:indeterminate="true"
@@ -38,20 +38,34 @@
             />
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
-    <ScrollView
+
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <Button
-            android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        >
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:padding="25dp"
+            android:layout_gravity="center"
+            android:textAlignment="center"
+            android:text="@string/or"
+            android:textSize="20sp"
             android:textColor="#fff"
-            style="?android:attr/borderlessButtonStyle"
-            android:textStyle="bold"
+            />
+        <Button
+            android:layout_width="0dp"
+            android:layout_weight="3"
+            android:layout_height="wrap_content"
+            android:textColor="#fff"
             android:textSize="18sp"
+            android:backgroundTint="@color/colorPrimaryDark"
+            android:foreground="?attr/selectableItemBackground"
             android:text="Enter peer key manually"
             />
-    </ScrollView>
+    </LinearLayout>
 
 
 </LinearLayout>

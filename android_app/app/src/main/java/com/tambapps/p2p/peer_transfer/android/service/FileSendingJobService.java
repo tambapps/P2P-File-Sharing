@@ -60,7 +60,7 @@ public class FileSendingJobService extends FileJobService {
                 try {
                     sniffHandler.handleSniff();
                 } catch (IOException e) {
-                    e.printStackTrace(); // TODO handle me better
+                    Crashlytics.logException(e);
                 }
             }
         });
