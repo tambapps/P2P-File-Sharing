@@ -24,20 +24,33 @@
         style="?android:attr/progressBarStyleHorizontal"
         android:indeterminate="true"
         />
-    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:id="@+id/refresh_layout"
-        >
-        <androidx.recyclerview.widget.RecyclerView
+        android:layout_weight="1">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Loading sending peers..."
+            android:layout_centerInParent="true"
+            android:textColor="#fff"
+            android:textSize="22sp"
+            android:id="@+id/loading_text"
+            android:paddingBottom="40dp"
+            />
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:scrollbars="vertical"
-            android:id="@+id/recyclerview"
-            />
-
-    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+            android:id="@+id/refresh_layout"
+            >
+            <androidx.recyclerview.widget.RecyclerView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scrollbars="vertical"
+                android:id="@+id/recyclerview"
+                />
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+    </RelativeLayout>
 
     <LinearLayout
         android:layout_width="match_parent"

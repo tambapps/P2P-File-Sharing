@@ -1,5 +1,6 @@
 package com.tambapps.p2p.peer_transfer.android;
 
+import android.animation.Animator;
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
 import android.content.ComponentName;
@@ -56,6 +57,7 @@ public class ReceiveActivity extends AppCompatActivity implements PeerSniffer.Sn
     private List<SniffPeer> peers = new ArrayList<>();
     private RecyclerView.Adapter recyclerAdapter;
     private AsyncTask currentTask;
+    private TextView loadingText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +71,7 @@ public class ReceiveActivity extends AppCompatActivity implements PeerSniffer.Sn
         initializeRecyclerView();
         initializeRefreshLayout();
         sniffPeersAsync();
+        loadingText = findViewById(R.id.loading_text);
         /*
         errorText = findViewById(R.id.peer_key_error);
         peerKeyInput = findViewById(R.id.peer_key);
@@ -167,6 +170,31 @@ public class ReceiveActivity extends AppCompatActivity implements PeerSniffer.Sn
             @Override
             public void run() {
                 recyclerAdapter.notifyDataSetChanged();
+                if (loadingText.getAlpha() >= 1f) {
+                    loadingText.animate().alpha(0).setDuration(250)
+                            .setListener(new Animator.AnimatorListener() {
+                                @Override
+                                public void onAnimationStart(Animator animation) {
+
+                                }
+
+                                @Override
+                                public void onAnimationEnd(Animator animation) {
+                                    loadingText.setVisibility(View.GONE);
+                                }
+
+                                @Override
+                                public void onAnimationCancel(Animator animation) {
+
+                                }
+
+                                @Override
+                                public void onAnimationRepeat(Animator animation) {
+
+                                }
+                            })
+                            .start();
+                }
             }
         });
     }
