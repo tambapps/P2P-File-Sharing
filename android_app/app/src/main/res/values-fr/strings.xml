@@ -38,7 +38,7 @@
     <string name="permissions_not_granted">Vous n\'avez pas donné les permissions</string>
     <string name="receveiving_connected">Reçois %s…</string>
     <string name="sending_connected">Envoi %s…</string>
-    <string name="service_started">Envoi commencé. Vous pouvez voir le progrès dans la barre de notification</string>
+    <string name="service_started">Service commencé. Vous pouvez voir le progrès dans la barre de notification</string>
     <string name="success_received">%s a été reçu avec succès</string>
     <string name="success_send">%s a été envoyé avec succès</string>
     <string name="transfer_canceled">Trasfert annulé</string>
