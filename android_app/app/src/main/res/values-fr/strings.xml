@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Fandem</string>
     <string name="tab_text_2">Envoyer un fichier</string>
     <string name="tab_text_3">Recevoir un fichier</string>
     <string name="help_title">Bienvenue sur Fandem</string>
@@ -46,4 +45,9 @@
     <string name="waiting_connection">En attente d\'une connexion</string>
     <string name="waiting_connection_message">%s (clé: %s)</string>
     <string name="transfer_aborted">Transfert interrompu</string>
+    <string name="alert_receive_file">Recevoir %s</string>
+    <string name="alert_receive_file_message">Voulez-vous recevoir %s de %s?</string>
+    <string name="or">ou</string>
+    <string name="yes">oui</string>
+    <string name="cancel">annuler</string>
 </resources>
