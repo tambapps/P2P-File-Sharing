@@ -7,6 +7,15 @@
     android:clickable="true"
     android:focusable="true"
     >
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/element_peer_devicename"
+        android:layout_marginBottom="4dp"
+        android:textColor="#fff"
+        />
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -15,13 +24,7 @@
         android:textColor="#fff"
         />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/element_peer_hexcode"
-        android:layout_marginBottom="4dp"
-        android:textColor="#fff"
-        />
+
 
     <View
         android:layout_width="match_parent"

@@ -22,10 +22,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.tambapps.p2p.fandem.Peer;
@@ -35,12 +33,14 @@ import com.tambapps.p2p.peer_transfer.android.analytics.AnalyticsValues;
 import com.tambapps.p2p.peer_transfer.android.service.FileReceivingJobService;
 import com.tambapps.p2p.peer_transfer.android.task.PeerSnifferTask;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class ReceiveActivity extends AppCompatActivity implements PeerSniffer.SniffListener {
 
+    private final ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
     private ProgressBar progressBar;
 
     private FirebaseAnalytics analytics;
@@ -121,7 +121,7 @@ public class ReceiveActivity extends AppCompatActivity implements PeerSniffer.Sn
     }
 
     private void sniffPeersAsync() {
-        currentTask = new PeerSnifferTask(this).execute();
+        currentTask = new PeerSnifferTask(this, executorService).execute();
     }
 
     public void startReceiving(Peer peer) {
@@ -170,11 +170,12 @@ public class ReceiveActivity extends AppCompatActivity implements PeerSniffer.Sn
         if (currentTask != null) {
             currentTask.cancel(true);
         }
+        executorService.shutdownNow();
         super.onStop();
     }
 
     @Override
-    public void onError(IOException e) {
+    public void onError(Exception e) {
         Log.d("WIFI", e.getClass().getSimpleName() + " : " + e.getMessage());
         //TODO
     }
@@ -205,7 +206,7 @@ public class ReceiveActivity extends AppCompatActivity implements PeerSniffer.Sn
             final Peer peer = discoveredPeer.getPeer();
             holder.position = position;
             holder.filenameText.setText(discoveredPeer.getFileName());
-            holder.hexCodeText.setText(peer.toHexString());
+            holder.deviceNameText.setText(discoveredPeer.getDeviceName());
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -232,13 +233,13 @@ public class ReceiveActivity extends AppCompatActivity implements PeerSniffer.Sn
         class MyViewHolder extends RecyclerView.ViewHolder {
 
             private final TextView filenameText;
-            private final TextView hexCodeText;
+            private final TextView deviceNameText;
             int position;
 
             public MyViewHolder(@NonNull View itemView) {
                 super(itemView);
                 filenameText = itemView.findViewById(R.id.element_peer_filename);
-                hexCodeText = itemView.findViewById(R.id.element_peer_hexcode);
+                deviceNameText = itemView.findViewById(R.id.element_peer_devicename);
             }
         }
     }

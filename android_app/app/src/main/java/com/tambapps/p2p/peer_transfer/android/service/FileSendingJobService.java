@@ -59,7 +59,11 @@ public class FileSendingJobService extends FileJobService {
                 Peer peer = Peer.fromHexString(peerHexCode);
                 String deviceName = Build.MANUFACTURER + " " + Build.MODEL;
                 PeerSniffHandler sniffHandler = new PeerSniffHandler(peer, deviceName, fileName);
-                sniffHandler.handleSniff();
+                try {
+                    sniffHandler.handleSniff();
+                } catch (IOException e) {
+                    e.printStackTrace(); // TODO handle me better
+                }
                 //new PeerSniffHandlerTask(peer, deviceName).execute();
             }
         });
