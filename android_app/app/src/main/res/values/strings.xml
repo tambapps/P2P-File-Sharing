@@ -50,4 +50,5 @@
     <string name="alert_receive_file_message">Do you want to receive %s from peer %s?</string>
     <string name="yes">yes</string>
     <string name="or">or</string>
+    <string name="cancel">cancel</string>
 </resources>

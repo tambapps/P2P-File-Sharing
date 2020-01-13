@@ -18,13 +18,20 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
+import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.crashlytics.android.Crashlytics;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.tambapps.p2p.fandem.Peer;
 import com.tambapps.p2p.fandem.sniff.PeerSniffer;
@@ -155,7 +162,6 @@ public class ReceiveActivity extends AppCompatActivity implements PeerSniffer.Sn
 
     @Override
     public void onPeerFound(SniffPeer peer) {
-        Log.d("WIFI", "peer found!!!");
         peers.add(peer);
         runOnUiThread(new Runnable() {
             @Override
@@ -176,8 +182,7 @@ public class ReceiveActivity extends AppCompatActivity implements PeerSniffer.Sn
 
     @Override
     public void onError(Exception e) {
-        Log.d("WIFI", e.getClass().getSimpleName() + " : " + e.getMessage());
-        //TODO
+        Crashlytics.logException(e);
     }
 
     @Override
@@ -188,6 +193,54 @@ public class ReceiveActivity extends AppCompatActivity implements PeerSniffer.Sn
                 progressBar.setVisibility(View.INVISIBLE);
             }
         });
+    }
+
+    public void receiveManually(View view) {
+        final TextInputLayout layout = new TextInputLayout(this);
+        final TextInputEditText editText = new TextInputEditText(this);
+        layout.addView(editText);
+        editText.setHint("Peer key");
+
+        final AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle(R.string.peer_key_input)
+                .setView(layout)
+                .setPositiveButton(R.string.start_receiving, null)
+                .setNeutralButton(R.string.cancel, null)
+                .create();
+
+        editText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) { }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (layout.getError() != null && Peer.isCorrectPeerKey(s.toString())) {
+                    layout.setError(null);
+                }
+            }
+        });
+        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialogInterface) {
+                Button button = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+                button.setOnClickListener(new View.OnClickListener() {
+
+                    @Override
+                    public void onClick(View view) {
+                        String hexCode = editText.getText() == null ? "" : editText.getText().toString();
+                        layout.setError(Peer.isCorrectPeerKey(hexCode) ? null : getString(R.string.peer_key_malformed));
+                        if (layout.getError() == null) {
+                            dialog.dismiss();
+                            startReceiving(Peer.fromHexString(hexCode));
+                        }
+                    }
+                });
+            }
+        });
+        dialog.show();
     }
 
     private class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {

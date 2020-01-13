@@ -41,7 +41,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="60dp"
         android:layout_margin="10dp"
         >
 
@@ -61,9 +61,9 @@
             android:layout_height="wrap_content"
             android:textColor="#fff"
             android:textSize="18sp"
-            android:backgroundTint="@color/colorPrimaryDark"
-            android:foreground="?attr/selectableItemBackground"
+            android:background="@drawable/rounded_corners_button"
             android:text="Enter peer key manually"
+            android:onClick="receiveManually"
             />
     </LinearLayout>
 
