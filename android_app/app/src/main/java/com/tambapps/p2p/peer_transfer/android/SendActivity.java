@@ -77,10 +77,7 @@ public class SendActivity extends AppCompatActivity {
     private void sendContent(Peer peer) {
         final String hexKey = peer.toHexString().toUpperCase();
         TextView textView = findViewById(R.id.text_view);
-        textView.setText((
-                getString(R.string.started_send_service_title) + ". " +
-                        getString(R.string.started_send_service_message, hexKey, peer.toString())
-        ));
+        textView.setText((getString(R.string.started_send_service_message, hexKey)));
         textView.setGravity(Gravity.CENTER_HORIZONTAL);
         textView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
