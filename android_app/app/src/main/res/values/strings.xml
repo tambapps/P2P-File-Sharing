@@ -51,4 +51,7 @@
     <string name="yes">yes</string>
     <string name="or">or</string>
     <string name="cancel">cancel</string>
+    <string name="enter_peer_key_manually">Enter peer key manually</string>
+    <string name="loading_sending_peers">Searching sending peers...</string>
+    <string name="select_peer">Select peer</string>
 </resources>

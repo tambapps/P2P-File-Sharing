@@ -50,4 +50,7 @@
     <string name="or">ou</string>
     <string name="yes">oui</string>
     <string name="cancel">annuler</string>
+    <string name="enter_peer_key_manually">Entrer la clé manuellement</string>
+    <string name="select_peer">Sélectionnez l\'appareil</string>
+    <string name="loading_sending_peers">Recherche d\'appareil envoyeur...</string>
 </resources>
