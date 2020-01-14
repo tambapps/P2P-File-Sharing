@@ -142,7 +142,7 @@ public class FileSendingJobService extends FileJobService {
         @Override
         public String onConnected(String remoteAddress, String fileName) {
             sendBroadcastRunnable.run();
-
+            sniffHandlerService.stop();
             return getString(R.string.sending_connected, fileName);
         }
 
