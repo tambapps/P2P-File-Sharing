@@ -7,6 +7,7 @@ import android.content.ClipboardManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -25,15 +26,18 @@ import com.google.firebase.analytics.FirebaseAnalytics;
 import com.tambapps.p2p.fandem.Peer;
 import com.tambapps.p2p.peer_transfer.android.analytics.AnalyticsValues;
 import com.tambapps.p2p.peer_transfer.android.service.FileSendingJobService;
+import com.tambapps.p2p.peer_transfer.android.service.SendingStartedBroadcastReceiver;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.SocketException;
 
 public class SendActivity extends AppCompatActivity {
 
     private final static int PICK_FILE = 1;
+    private final IntentFilter intentFilter = new IntentFilter(SendingStartedBroadcastReceiver.SENDING_STARTED);
+
     private FirebaseAnalytics analytics;
+    private SendingStartedBroadcastReceiver broadcastReceiver;
 
 
     @Override
@@ -72,6 +76,20 @@ public class SendActivity extends AppCompatActivity {
             }
         }
 
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        broadcastReceiver = new SendingStartedBroadcastReceiver(this);
+        registerReceiver(broadcastReceiver, intentFilter);
+    }
+
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        unregisterReceiver(broadcastReceiver);
     }
 
     private void sendContent(Peer peer) {
@@ -207,5 +225,12 @@ public class SendActivity extends AppCompatActivity {
                 cursor.close();
             }
         }
+    }
+
+    public void onSendingStarted() {
+        Intent returnIntent = new Intent();
+        returnIntent.putExtra(MainActivity.RETURN_TEXT_KEY, getString(R.string.service_started));
+        setResult(RESULT_OK, returnIntent);
+        finish();
     }
 }

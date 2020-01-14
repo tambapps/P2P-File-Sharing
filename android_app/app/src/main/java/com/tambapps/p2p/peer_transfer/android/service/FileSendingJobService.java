@@ -3,6 +3,7 @@ package com.tambapps.p2p.peer_transfer.android.service;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.ContentResolver;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.PersistableBundle;
@@ -42,7 +43,13 @@ public class FileSendingJobService extends FileJobService {
         String fileName = bundle.getString("fileName");
         sniffHandlerService.startInBackground(this, peerHexCode, fileName);
         return new SendingTask(notifBuilder, notificationManager, notifId, getContentResolver(),
-                endRunnable, cancelIntent, analytics, sniffHandlerService)
+                endRunnable, cancelIntent, analytics, sniffHandlerService,
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        sendBroadcast(new Intent(SendingStartedBroadcastReceiver.SENDING_STARTED));
+                    }
+                })
                 .execute(peerHexCode,
                         bundle.getString("fileUri"),
                         fileName,
@@ -63,6 +70,7 @@ public class FileSendingJobService extends FileJobService {
     static class SendingTask extends FileTask implements SendingListener {
 
         private final SniffHandlerService sniffHandlerService;
+        private final Runnable sendBroadcastRunnable;
         private com.tambapps.p2p.fandem.task.SendingTask fileSender;
         private ContentResolver contentResolver;
         private String fileName;
@@ -72,10 +80,12 @@ public class FileSendingJobService extends FileJobService {
                     int notifId,
                     ContentResolver contentResolver,
                     Runnable endRunnable,
-                    PendingIntent cancelIntent, FirebaseAnalytics analytics, SniffHandlerService sniffHandlerService) {
+                    PendingIntent cancelIntent, FirebaseAnalytics analytics, SniffHandlerService sniffHandlerService,
+                    Runnable sendBroadcastRunnable) {
             super(notifBuilder, notificationManager, notifId, endRunnable, cancelIntent, analytics);
             this.contentResolver = contentResolver;
             this.sniffHandlerService = sniffHandlerService;
+            this.sendBroadcastRunnable = sendBroadcastRunnable;
         }
 
         void run(String... params) {
@@ -131,6 +141,8 @@ public class FileSendingJobService extends FileJobService {
 
         @Override
         public String onConnected(String remoteAddress, String fileName) {
+            sendBroadcastRunnable.run();
+
             return getString(R.string.sending_connected, fileName);
         }
 

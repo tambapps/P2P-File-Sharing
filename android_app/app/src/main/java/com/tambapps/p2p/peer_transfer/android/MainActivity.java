@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.os.Bundle;
 import com.google.android.material.snackbar.Snackbar;
 import androidx.core.app.ActivityCompat;
@@ -11,6 +12,7 @@ import androidx.core.content.ContextCompat;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.analytics.FirebaseAnalytics;
@@ -113,7 +115,12 @@ public class MainActivity extends AppCompatActivity {
                             public void onClick(View v) {
 
                             }
-                        });
+                        })
+                .setActionTextColor(getResources().getColor(R.color.colorPrimaryDark));
+                View view = snackbar.getView();
+                view.setBackgroundColor(getResources().getColor(R.color.gradientDown));
+                TextView tv = view.findViewById(com.google.android.material.R.id.snackbar_text);
+                tv.setTextColor(Color.BLACK);
                 snackbar.show();
             }
         } else {
