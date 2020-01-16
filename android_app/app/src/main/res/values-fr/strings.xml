@@ -52,4 +52,5 @@
     <string name="enter_peer_key_manually">Entrer la clé manuellement</string>
     <string name="select_peer">Sélectionnez l\'appareil</string>
     <string name="loading_sending_peers">Recherche d\'appareil envoyeur…</string>
+    <string name="send_service_canceled">Le service a été arreté car aucune appareil ne s\'est connecté.</string>
 </resources>

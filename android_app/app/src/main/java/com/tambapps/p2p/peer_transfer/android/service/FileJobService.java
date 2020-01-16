@@ -20,6 +20,7 @@ import com.google.firebase.analytics.FirebaseAnalytics;
 import com.tambapps.p2p.fandem.Peer;
 import com.tambapps.p2p.fandem.listener.TransferListener;
 import com.tambapps.p2p.peer_transfer.android.R;
+import com.tambapps.p2p.peer_transfer.android.service.event.TaskEventHandler;
 
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
@@ -31,7 +32,7 @@ import java.util.concurrent.ThreadLocalRandom;
  * Created by fonkoua on 13/05/18.
  */
 
-public abstract class FileJobService extends JobService {
+public abstract class FileJobService extends JobService implements TaskEventHandler {
 
     private final static ExecutorService executor = Executors.newCachedThreadPool();
     final static int SOCKET_TIMEOUT = 1000 * 60 * 2; //in ms
@@ -41,6 +42,7 @@ public abstract class FileJobService extends JobService {
     private NotificationBroadcastReceiver notificationBroadcastReceiver;
     private String ACTION_CANCEL;
     private FileTask fileTask;
+    private volatile JobParameters params;
 
     @Override
     public void onCreate() {
@@ -56,22 +58,16 @@ public abstract class FileJobService extends JobService {
 
     @Override
     public boolean onStartJob(final JobParameters params) {
+        this.params = params;
         PersistableBundle bundle = params.getExtras();
         NotificationManager notificationManager  = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         int notifId = ThreadLocalRandom.current().nextInt();
-        Runnable endRunnable = new Runnable() {
-            @Override
-            public void run() {
-                unregisterReceiver(notificationBroadcastReceiver);
-                jobFinished(params, false);
-            }
-        };
 
         PendingIntent cancelIntent = PendingIntent.getBroadcast(this, 0,
                 new Intent(ACTION_CANCEL), 0);
 
         fileTask = startTask(buildNotification(notificationManager, notifId),
-                notificationManager, notifId, bundle, endRunnable, cancelIntent, analytics);
+                notificationManager, notifId, bundle, cancelIntent, analytics);
         return true;
     }
 
@@ -109,7 +105,6 @@ public abstract class FileJobService extends JobService {
                                 NotificationManager notificationManager,
                                 int notifId,
                                 PersistableBundle bundle,
-                                Runnable endRunnable,
                                 PendingIntent cancelIntent, FirebaseAnalytics analytics);
     abstract int smallIcon();
     abstract int largeIcon();
@@ -132,17 +127,17 @@ public abstract class FileJobService extends JobService {
         private NotificationManager notificationManager;
         private final int notifId;
         private FirebaseAnalytics analytics;
-        private Runnable endRunnable;
+        protected TaskEventHandler eventHandler;
         private long lastNotificationUpdate = 0L;
 
-        FileTask(NotificationCompat.Builder notifBuilder,
+        FileTask(TaskEventHandler eventHandler, NotificationCompat.Builder notifBuilder,
                  NotificationManager notificationManager,
-                 int notifId, Runnable endRunnable,
+                 int notifId,
                  PendingIntent cancelIntent, FirebaseAnalytics analytics) {
             this.notifBuilder = notifBuilder;
             this.notificationManager = notificationManager;
             this.notifId = notifId;
-            this.endRunnable = endRunnable;
+            this.eventHandler = eventHandler;
             this.analytics = analytics;
             notifStyle = new NotificationCompat.BigTextStyle();
 
@@ -168,7 +163,7 @@ public abstract class FileJobService extends JobService {
                 public void run() {
                     FileTask.this.run(params);
                     updateNotification();
-                    endRunnable.run();
+                    eventHandler.onEnd();
                     dispose();
                 }
             });
@@ -213,7 +208,7 @@ public abstract class FileJobService extends JobService {
             notifBuilder = null;
             notifStyle = null;
             notificationManager = null;
-            endRunnable = null;
+            eventHandler = null;
             analytics = null;
         }
 
@@ -257,4 +252,9 @@ public abstract class FileJobService extends JobService {
         return executor.submit(runnable);
     }
 
+    @Override
+    public void onEnd() {
+        unregisterReceiver(notificationBroadcastReceiver);
+        jobFinished(params, false);
+    }
 }

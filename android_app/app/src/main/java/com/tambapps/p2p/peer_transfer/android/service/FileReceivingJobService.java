@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.PersistableBundle;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.FileProvider;
@@ -20,6 +19,7 @@ import com.tambapps.p2p.fandem.Peer;
 import com.tambapps.p2p.fandem.util.FileUtils;
 import com.tambapps.p2p.peer_transfer.android.R;
 import com.tambapps.p2p.peer_transfer.android.analytics.AnalyticsValues;
+import com.tambapps.p2p.peer_transfer.android.service.event.TaskEventHandler;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -42,9 +42,8 @@ public class FileReceivingJobService extends FileJobService {
                        NotificationManager notificationManager,
                        final int notifId,
                        PersistableBundle bundle,
-                       Runnable endRunnable,
                        PendingIntent cancelIntent, FirebaseAnalytics analytics) {
-        return new ReceivingTask(notifBuilder, notificationManager, notifId, endRunnable, cancelIntent,
+        return new ReceivingTask(this, notifBuilder, notificationManager, notifId, cancelIntent,
                 new FileIntentProvider() {
                     @Override
                     public PendingIntent ofFile(File file) {
@@ -73,13 +72,12 @@ public class FileReceivingJobService extends FileJobService {
         private String fileName;
         private FileIntentProvider fileIntentProvider;
 
-        ReceivingTask(NotificationCompat.Builder notifBuilder,
+        ReceivingTask(TaskEventHandler taskEventHandler, NotificationCompat.Builder notifBuilder,
                       NotificationManager notificationManager,
                       int notifId,
-                      Runnable endRunnable,
                       PendingIntent cancelIntent,
                       FileIntentProvider fileIntentProvider, FirebaseAnalytics analytics) {
-            super(notifBuilder, notificationManager, notifId, endRunnable, cancelIntent, analytics);
+            super(taskEventHandler, notifBuilder, notificationManager, notifId, cancelIntent, analytics);
             this.fileIntentProvider = fileIntentProvider;
         }
 

@@ -26,7 +26,7 @@ import com.google.firebase.analytics.FirebaseAnalytics;
 import com.tambapps.p2p.fandem.Peer;
 import com.tambapps.p2p.peer_transfer.android.analytics.AnalyticsValues;
 import com.tambapps.p2p.peer_transfer.android.service.FileSendingJobService;
-import com.tambapps.p2p.peer_transfer.android.service.SendingStartedBroadcastReceiver;
+import com.tambapps.p2p.peer_transfer.android.service.SendingEventBroadcastReceiver;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,16 +34,18 @@ import java.io.IOException;
 public class SendActivity extends AppCompatActivity {
 
     private final static int PICK_FILE = 1;
-    private final IntentFilter intentFilter = new IntentFilter(SendingStartedBroadcastReceiver.SENDING_STARTED);
+    private final IntentFilter intentFilter = new IntentFilter();
 
     private FirebaseAnalytics analytics;
-    private SendingStartedBroadcastReceiver broadcastReceiver;
+    private SendingEventBroadcastReceiver broadcastReceiver;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         analytics = FirebaseAnalytics.getInstance(this);
+        intentFilter.addAction(SendingEventBroadcastReceiver.SENDING_STARTED);
+        intentFilter.addAction(SendingEventBroadcastReceiver.SERVICE_TIMEOUT);
 
         setContentView(R.layout.activity_send);
         FloatingActionButton fab = findViewById(R.id.fab);
@@ -81,7 +83,7 @@ public class SendActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        broadcastReceiver = new SendingStartedBroadcastReceiver(this);
+        broadcastReceiver = new SendingEventBroadcastReceiver(this);
         registerReceiver(broadcastReceiver, intentFilter);
     }
 
@@ -227,10 +229,22 @@ public class SendActivity extends AppCompatActivity {
         }
     }
 
+    private void onSendingEvent(final int stringId) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Intent returnIntent = new Intent();
+                returnIntent.putExtra(MainActivity.RETURN_TEXT_KEY, getString(stringId));
+                setResult(RESULT_OK, returnIntent);
+                finish();
+            }
+        });
+    }
     public void onSendingStarted() {
-        Intent returnIntent = new Intent();
-        returnIntent.putExtra(MainActivity.RETURN_TEXT_KEY, getString(R.string.service_started));
-        setResult(RESULT_OK, returnIntent);
-        finish();
+        onSendingEvent(R.string.service_started);
+    }
+
+    public void onSendingCanceled() {
+        onSendingEvent(R.string.send_service_canceled);
     }
 }

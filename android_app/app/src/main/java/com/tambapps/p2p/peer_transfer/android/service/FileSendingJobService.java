@@ -17,6 +17,7 @@ import com.tambapps.p2p.fandem.listener.SendingListener;
 
 import com.tambapps.p2p.peer_transfer.android.R;
 import com.tambapps.p2p.peer_transfer.android.analytics.AnalyticsValues;
+import com.tambapps.p2p.peer_transfer.android.service.event.SendingEventHandler;
 import com.tambapps.p2p.peer_transfer.android.service.sniff.SniffHandlerService;
 
 import java.io.FileNotFoundException;
@@ -27,7 +28,7 @@ import java.net.SocketTimeoutException;
  * Created by fonkoua on 05/05/18.
  */
 
-public class FileSendingJobService extends FileJobService {
+public class FileSendingJobService extends FileJobService implements SendingEventHandler {
 
     private final SniffHandlerService sniffHandlerService = new SniffHandlerService();
 
@@ -36,26 +37,17 @@ public class FileSendingJobService extends FileJobService {
                        NotificationManager notificationManager,
                        int notifId,
                        PersistableBundle bundle,
-                       Runnable endRunnable,
                        PendingIntent cancelIntent, FirebaseAnalytics analytics) {
 
         String peerHexCode = bundle.getString("peer");
         String fileName = bundle.getString("fileName");
         sniffHandlerService.startInBackground(this, peerHexCode, fileName);
-        return new SendingTask(notifBuilder, notificationManager, notifId, getContentResolver(),
-                endRunnable, cancelIntent, analytics, sniffHandlerService,
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        sendBroadcast(new Intent(SendingStartedBroadcastReceiver.SENDING_STARTED));
-                    }
-                })
+        return new SendingTask(this, notifBuilder, notificationManager, notifId, getContentResolver(), cancelIntent, analytics, sniffHandlerService)
                 .execute(peerHexCode,
                         bundle.getString("fileUri"),
                         fileName,
                         bundle.getString("fileSize"));
     }
-
 
     @Override
     int smallIcon() {
@@ -70,22 +62,18 @@ public class FileSendingJobService extends FileJobService {
     static class SendingTask extends FileTask implements SendingListener {
 
         private final SniffHandlerService sniffHandlerService;
-        private final Runnable sendBroadcastRunnable;
         private com.tambapps.p2p.fandem.task.SendingTask fileSender;
         private ContentResolver contentResolver;
         private String fileName;
 
-        SendingTask(NotificationCompat.Builder notifBuilder,
+        SendingTask(SendingEventHandler eventHandler, NotificationCompat.Builder notifBuilder,
                     NotificationManager notificationManager,
                     int notifId,
                     ContentResolver contentResolver,
-                    Runnable endRunnable,
-                    PendingIntent cancelIntent, FirebaseAnalytics analytics, SniffHandlerService sniffHandlerService,
-                    Runnable sendBroadcastRunnable) {
-            super(notifBuilder, notificationManager, notifId, endRunnable, cancelIntent, analytics);
+                    PendingIntent cancelIntent, FirebaseAnalytics analytics, SniffHandlerService sniffHandlerService) {
+            super(eventHandler, notifBuilder, notificationManager, notifId, cancelIntent, analytics);
             this.contentResolver = contentResolver;
             this.sniffHandlerService = sniffHandlerService;
-            this.sendBroadcastRunnable = sendBroadcastRunnable;
         }
 
         void run(String... params) {
@@ -103,6 +91,8 @@ public class FileSendingJobService extends FileJobService {
                 if (fileSender.isCanceled()) {
                     finishNotification()
                             .setContentTitle(getString(R.string.transfer_canceled));
+                    ((SendingEventHandler)eventHandler).onServiceTimeout();
+
                 } else {
                     finishNotification().setContentTitle(getString(R.string.transfer_complete))
                             .setStyle(notifStyle.bigText(getString(R.string.success_send, fileName)));
@@ -112,6 +102,7 @@ public class FileSendingJobService extends FileJobService {
                 finishNotification()
                         .setContentTitle(getString(R.string.transfer_canceled))
                         .setContentText(getString(R.string.connection_timeout));
+                ((SendingEventHandler)eventHandler).onServiceTimeout();
             } catch (FileNotFoundException e) {
                 Crashlytics.logException(e);
                 finishNotification()
@@ -141,7 +132,7 @@ public class FileSendingJobService extends FileJobService {
 
         @Override
         public String onConnected(String remoteAddress, String fileName) {
-            sendBroadcastRunnable.run();
+            ((SendingEventHandler)eventHandler).onServiceStarted();
             sniffHandlerService.stop();
             return getString(R.string.sending_connected, fileName);
         }
@@ -165,5 +156,15 @@ public class FileSendingJobService extends FileJobService {
     void cancel() {
         super.cancel();
         sniffHandlerService.stop();
+    }
+
+    @Override
+    public void onServiceStarted() {
+        sendBroadcast(new Intent(SendingEventBroadcastReceiver.SENDING_STARTED));
+    }
+
+    @Override
+    public void onServiceTimeout() {
+        sendBroadcast(new Intent(SendingEventBroadcastReceiver.SERVICE_TIMEOUT));
     }
 }

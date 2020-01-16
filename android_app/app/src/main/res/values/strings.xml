@@ -53,4 +53,5 @@
     <string name="enter_peer_key_manually">Enter peer key manually</string>
     <string name="loading_sending_peers">Searching sending peers…</string>
     <string name="select_peer">Select peer</string>
+    <string name="send_service_canceled">Service was canceled due to timeout. Please try again</string>
 </resources>
