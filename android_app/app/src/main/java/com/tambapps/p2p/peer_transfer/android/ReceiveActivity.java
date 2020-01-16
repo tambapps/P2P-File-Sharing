@@ -293,7 +293,7 @@ public class ReceiveActivity extends AppCompatActivity implements PeerSniffer.Sn
                 public void onClick(View v) {
                     new AlertDialog.Builder(ReceiveActivity.this)
                             .setTitle(getString(R.string.alert_receive_file, discoveredPeer.getFileName()))
-                            .setMessage(getString(R.string.alert_receive_file_message, discoveredPeer.getFileName(), peer.toHexString()))
+                            .setMessage(getString(R.string.alert_receive_file_message, discoveredPeer.getFileName(), discoveredPeer.getDeviceName()))
                             .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
@@ -304,6 +304,11 @@ public class ReceiveActivity extends AppCompatActivity implements PeerSniffer.Sn
                             .show();
                 }
             });
+            holder.itemView.setAlpha(0f);
+            holder.itemView.animate()
+                    .alpha(1F)
+                    .setDuration(250)
+                    .start();
         }
 
         @Override
