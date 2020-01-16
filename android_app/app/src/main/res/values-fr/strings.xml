@@ -42,7 +42,7 @@
     <string name="transfer_canceled">Trasfert annulé</string>
     <string name="transfer_complete">Transfert fini avec succès</string>
     <string name="waiting_connection">En attente d\'une connexion</string>
-    <string name="waiting_connection_message">%s (clé: %s)</string>
+    <string name="waiting_connection_message">clé: %s</string>
     <string name="transfer_aborted">Transfert interrompu</string>
     <string name="alert_receive_file">Recevoir %s</string>
     <string name="alert_receive_file_message">Voulez-vous recevoir %s de %s?</string>
@@ -51,5 +51,5 @@
     <string name="cancel">annuler</string>
     <string name="enter_peer_key_manually">Entrer la clé manuellement</string>
     <string name="select_peer">Sélectionnez l\'appareil</string>
-    <string name="loading_sending_peers">Recherche d\'appareil envoyeur...</string>
+    <string name="loading_sending_peers">Recherche d\'appareil envoyeur…</string>
 </resources>

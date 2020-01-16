@@ -19,7 +19,7 @@
     <string name="copied_clipboard">Key copied to clipboard</string>
     <string name="couldnt_copy_clipboard">Couldn\'t copy to clipboard</string>
     <string name="waiting_connection">Waiting for a connection</string>
-    <string name="waiting_connection_message">%s (key: %s)</string>
+    <string name="waiting_connection_message">peer key: %s</string>
     <string name="sending_connected">Sending %s…</string>
     <string name="transfer_aborted">Transfer aborted</string>
     <string name="couldnt_find_file">The file couldn\'t be found</string>
@@ -51,6 +51,6 @@
     <string name="or">or</string>
     <string name="cancel">cancel</string>
     <string name="enter_peer_key_manually">Enter peer key manually</string>
-    <string name="loading_sending_peers">Searching sending peers...</string>
+    <string name="loading_sending_peers">Searching sending peers…</string>
     <string name="select_peer">Select peer</string>
 </resources>
