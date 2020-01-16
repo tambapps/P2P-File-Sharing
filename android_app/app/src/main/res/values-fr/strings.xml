@@ -3,14 +3,14 @@
     <string name="tab_text_2">Envoyer un fichier</string>
     <string name="tab_text_3">Recevoir un fichier</string>
     <string name="help_title">Bienvenue sur Fandem</string>
-    <string name="help_description">\t\t\t\tCette application permet d\'envoyer/recevoir des fichiers en Peer to Peer (P2P). P2P signifie que les données sont transférées directement d\'un appareil à l\'autre, aucune donnée n\'est envoyée à un serveur intermédiaire.\n\nPour transférer des fichiers, les deux appareils doivent être dans le même réseau local.\nLe meilleur usage est de partager la connexion 3/4G avec un des smartphones, et de connecter l\'autre sur le WI-FI crée par le partage de connexion.</string>
+    <string name="help_description">\t\t\t\tCette application permet d\'envoyer/recevoir des fichiers en Peer to Peer (P2P) avec le partage de données (point d\'accès). P2P signifie que les données sont transférées directement d\'un appareil à l\'autre, aucune donnée n\'est envoyée à un serveur intermédiaire.\n\nPour transférer des fichiers, les deux appareils doivent être dans le même réseau local.\nPartagez la connexion 3/4G d\'un des smartphones avec l\'autre, et connecter ce dernier sur le WI-FI crée par le partage de connexion.</string>
     <string name="pick_a_file_to_send">Choisissez un fichier à envoyer</string>
     <string name="port">port</string>
     <string name="receive_file">Recevoir un fichier</string>
     <string name="send_file">Envoyer un fichier</string>
     <string name="start_receiving">Recevoir le fichier</string>
-    <string name="receive_description">\t\t\t\tPour recevoir un fichier, allez sur la page d\'envoi, entrez la clé de l\'appareil expéditeur, puis appuyez sur \'commencer l\'envoi\'.\nVous pouvez voir le progrès dans la notification créee. Les fichiers sont téléchargés dans le dossier \'Download\' (Téléchargements).</string>
-    <string name="send_description">\t\t\t\tPour envoyer un fichier, allez sur la page d\'envoi, puis choisissez un fichier à envoyer en cliquant sur le bouton en bas de l\'écran. Ensuite, votre clé d\'expéditeur sera affichée sur l\'écran, vous devrez la transmettre à l\'appareil récepteur.\nUne fois que l\'appareil récepteur aura entré votre clé, le transfert commencera. Vous pouvez voir le progrès dans la notification crée.</string>
+    <string name="receive_description">\t\t\t\tPour recevoir un fichier, allez sur la page de réception, attendez que l\'appli trouve l\'appareil expéditeur (ou entrez la clé de l\'appareil expéditeur manuellement), puis le service pourra commencer.\nVous pouvez voir le progrès dans la notification créee. Les fichiers sont téléchargés dans le dossier \'Download\' (Téléchargements).</string>
+    <string name="send_description">\t\t\t\tPour envoyer un fichier, allez sur la page d\'envoi, puis choisissez un fichier à envoyer en cliquant sur le bouton en bas de l\'écran. Ensuite, vous pouvez envoyer votre clé d\'expéditeur qui sera affichée sur l\'écran, mais l\'appareil récepteur devrait pouvoir vous trouver sans.\nUne fois que l\'appareil récepteur vous aura trouvé, le transfert commencera. Vous pouvez voir le progrès dans la notification crée.</string>
     <string name="peer_key_input">Entrez la clé de l\'expediteur</string>
     <string name="peer_key_malformed">La clé est malformée</string>
     <string name="started_send_service_message">En attente de l\'appareil récepteur. Vous pouvez lui fournir la clé suivante\n\n%s</string>
