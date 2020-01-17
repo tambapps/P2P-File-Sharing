@@ -8,7 +8,7 @@ import java.net.ServerSocket
 
 class PeerSniffHandler(private val peer: Peer,
                        private val deviceName: String,
-                       private val fileName: String) {
+                       private var fileName: String) {
 
   constructor(port: Int, deviceName: String, fileName: String) :
       this(Peer.of(IPUtils.ipAddress, port), deviceName, fileName)
@@ -34,8 +34,12 @@ class PeerSniffHandler(private val peer: Peer,
         dis.writeString(fileName)
       }
     }
-
   }
+
+  fun setFileName(fileName: String) {
+    this.fileName = fileName
+  }
+
   companion object {
     private const val SOCKET_BACKLOG = 50
   }
