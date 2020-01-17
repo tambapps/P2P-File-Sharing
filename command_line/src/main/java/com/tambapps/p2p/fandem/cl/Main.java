@@ -8,6 +8,7 @@ import com.tambapps.p2p.fandem.cl.command.SendCommand;
 
 import com.tambapps.p2p.fandem.listener.ReceivingListener;
 import com.tambapps.p2p.fandem.listener.SendingListener;
+import com.tambapps.p2p.fandem.sniff.PeerSniffHandlerService;
 import com.tambapps.p2p.fandem.task.ReceivingTask;
 import com.tambapps.p2p.fandem.task.SendingTask;
 import com.tambapps.p2p.fandem.util.FileUtils;
@@ -25,10 +26,13 @@ import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 
 import java.util.Objects;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Main {
-	private final static String RECEIVE = "receive";
-	private final static String SEND = "send";
+	private static final String RECEIVE = "receive";
+	private static final String SEND = "send";
+	private static final ExecutorService EXECUTOR_SERVICE = Executors.newSingleThreadExecutor();
 
 	public static void main(String[] args) {
 		Arguments arguments = new Arguments();
@@ -67,13 +71,14 @@ public class Main {
 				send(sendCommand);
 				break;
 		}
+		EXECUTOR_SERVICE.shutdownNow();
 	}
 
 	private static void send(SendCommand sendCommand) {
 		InetAddress address;
 		if (sendCommand.getIp() == null) {
 			try {
-				address = Objects.requireNonNull(IPUtils.getIPAddress());
+				address = Objects.requireNonNull(IPUtils.getIpAddress());
 			} catch (Exception e) {
 				System.out.println("Couldn't get ip address (are you connected to the internet?)");
 				return;
@@ -115,6 +120,8 @@ public class Main {
 				System.out.println("Hex string: " + self.toHexString().toUpperCase());
 			}
 		};
+		final PeerSniffHandlerService sniffHandlerService = new PeerSniffHandlerService(EXECUTOR_SERVICE, peer, getDesktopName(), "");
+		sniffHandlerService.start();
 		for (String filePath : sendCommand.getFilePath()) {
 			File file;
 			try {
@@ -123,6 +130,7 @@ public class Main {
 				System.out.println("Couldn't decode path " + filePath);
 				continue;
 			}
+			sniffHandlerService.setFileName(file.getName());
 			if (!file.exists()) {
 				System.out.format("This file doesn't exist (%s)", filePath).println();
 				continue;
@@ -143,12 +151,29 @@ public class Main {
 			}
 			System.out.println();
 		}
+		sniffHandlerService.stop();
 	}
 
 	private static String decodePath(String path) throws UnsupportedEncodingException {
 		return URLDecoder.decode(path, StandardCharsets.UTF_8.name());
 	}
 
+	private static String getDesktopName() {
+		String name = System.getenv("COMPUTERNAME");
+		if (name != null && !name.isEmpty()) {
+			return name;
+		}
+		name = System.getenv("HOSTNAME");
+		if (name != null && !name.isEmpty()) {
+			return name;
+		}
+		try {
+			return InetAddress.getLocalHost().getHostName();
+		}
+		catch (UnknownHostException ex) {
+			return  System.getProperty("user.name") + "Desktop";
+		}
+	}
 	private static void receive(ReceiveCommand receiveCommand) {
 		File dirFile = new File(receiveCommand.getDownloadPath());
 		if (!dirFile.exists()) {
