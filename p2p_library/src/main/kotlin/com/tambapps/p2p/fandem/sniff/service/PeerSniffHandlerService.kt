@@ -1,6 +1,7 @@
-package com.tambapps.p2p.fandem.sniff
+package com.tambapps.p2p.fandem.sniff.service
 
 import com.tambapps.p2p.fandem.Peer
+import com.tambapps.p2p.fandem.sniff.PeerSniffHandler
 import java.io.IOException
 import java.net.ServerSocket
 import java.util.concurrent.ExecutorService
