@@ -4,9 +4,9 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import com.tambapps.p2p.fandem.Peer;
 
-@Parameters(separators = "=", commandDescription = "Receive file from another peer")
+@Parameters(separators = "=", commandDescription = "Receive file from another peer. If no peer is provided, the program will look for it")
 public class ReceiveCommand {
-    @Parameter(names = {"-p", "-peer"}, description = "the sending peer (in peer notation or hexString)", required = true, converter = PeerConverter.class)
+    @Parameter(names = {"-p", "-peer"}, description = "the sending peer (in peer notation or hexString)", converter = PeerConverter.class)
     private Peer peer;
 
     @Parameter(names = {"-d", "--downloadPath"}, description = "the path where the file(s) will be downloaded",

@@ -8,7 +8,7 @@ import com.tambapps.p2p.fandem.cl.command.SendCommand;
 
 import com.tambapps.p2p.fandem.listener.ReceivingListener;
 import com.tambapps.p2p.fandem.listener.SendingListener;
-import com.tambapps.p2p.fandem.sniff.PeerSniffHandlerService;
+import com.tambapps.p2p.fandem.sniff.service.PeerSniffHandlerService;
 import com.tambapps.p2p.fandem.task.ReceivingTask;
 import com.tambapps.p2p.fandem.task.SendingTask;
 import com.tambapps.p2p.fandem.util.FileUtils;
@@ -20,12 +20,12 @@ import java.io.IOException;
 
 import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
-import java.net.SocketException;
 import java.net.URLDecoder;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -65,7 +65,11 @@ public class Main {
 		}
 		switch (command) {
 			case RECEIVE:
-				receive(receiveCommand);
+				Peer peer = Optional.ofNullable(receiveCommand.getPeer())
+					.orElseGet(Main::searchPeer);
+				if (peer != null) {
+					receive(peer, receiveCommand.getDownloadPath(), receiveCommand.getCount());
+				}
 				break;
 			case SEND:
 				send(sendCommand);
@@ -174,8 +178,8 @@ public class Main {
 			return  System.getProperty("user.name") + "Desktop";
 		}
 	}
-	private static void receive(ReceiveCommand receiveCommand) {
-		File dirFile = new File(receiveCommand.getDownloadPath());
+	private static void receive(Peer peer, String downloadPath, int count) {
+		File dirFile = new File(downloadPath);
 		if (!dirFile.exists()) {
 			System.out.println(dirFile.getPath() + " doesn't exist");
 			return;
@@ -206,8 +210,7 @@ public class Main {
 			}
 		};
 
-		Peer peer = receiveCommand.getPeer();
-		for (int i = 0; i < receiveCommand.getCount(); i++) {
+		for (int i = 0; i < count; i++) {
 			System.out.println("Connecting to " + peer);
 			try {
 				new ReceivingTask(listener, FileUtils.newAvailableFileProvider(dirFile)).receiveFrom(peer);
@@ -218,6 +221,12 @@ public class Main {
 			}
 			System.out.println();
 		}
+	}
+
+	private static Peer searchPeer() {
+		// TODO
+		// TODo use Peersniffer with blocking queue using in listener???
+		return null;
 	}
 
 	private static void printHelp(JCommander jCommander) {
