@@ -1,13 +1,13 @@
 package com.tambapps.p2p.fandem.sniff
 
 import com.tambapps.p2p.fandem.Peer
+import com.tambapps.p2p.fandem.exception.SniffException
 import com.tambapps.p2p.fandem.util.IPUtils
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import java.lang.Exception
 import java.lang.RuntimeException
 import java.net.InetAddress
 import java.net.ServerSocket
@@ -81,6 +81,17 @@ class SniffTest: PeerSniffer.SniffListener {
     }
   }
 
+  @Test
+  fun testSniffBlockingSupplier() {
+    test {
+      val peerSupplier = PeerSniffBlockingSupplier(executor, InetAddress.getByAddress(snifferAddress))
+      peers.add(peerSupplier.get())
+      assertEquals(0, peerSupplier.nbFound())
+      finished.set(true)
+      true
+    }
+  }
+
   fun test(sniffCallable: () -> Boolean) {
     completionService.submit {
       sniffHandler.handleSniff(serverSocket)
@@ -100,7 +111,7 @@ class SniffTest: PeerSniffer.SniffListener {
     peers.add(peer)
   }
 
-  override fun onError(e: Exception) {
+  override fun onError(e: SniffException) {
     throw RuntimeException(e)
   }
 
