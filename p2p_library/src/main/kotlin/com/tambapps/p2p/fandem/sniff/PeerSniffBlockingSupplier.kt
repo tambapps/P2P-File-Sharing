@@ -28,7 +28,7 @@ class PeerSniffBlockingSupplier
         }
         val future = atomicFuture.get()
         if (future == null) {
-            atomicFuture.set(executor.submit { peerSniffer.sniff() })
+            atomicFuture.set(executor.submit { peerSniffer.sniff(executor) })
         }
         return peers.take()
     }

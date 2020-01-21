@@ -26,7 +26,7 @@ class SniffTest: PeerSniffer.SniffListener {
   private val finished = AtomicBoolean(false)
   private lateinit var sniffHandler: PeerSniffHandler
   private lateinit var peerSniffer: PeerSniffer
-  private var executor = Executors.newFixedThreadPool(4)
+  private var executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors())
   private val completionService = ExecutorCompletionService<Boolean>(executor)
   private lateinit var serverSocket: ServerSocket
 
