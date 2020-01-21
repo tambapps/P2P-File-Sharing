@@ -13,7 +13,7 @@ import java.net.URLDecoder;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-public class MainTest {
+public class MainIntegrationTest {
 
 	private static final String IP_ADDRESS = "127.0.0.1";
 	private static final String SNIFF_IP_ADDRESS = "127.0.0.2";
