@@ -3,7 +3,7 @@ package com.tambapps.p2p.fandem.cl;
 import org.junit.After;
 import org.junit.Test;
 
-
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -15,17 +15,31 @@ import static org.junit.Assert.assertTrue;
 
 public class MainTest {
 
+	private static final String IP_ADDRESS = "127.0.0.1";
+	private static final String SNIFF_IP_ADDRESS = "127.0.0.2";
+
 	@Test
-	public void transferTest() throws IOException, InterruptedException {
+	public void transferTest() throws Exception {
+		test(String.format("receive -d=./ -peer=%s:8081", IP_ADDRESS));
+	}
+
+	@Test
+	public void transferWithSniffTest() throws Exception {
+		System.setIn(new ByteArrayInputStream("y\n".getBytes()));
+		test("receive -ip=" + SNIFF_IP_ADDRESS);
+	}
+
+	private void test(String receiveArgs) throws Exception {
 		String filePath = getClass().getClassLoader()
 				.getResource("file.txt")
 				.getFile();
 
-		new Thread(() -> Main.main(("send " + filePath + " -ip=127.0.0.1 -p=8081")
-                .split(" "))).start();
+		new Thread(() -> Main.main(
+				String.format("send %s -ip=%s -p=8081", filePath, IP_ADDRESS)
+						.split(" "))).start();
 		Thread.sleep(1000);
 
-		Main.main("receive -d=./ -peer=127.0.0.1:8081".split(" "));
+		Main.main(receiveArgs.split(" "));
 
 		File originFile = new File(URLDecoder.decode(filePath, "UTF-8"));
 
