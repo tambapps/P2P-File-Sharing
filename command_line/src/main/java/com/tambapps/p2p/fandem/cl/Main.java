@@ -6,8 +6,11 @@ import com.tambapps.p2p.fandem.Peer;
 import com.tambapps.p2p.fandem.cl.command.Arguments;
 import com.tambapps.p2p.fandem.cl.command.SendCommand;
 
+import com.tambapps.p2p.fandem.exception.SniffException;
 import com.tambapps.p2p.fandem.listener.ReceivingListener;
 import com.tambapps.p2p.fandem.listener.SendingListener;
+import com.tambapps.p2p.fandem.sniff.PeerSniffBlockingSupplier;
+import com.tambapps.p2p.fandem.sniff.SniffPeer;
 import com.tambapps.p2p.fandem.sniff.service.PeerSniffHandlerService;
 import com.tambapps.p2p.fandem.task.ReceivingTask;
 import com.tambapps.p2p.fandem.task.SendingTask;
@@ -25,14 +28,14 @@ import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 
 import java.util.Objects;
-import java.util.Optional;
+import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class Main {
 	private static final String RECEIVE = "receive";
 	private static final String SEND = "send";
-	private static final ExecutorService EXECUTOR_SERVICE = Executors.newSingleThreadExecutor();
+	private static ExecutorService EXECUTOR_SERVICE = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
 	public static void main(String[] args) {
 		Arguments arguments = new Arguments();
@@ -65,8 +68,7 @@ public class Main {
 		}
 		switch (command) {
 			case RECEIVE:
-				Peer peer = Optional.ofNullable(receiveCommand.getPeer())
-					.orElseGet(Main::searchPeer);
+				Peer peer = getSendingPeer(receiveCommand.getPeer(), receiveCommand.getIp());
 				if (peer != null) {
 					receive(peer, receiveCommand.getDownloadPath(), receiveCommand.getCount());
 				}
@@ -76,6 +78,10 @@ public class Main {
 				break;
 		}
 		EXECUTOR_SERVICE.shutdownNow();
+	}
+
+	private static Peer getSendingPeer(Peer peer, String optionalIp) {
+		return peer != null ? peer : searchSendingPeer(optionalIp);
 	}
 
 	private static void send(SendCommand sendCommand) {
@@ -223,10 +229,48 @@ public class Main {
 		}
 	}
 
-	private static Peer searchPeer() {
-		// TODO
-		// TODo use Peersniffer with blocking queue using in listener???
-		return null;
+	private static Peer searchSendingPeer(String optionalIp) {
+		InetAddress address;
+		try {
+			address = optionalIp == null ? IPUtils.getIpAddress() : InetAddress.getByName(optionalIp);
+		} catch (IOException e) {
+			System.out.println("Couldn't find ip address");
+			return null;
+		}
+
+		try (Scanner scanner = new Scanner(System.in)) {
+			return searchSendingPeer(scanner, address);
+		}
+	}
+
+	private static Peer searchSendingPeer(Scanner scanner, InetAddress address) {
+		PeerSniffBlockingSupplier sniffSupplier;
+		try {
+			sniffSupplier = new PeerSniffBlockingSupplier(EXECUTOR_SERVICE, address);
+		} catch (IOException e) {
+			System.out.println("Couldn't start detecting sending peer: " + e.getMessage());
+			return null;
+		}
+
+		while (true) {
+			try {
+				SniffPeer sniffPeer = sniffSupplier.get();
+				System.out.format("%s wants to send %s.\nReceive this file? (Tap 'y' for yes ,'n' for no or 's' to stop)",
+						sniffPeer.getDeviceName(), sniffPeer.getFileName())
+						.println();
+				switch (scanner.nextLine().toLowerCase().charAt(0)) {
+					case 'y':
+						return sniffPeer.getPeer();
+					case 's':
+						return null;
+					default:
+						continue;
+				}
+			} catch (SniffException e) {
+				System.out.println("Error while detecting sending peer: " + e.getMessage());
+				return null;
+			} catch (InterruptedException ignored) { }
+		}
 	}
 
 	private static void printHelp(JCommander jCommander) {

@@ -18,7 +18,7 @@ public class SendCommand {
     private Integer port;
 
     @Parameter(names = {"-t", "--timeout"}, description = "the port used to send (optional)")
-    private int timeout = 30 * 1000;
+    private int timeout = 90 * 1000;
 
     public List<String> getFilePath() {
         return filePath;
