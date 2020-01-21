@@ -7,15 +7,15 @@ import java.util.concurrent.BlockingQueue
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Future
 import java.util.concurrent.LinkedBlockingDeque
+import java.util.concurrent.atomic.AtomicReference
 
 class PeerSniffBlockingSupplier
 @Throws(IOException::class) constructor(private val executor: ExecutorService,
                                         address: InetAddress) {
     private val peerSniffer: PeerSniffer
-    private val peers: BlockingQueue<SniffPeer> = LinkedBlockingDeque()
+    private val peers: BlockingQueue<SniffPeer> = LinkedBlockingDeque<SniffPeer>()
     private var exception: SniffException? = null
-    @Volatile
-    private var future: Future<*>? = null
+    private val atomicFuture = AtomicReference<Future<*>>(null)
 
     init {
         peerSniffer = PeerSniffer(SniffListener(), address)
@@ -26,8 +26,9 @@ class PeerSniffBlockingSupplier
         if (exception != null) {
             throw exception!!
         }
+        val future = atomicFuture.get()
         if (future == null) {
-            future = executor.submit { peerSniffer.sniff() }
+            atomicFuture.set(executor.submit { peerSniffer.sniff() })
         }
         return peers.take()
     }
@@ -37,7 +38,7 @@ class PeerSniffBlockingSupplier
     }
 
     fun stop() {
-        future?.cancel(true)
+        atomicFuture.get()?.cancel(true)
     }
 
     private inner class SniffListener: PeerSniffer.SniffListener {
@@ -51,7 +52,7 @@ class PeerSniffBlockingSupplier
         }
 
         override fun onEnd() {
-            future = null
+            atomicFuture.set(null)
         }
     }
 }
