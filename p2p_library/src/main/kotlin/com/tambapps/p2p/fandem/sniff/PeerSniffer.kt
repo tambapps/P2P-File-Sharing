@@ -1,10 +1,10 @@
 package com.tambapps.p2p.fandem.sniff
 
 import com.tambapps.p2p.fandem.Peer.Companion.of
+import com.tambapps.p2p.fandem.exception.SniffException
 import com.tambapps.p2p.fandem.io.CustomDataInputStream
 import com.tambapps.p2p.fandem.util.IPUtils
 import java.io.IOException
-import java.lang.Exception
 import java.net.ConnectException
 import java.net.InetAddress
 import java.net.Socket
@@ -12,7 +12,6 @@ import java.util.concurrent.ExecutionException
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Future
 import java.util.concurrent.atomic.AtomicBoolean
-
 
 class PeerSniffer(private val listener: SniffListener,
                                       private val ip: ByteArray,
@@ -27,7 +26,7 @@ class PeerSniffer(private val listener: SniffListener,
 
   interface SniffListener {
     fun onPeerFound(peer: SniffPeer)
-    fun onError(e: Exception)
+    fun onError(e: SniffException)
     fun onEnd()
   }
 
@@ -40,7 +39,7 @@ class PeerSniffer(private val listener: SniffListener,
       }
       listener.onEnd()
     } catch (e: IOException) {
-      listener.onError(e)
+      listener.onError(SniffException(e))
     }
   }
 
@@ -70,7 +69,7 @@ class PeerSniffer(private val listener: SniffListener,
       try {
         future.get()
       } catch (e: ExecutionException) {
-        listener.onError(e)
+        listener.onError(SniffException(e))
       }
     }
   }
@@ -80,7 +79,7 @@ class PeerSniffer(private val listener: SniffListener,
       doSniff()
       listener.onEnd()
     } catch (e: IOException) {
-      listener.onError(e)
+      listener.onError(SniffException(e))
     }
   }
 
