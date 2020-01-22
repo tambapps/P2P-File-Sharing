@@ -23,6 +23,7 @@ public class MainIntegrationTest {
 		test(String.format("receive -d=./ -peer=%s:8081", IP_ADDRESS));
 	}
 
+	// run these test individually (weird but when we run all test, this ne fails)
 	@Test
 	public void transferWithSniffTest() throws Exception {
 		System.setIn(new ByteArrayInputStream("y\n".getBytes()));
