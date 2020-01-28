@@ -65,8 +65,21 @@ object FileUtils {
   }
 
   @JvmStatic
-  fun newAvailableFileProvider(directory: File?): FileProvider {
-    return FileProvider { name -> newAvailableFile(directory, name) }
+  fun availableFileInDirectoryProvider(directory: File): FileProvider {
+    return object : FileProvider {
+      override fun newFile(name: String): File {
+        return newAvailableFile(directory, name)
+      }
+    }
+  }
+
+  @JvmStatic
+  fun staticFileProvider(file: File): FileProvider {
+    return object : FileProvider {
+      override fun newFile(name: String): File {
+        return file
+      }
+    }
   }
 
   @JvmStatic

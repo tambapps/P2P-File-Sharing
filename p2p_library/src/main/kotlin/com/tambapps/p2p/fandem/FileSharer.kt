@@ -45,11 +45,11 @@ class FileSharer(private val executorService: ExecutorService) {
   }
 
   fun receiveFile(file: File, peer: Peer, errorListener: SharingErrorListener): Future<Boolean> {
-    return receiveFile(FileProvider { file }, peer, null, errorListener)
+    return receiveFile(FileUtils.staticFileProvider(file), peer, null, errorListener)
   }
 
   fun receiveFile(file: File, peer: Peer, transferListener: TransferListener, errorListener: SharingErrorListener): Future<Boolean> {
-    return receiveFile(FileProvider { file }, peer, transferListener, errorListener)
+    return receiveFile(FileUtils.staticFileProvider(file), peer, transferListener, errorListener)
   }
 
   fun receiveFile(filePath: String, peer: Peer, errorListener: SharingErrorListener): Future<Boolean> {
@@ -64,47 +64,45 @@ class FileSharer(private val executorService: ExecutorService) {
                              errorListener: SharingErrorListener): Future<Boolean> {
     require(directory.exists()) { "$directory doesn't exist" }
     require(directory.isDirectory) { "$directory isn't a directory" }
-    return receiveFile(FileProvider { name: String -> FileUtils.newAvailableFile(directory, name) }, peer, transferListener, errorListener)
+    return receiveFile(FileUtils.availableFileInDirectoryProvider(directory),
+            peer, transferListener, errorListener)
   }
 
   fun receiveFileInDirectory(directory: File, peer: Peer, errorListener: SharingErrorListener): Future<Boolean> {
     return receiveFileInDirectory(directory, peer, null, errorListener)
   }
+}
 
-  private class SendCallable internal constructor(private val file: File, peer: Peer, socketTimout: Int, transferListener: TransferListener?, private val errorListener: SharingErrorListener) : SharingCallable {
-    private val task: SendingTask = SendingTask(transferListener, peer, socketTimout)
-    override fun cancel() {
-      task.cancel()
-    }
-
-    override fun call(): Boolean {
-      return try {
-        task.send(file)
-        true
-      } catch (e: IOException) {
-        errorListener.onError(e)
-        false
-      }
-    }
-
+private class SendCallable internal constructor(private val file: File, peer: Peer, socketTimout: Int, transferListener: TransferListener?, private val errorListener: SharingErrorListener) : SharingCallable {
+  private val task: SendingTask = SendingTask(transferListener, peer, socketTimout)
+  override fun cancel() {
+    task.cancel()
   }
 
-  private class ReceiveCallable internal constructor(fileProvider: FileProvider, private val peer: Peer, transferListener: TransferListener?, private val errorListener: SharingErrorListener) : SharingCallable {
-    private val task: ReceivingTask = ReceivingTask(transferListener, fileProvider)
-    override fun cancel() {
-      task.cancel()
+  override fun call(): Boolean {
+    return try {
+      task.send(file)
+      true
+    } catch (e: IOException) {
+      errorListener.onError(e)
+      false
     }
+  }
+}
 
-    override fun call(): Boolean {
-      return try {
-        task.receiveFrom(peer)
-        true
-      } catch (e: IOException) {
-        errorListener.onError(e)
-        false
-      }
-    }
-
+private class ReceiveCallable internal constructor(fileProvider: FileProvider, private val peer: Peer, transferListener: TransferListener?, private val errorListener: SharingErrorListener) : SharingCallable {
+  private val task: ReceivingTask = ReceivingTask(transferListener, fileProvider)
+  override fun cancel() {
+    task.cancel()
   }
 
+  override fun call(): Boolean {
+    return try {
+      task.receiveFrom(peer)
+      true
+    } catch (e: IOException) {
+      errorListener.onError(e)
+      false
+    }
+  }
 }

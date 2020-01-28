@@ -4,6 +4,7 @@ import com.tambapps.p2p.fandem.Peer
 import com.tambapps.p2p.fandem.io.CustomDataInputStream
 import com.tambapps.p2p.fandem.listener.ReceivingListener
 import com.tambapps.p2p.fandem.listener.TransferListener
+import com.tambapps.p2p.fandem.util.FileUtils
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -19,10 +20,9 @@ class ReceivingTask(transferListener: TransferListener?, private val fileProvide
   var outputFile: File? = null
     private set
 
-  constructor(file: File?) : this(null, file) {}
-  constructor(fileProvider: FileProvider) : this(null, fileProvider) {}
-  constructor(transferListener: TransferListener?, file: File?) : this(transferListener, FileProvider { file }) {
-  }
+  constructor(file: File) : this(null, file)
+  constructor(fileProvider: FileProvider) : this(null, fileProvider)
+  constructor(transferListener: TransferListener?, file: File) : this(transferListener, FileUtils.staticFileProvider(file))
 
   @Throws(IOException::class)
   fun receiveFrom(address: InetAddress, port: Int) {
@@ -54,7 +54,8 @@ class ReceivingTask(transferListener: TransferListener?, private val fileProvide
           val fileName = dis.readString()
           transferListener?.onConnected(peer, Peer.of(socket.inetAddress, socket.port),
               fileName, totalBytes)
-          outputFile = fileProvider.newFile(fileName)
+          val outputFile = fileProvider.newFile(fileName)
+          this.outputFile = outputFile
           FileOutputStream(outputFile).use { fos -> share(bufferSize, dis, fos, totalBytes) }
           if (transferListener != null && transferListener is ReceivingListener) {
             transferListener.onEnd(outputFile)
