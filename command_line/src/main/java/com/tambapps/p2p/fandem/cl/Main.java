@@ -219,7 +219,7 @@ public class Main {
 		for (int i = 0; i < count; i++) {
 			System.out.println("Connecting to " + peer);
 			try {
-				new ReceivingTask(listener, FileUtils.newAvailableFileProvider(dirFile)).receiveFrom(peer);
+				new ReceivingTask(listener, FileUtils.availableFileInDirectoryProvider(dirFile)).receiveFrom(peer);
 			} catch (IOException e) {
 				System.out.println();
 				System.out.println("Error while receiving file: " + e.getMessage());
