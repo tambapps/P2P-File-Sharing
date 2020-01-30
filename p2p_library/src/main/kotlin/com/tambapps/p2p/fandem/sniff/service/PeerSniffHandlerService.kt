@@ -17,6 +17,9 @@ class PeerSniffHandlerService(private val executorService: ExecutorService,
   constructor(executorService: ExecutorService, peer: Peer, deviceName: String, fileName: String):
       this(executorService, PeerSniffHandler(peer, deviceName, fileName))
 
+  constructor(executorService: ExecutorService, peer: Peer, deviceName: String):
+      this(executorService, PeerSniffHandler(peer, deviceName, ""))
+
   fun start() {
     future = executorService.submit {
       try {
