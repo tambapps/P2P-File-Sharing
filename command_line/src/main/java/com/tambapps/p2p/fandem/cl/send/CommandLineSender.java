@@ -18,6 +18,7 @@ import java.net.URLDecoder;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 
 public class CommandLineSender implements SendingListener {
@@ -55,38 +56,46 @@ public class CommandLineSender implements SendingListener {
     }
     Peer peer = Peer.of(address, port);
     final PeerSniffHandlerService
-        sniffHandlerService = new PeerSniffHandlerService(executorService, peer, getDesktopName());
+        sniffHandlerService = new PeerSniffHandlerService(executorService, peer, DESKTOP_NAME);
     sniffHandlerService.start();
     for (String filePath : sendCommand.getFilePath()) {
-      File file;
-      try {
-        file = new File(decodePath(filePath));
-      } catch (UnsupportedEncodingException e) {
-        System.out.println("Couldn't decode path " + filePath);
-        continue;
-      }
-      sniffHandlerService.setFileName(file.getName());
-      if (!file.exists()) {
-        System.out.format("This file doesn't exist (%s)", filePath).println();
-        continue;
-      }
-      if (!file.isFile()) {
-        System.out.format("This isn't a file (%s)", filePath).println();
-        continue;
-      }
-
-      try {
-        new SendingTask(this, peer, sendCommand.getTimeout()).send(file);
-        System.out.println();
-        System.out.println(file.getName() + " was successfully sent");
-      } catch (IOException e) {
-        System.out.println();
-        System.out.format("Error while sending %s: %s",file.getName(), e.getMessage()).println();
-        continue;
-      }
-      System.out.println();
+      getFileFromPath(filePath)
+          .ifPresent(file -> sendFile(file, peer, sendCommand.getTimeout(), sniffHandlerService));
     }
     sniffHandlerService.stop();
+  }
+
+  private Optional<File> getFileFromPath(String filePath) {
+    File file;
+    try {
+      file = new File(decodePath(filePath));
+    } catch (UnsupportedEncodingException e) {
+      System.out.println("Couldn't decode path " + filePath);
+      return Optional.empty();
+    }
+    if (!file.exists()) {
+      System.out.format("This file doesn't exist (%s)", filePath).println();
+      return Optional.empty();
+    }
+    if (!file.isFile()) {
+      System.out.format("This isn't a file (%s)", filePath).println();
+      return Optional.empty();
+    }
+    return Optional.of(file);
+  }
+
+  private void sendFile(File file, Peer peer, int timeout,
+      PeerSniffHandlerService sniffHandlerService) {
+    sniffHandlerService.setFileName(file.getName());
+    try {
+      new SendingTask(this, peer, timeout).send(file);
+      System.out.println();
+      System.out.println(file.getName() + " was successfully sent");
+      System.out.println();
+    } catch (IOException e) {
+      System.out.println();
+      System.out.format("Error while sending %s: %s",file.getName(), e.getMessage()).println();
+    }
   }
 
   @Override
