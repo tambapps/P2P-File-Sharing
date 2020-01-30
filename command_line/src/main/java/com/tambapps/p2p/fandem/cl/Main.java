@@ -6,6 +6,7 @@ import com.tambapps.p2p.fandem.Peer;
 import com.tambapps.p2p.fandem.cl.command.Arguments;
 import com.tambapps.p2p.fandem.cl.command.SendCommand;
 
+import com.tambapps.p2p.fandem.cl.send.CommandLineSender;
 import com.tambapps.p2p.fandem.exception.SniffException;
 import com.tambapps.p2p.fandem.listener.ReceivingListener;
 import com.tambapps.p2p.fandem.listener.SendingListener;
@@ -74,7 +75,7 @@ public class Main {
 				}
 				break;
 			case SEND:
-				send(sendCommand);
+				new CommandLineSender(EXECUTOR_SERVICE).send(sendCommand);
 				break;
 		}
 		EXECUTOR_SERVICE.shutdownNow();
@@ -84,106 +85,6 @@ public class Main {
 		return peer != null ? peer : searchSendingPeer(optionalIp);
 	}
 
-	private static void send(SendCommand sendCommand) {
-		InetAddress address;
-		if (sendCommand.getIp() == null) {
-			try {
-				address = Objects.requireNonNull(IPUtils.getIpAddress());
-			} catch (Exception e) {
-				System.out.println("Couldn't get ip address (are you connected to the internet?)");
-				return;
-			}
-		} else {
-			try {
-				address = InetAddress.getByName(sendCommand.getIp());
-			} catch (UnknownHostException e) {
-				System.out.println("Couldn't get ip address (is it well formatted?)");
-				return;
-			}
-		}
-
-		Integer port  = sendCommand.getPort();
-		if (port == null) {
-			port = IPUtils.getAvailablePort(address);
-		}
-		Peer peer = Peer.of(address, port);
-		SendingListener listener = new SendingListener() {
-			final String progressFormat = "\rSent %s / %s";
-			@Override
-			public void onConnected(Peer selfPeer, Peer remotePeer, String fileName, long fileSize) {
-				System.out.println("Connected to peer " + remotePeer);
-				System.out.format(progressFormat, "0kb",
-					FileUtils.bytesToString(fileSize));
-			}
-
-			@Override
-			public void onProgressUpdate(int progress, long byteProcessed, long totalBytes) {
-				System.out.format(progressFormat,
-					FileUtils.bytesToString(byteProcessed),
-					FileUtils.bytesToString(totalBytes));
-			}
-
-			@Override
-			public void onStart(Peer self, String fileName) {
-				System.out.println("Sending " + fileName);
-				System.out.println("Waiting for a connection on " + self);
-				System.out.println("Hex string: " + self.toHexString().toUpperCase());
-			}
-		};
-		final PeerSniffHandlerService sniffHandlerService = new PeerSniffHandlerService(EXECUTOR_SERVICE, peer, getDesktopName(), "");
-		sniffHandlerService.start();
-		for (String filePath : sendCommand.getFilePath()) {
-			File file;
-			try {
-				file = new File(decodePath(filePath));
-			} catch (UnsupportedEncodingException e) {
-				System.out.println("Couldn't decode path " + filePath);
-				continue;
-			}
-			sniffHandlerService.setFileName(file.getName());
-			if (!file.exists()) {
-				System.out.format("This file doesn't exist (%s)", filePath).println();
-				continue;
-			}
-			if (!file.isFile()) {
-				System.out.format("This isn't a file (%s)", filePath).println();
-				continue;
-			}
-
-			try {
-				new SendingTask(listener, peer, sendCommand.getTimeout()).send(file);
-				System.out.println();
-				System.out.println(file.getName() + " was successfully sent");
-			} catch (IOException e) {
-				System.out.println();
-				System.out.format("Error while sending %s: %s",file.getName(), e.getMessage()).println();
-				continue;
-			}
-			System.out.println();
-		}
-		sniffHandlerService.stop();
-	}
-
-	private static String decodePath(String path) throws UnsupportedEncodingException {
-		return URLDecoder.decode(path, StandardCharsets.UTF_8.name());
-	}
-
-	private static String getDesktopName() {
-		String name = System.getenv("COMPUTERNAME");
-		if (name != null && !name.isEmpty()) {
-			return name;
-		}
-		name = System.getenv("HOSTNAME");
-		if (name != null && !name.isEmpty()) {
-			return name;
-		}
-		try {
-			return InetAddress.getLocalHost().getHostName();
-		}
-		catch (UnknownHostException ex) {
-			return  System.getProperty("user.name") + "Desktop";
-		}
-	}
 	private static void receive(Peer peer, String downloadPath, int count) {
 		File dirFile = new File(downloadPath);
 		if (!dirFile.exists()) {
