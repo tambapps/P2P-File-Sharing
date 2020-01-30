@@ -6,9 +6,7 @@ import com.tambapps.p2p.fandem.cl.exception.SendingException;
 import com.tambapps.p2p.fandem.listener.SendingListener;
 import com.tambapps.p2p.fandem.sniff.service.PeerSniffHandlerService;
 import com.tambapps.p2p.fandem.task.SendingTask;
-import com.tambapps.p2p.fandem.util.FileUtils;
 import com.tambapps.p2p.fandem.util.IPUtils;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.Closeable;
 import java.io.File;
@@ -17,46 +15,26 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.concurrent.ExecutorService;
 
-public class Sender implements SendingListener, Closeable {
+public class Sender implements Closeable {
 
-  private static final String PROGRESS_FORMAT = "\rSent %s / %s";
   private static final String DESKTOP_NAME = getDesktopName();
 
   private final Peer peer;
   private final PeerSniffHandlerService sniffHandlerService;
   private final int timeout;
+  private final SendingListener listener;
 
-  private Sender(Peer peer, PeerSniffHandlerService sniffHandlerService, int timeout) {
+  private Sender(Peer peer, PeerSniffHandlerService sniffHandlerService, int timeout,
+      SendingListener listener) {
     this.peer = peer;
     this.sniffHandlerService = sniffHandlerService;
     this.timeout = timeout;
+    this.listener = listener;
     sniffHandlerService.start();
   }
 
   public void send(File file) throws IOException {
-    new SendingTask(this, peer, timeout).send(file);
-  }
-
-  @Override
-  public void onConnected(@NotNull Peer selfPeer, @NotNull Peer remotePeer, @NotNull String fileName,
-      long fileSize) {
-    System.out.println("Connected to peer " + remotePeer);
-    System.out.format(PROGRESS_FORMAT, "0kb",
-        FileUtils.bytesToString(fileSize));
-  }
-
-  @Override
-  public void onProgressUpdate(int progress, long byteProcessed, long totalBytes) {
-    System.out.format(PROGRESS_FORMAT,
-        FileUtils.bytesToString(byteProcessed),
-        FileUtils.bytesToString(totalBytes));
-  }
-
-  @Override
-  public void onStart(Peer self, @NotNull String fileName) {
-    System.out.println("Sending " + fileName);
-    System.out.println("Waiting for a connection on " + self);
-    System.out.println("Hex string: " + self.toHexString().toUpperCase());
+    new SendingTask(listener, peer, timeout).send(file);
   }
 
   private static String getDesktopName() {
@@ -76,7 +54,8 @@ public class Sender implements SendingListener, Closeable {
     }
   }
 
-  public static Sender create(ExecutorService executor, SendCommand sendCommand)
+  public static Sender create(ExecutorService executor, SendCommand sendCommand,
+      SendingListener listener)
       throws SendingException {
     InetAddress address = sendCommand.getIp()
         .orElseThrow(() ->
@@ -86,7 +65,7 @@ public class Sender implements SendingListener, Closeable {
 
     PeerSniffHandlerService
         sniffHandlerService = new PeerSniffHandlerService(executor, peer, DESKTOP_NAME);
-    return new Sender(peer, sniffHandlerService, sendCommand.getTimeout());
+    return new Sender(peer, sniffHandlerService, sendCommand.getTimeout(), listener);
   }
 
   @Override

@@ -85,7 +85,7 @@ public class Main implements ReceivingListener, SendingListener {
 	}
 
 	void send(SendCommand command) {
-		try (Sender sender = Sender.create(EXECUTOR_SERVICE, command)) {
+		try (Sender sender = Sender.create(EXECUTOR_SERVICE, command, this)) {
 			for (File file : command.getFiles()) {
 				sender.send(file);
 				System.out.println();
@@ -102,7 +102,7 @@ public class Main implements ReceivingListener, SendingListener {
 	void receive(ReceiveCommand receiveCommand) {
 		Peer peer = receiveCommand.getPeer().orElseGet(this::searchSendingPeer);
 		if (peer != null) {
-			Receiver receiver = new Receiver(peer, receiveCommand.getDownloadDirectory());
+			Receiver receiver = new Receiver(peer, receiveCommand.getDownloadDirectory(), this);
 			for (int i = 0; i < receiveCommand.getCount(); i++) {
 				System.out.println("Connecting to " + peer);
 				try {
