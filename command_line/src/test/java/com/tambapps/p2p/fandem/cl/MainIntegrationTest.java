@@ -25,13 +25,14 @@ public class MainIntegrationTest {
 
 	@Test
 	public void transferTest() throws Exception {
-		//test(String.format("receive -d=./ -peer=%s:8081", IP_ADDRESS));
+		test(() -> Main.main(String.format("receive -d=./ -peer=%s:8081", IP_ADDRESS).split(" ")));
 	}
 
 	// run these test individually (weird but when we run all test, this ne fails)
 	@Test
 	public void transferWithSniffTest() throws Exception {
 		System.setIn(new ByteArrayInputStream("y\n".getBytes()));
+		// need to 'mock' ip address that will be used for sniffing, since we're using localhost
 		Main receiveMain = new Main(Main.RECEIVE_PROGRESS_FORMAT) {
 			@Override InetAddress getIpAddress() throws IOException {
 				return InetAddress.getByName(SNIFF_IP_ADDRESS);
@@ -45,10 +46,10 @@ public class MainIntegrationTest {
 				.thenReturn(Optional.empty());
 		when(command.getDownloadDirectory())
 				.thenReturn(new File("./"));
-		test(receiveMain, command);
+		test(() -> receiveMain.receive(command));
 	}
 
-	private void test(Main receiveMain, ReceiveCommand receiveCommand) throws Exception {
+	private void test(Runnable receiveRunnable) throws Exception {
 		String filePath = getClass().getClassLoader()
 				.getResource("file.txt")
 				.getFile();
@@ -61,7 +62,7 @@ public class MainIntegrationTest {
 		File originFile = new File(URLDecoder.decode(filePath, "UTF-8"));
 		File file = new File("./file.txt");
 
-		receiveMain.receive(receiveCommand);
+		receiveRunnable.run();
 
 		assertNotNull("Shouldn't be null", file);
 		assertTrue("Didn't correctly downloaded file", file.exists());
