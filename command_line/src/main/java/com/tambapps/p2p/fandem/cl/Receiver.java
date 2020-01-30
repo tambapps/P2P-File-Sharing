@@ -1,4 +1,4 @@
-package com.tambapps.p2p.fandem.cl.receive;
+package com.tambapps.p2p.fandem.cl;
 
 import com.tambapps.p2p.fandem.Peer;
 import com.tambapps.p2p.fandem.listener.ReceivingListener;

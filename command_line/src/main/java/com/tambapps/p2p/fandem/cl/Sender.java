@@ -1,4 +1,4 @@
-package com.tambapps.p2p.fandem.cl.send;
+package com.tambapps.p2p.fandem.cl;
 
 import com.tambapps.p2p.fandem.Peer;
 import com.tambapps.p2p.fandem.cl.command.SendCommand;
@@ -17,7 +17,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.concurrent.ExecutorService;
 
-public class CommandLineSender implements SendingListener, Closeable {
+public class Sender implements SendingListener, Closeable {
 
   private static final String PROGRESS_FORMAT = "\rSent %s / %s";
   private static final String DESKTOP_NAME = getDesktopName();
@@ -26,7 +26,7 @@ public class CommandLineSender implements SendingListener, Closeable {
   private final PeerSniffHandlerService sniffHandlerService;
   private final int timeout;
 
-  private CommandLineSender(Peer peer, PeerSniffHandlerService sniffHandlerService, int timeout) {
+  private Sender(Peer peer, PeerSniffHandlerService sniffHandlerService, int timeout) {
     this.peer = peer;
     this.sniffHandlerService = sniffHandlerService;
     this.timeout = timeout;
@@ -76,7 +76,7 @@ public class CommandLineSender implements SendingListener, Closeable {
     }
   }
 
-  public static CommandLineSender create(ExecutorService executor, SendCommand sendCommand)
+  public static Sender create(ExecutorService executor, SendCommand sendCommand)
       throws SendingException {
     InetAddress address = sendCommand.getIp()
         .orElseThrow(() ->
@@ -86,7 +86,7 @@ public class CommandLineSender implements SendingListener, Closeable {
 
     PeerSniffHandlerService
         sniffHandlerService = new PeerSniffHandlerService(executor, peer, DESKTOP_NAME);
-    return new CommandLineSender(peer, sniffHandlerService, sendCommand.getTimeout());
+    return new Sender(peer, sniffHandlerService, sendCommand.getTimeout());
   }
 
   @Override

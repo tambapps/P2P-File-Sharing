@@ -7,8 +7,6 @@ import com.tambapps.p2p.fandem.cl.command.Arguments;
 import com.tambapps.p2p.fandem.cl.command.SendCommand;
 
 import com.tambapps.p2p.fandem.cl.exception.SendingException;
-import com.tambapps.p2p.fandem.cl.receive.Receiver;
-import com.tambapps.p2p.fandem.cl.send.CommandLineSender;
 import com.tambapps.p2p.fandem.exception.SniffException;
 import com.tambapps.p2p.fandem.listener.ReceivingListener;
 import com.tambapps.p2p.fandem.listener.SendingListener;
@@ -87,7 +85,7 @@ public class Main implements ReceivingListener, SendingListener {
 	}
 
 	void send(SendCommand command) {
-		try (CommandLineSender sender = CommandLineSender.create(EXECUTOR_SERVICE, command)) {
+		try (Sender sender = Sender.create(EXECUTOR_SERVICE, command)) {
 			for (File file : command.getFiles()) {
 				sender.send(file);
 				System.out.println();
