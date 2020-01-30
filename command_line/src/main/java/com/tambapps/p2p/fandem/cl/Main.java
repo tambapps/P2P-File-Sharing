@@ -33,9 +33,8 @@ public class Main implements ReceivingListener, SendingListener {
 	static final String RECEIVE_PROGRESS_FORMAT = "\rReceived %s / %s";
 	static final String SEND_PROGRESS_FORMAT = "\rSent %s / %s";
 
-
-	private static ExecutorService EXECUTOR_SERVICE = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-
+	private final ExecutorService executor =
+			Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 	private final String progressFormat;
 
 	public Main(String progressFormat) {
@@ -81,11 +80,11 @@ public class Main implements ReceivingListener, SendingListener {
 				main.send(sendCommand);
 				break;
 		}
-		EXECUTOR_SERVICE.shutdownNow();
+		main.executor.shutdownNow();
 	}
 
 	void send(SendCommand command) {
-		try (Sender sender = Sender.create(EXECUTOR_SERVICE, command, this)) {
+		try (Sender sender = Sender.create(executor, command, this)) {
 			for (File file : command.getFiles()) {
 				sender.send(file);
 				System.out.println();
@@ -117,7 +116,7 @@ public class Main implements ReceivingListener, SendingListener {
 		}
 	}
 
-	// for testing purpose
+	// for testing overriding
 	InetAddress getIpAddress() throws IOException {
 		return IPUtils.getIpAddress();
 	}
@@ -139,7 +138,7 @@ public class Main implements ReceivingListener, SendingListener {
 	private Peer searchSendingPeer(Scanner scanner, InetAddress address) {
 		PeerSniffBlockingSupplier sniffSupplier;
 		try {
-			sniffSupplier = new PeerSniffBlockingSupplier(EXECUTOR_SERVICE, address);
+			sniffSupplier = new PeerSniffBlockingSupplier(executor, address);
 		} catch (IOException e) {
 			System.out.println("Couldn't start detecting sending peer: " + e.getMessage());
 			return null;
