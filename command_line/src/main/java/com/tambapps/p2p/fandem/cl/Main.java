@@ -157,8 +157,7 @@ public class Main implements ReceivingListener, SendingListener {
 						return sniffPeer.getPeer();
 					case 's':
 						return null;
-					default:
-						continue;
+						// default do nothing
 				}
 			} catch (SniffException e) {
 				System.out.println("Error while detecting sending peer: " + e.getMessage());
