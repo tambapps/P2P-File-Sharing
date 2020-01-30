@@ -3,11 +3,9 @@ package com.tambapps.p2p.fandem.cl.command;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import com.tambapps.p2p.fandem.Peer;
-import com.tambapps.p2p.fandem.cl.command.converter.AddressConverter;
 import com.tambapps.p2p.fandem.cl.command.converter.DirectoryFileConverter;
 
 import java.io.File;
-import java.net.InetAddress;
 import java.util.Optional;
 
 @Parameters(separators = "=", commandDescription = "Receive file from another peer. If no peer is provided, the program will look for it")
