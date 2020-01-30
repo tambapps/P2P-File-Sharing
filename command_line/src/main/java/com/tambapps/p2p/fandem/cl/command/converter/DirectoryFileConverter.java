@@ -4,11 +4,11 @@ import com.beust.jcommander.ParameterException;
 
 import java.io.File;
 
-public class FileConverter extends AbstractFileConverter {
+public class DirectoryFileConverter extends AbstractFileConverter {
 
   @Override
   protected void validate(File file) {
-    if (!file.isFile()) {
+    if (!file.isDirectory()) {
       throw new ParameterException(String.format("%s isn't a file", file.getName()));
     }
   }

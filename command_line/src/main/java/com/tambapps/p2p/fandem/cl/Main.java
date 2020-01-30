@@ -7,6 +7,7 @@ import com.tambapps.p2p.fandem.cl.command.Arguments;
 import com.tambapps.p2p.fandem.cl.command.SendCommand;
 
 import com.tambapps.p2p.fandem.cl.exception.SendingException;
+import com.tambapps.p2p.fandem.cl.receive.Receiver;
 import com.tambapps.p2p.fandem.cl.send.CommandLineSender;
 import com.tambapps.p2p.fandem.exception.SniffException;
 import com.tambapps.p2p.fandem.listener.ReceivingListener;
@@ -62,10 +63,7 @@ public class Main {
 		}
 		switch (command) {
 			case RECEIVE:
-				Peer peer = getSendingPeer(receiveCommand.getPeer(), receiveCommand.getIp());
-				if (peer != null) {
-					receive(peer, receiveCommand.getDownloadPath(), receiveCommand.getCount());
-				}
+				receive(receiveCommand);
 				break;
 			case SEND:
 				send(sendCommand);
@@ -89,60 +87,29 @@ public class Main {
 		}
 	}
 
-	private static Peer getSendingPeer(Peer peer, String optionalIp) {
-		return peer != null ? peer : searchSendingPeer(optionalIp);
-	}
-
-	private static void receive(Peer peer, String downloadPath, int count) {
-		File dirFile = new File(downloadPath);
-		if (!dirFile.exists()) {
-			System.out.println(dirFile.getPath() + " doesn't exist");
-			return;
-		}
-
-		ReceivingListener listener = new ReceivingListener() {
-			final String progressFormat = "\rReceived %s / %s";
-			@Override
-			public void onConnected(Peer selfPeer, Peer remotePeer, String fileName, long fileSize) {
-				System.out.println("Connected to peer " + remotePeer);
-				System.out.println("Receiving " + fileName);
-				System.out.format(progressFormat, "0kb",
-					FileUtils.bytesToString(fileSize));
-			}
-
-			@Override
-			public void onProgressUpdate(int progress, long byteProcessed, long totalBytes) {
-				System.out.format(progressFormat,
-					FileUtils.bytesToString(byteProcessed),
-					FileUtils.bytesToString(totalBytes));
-			}
-
-			@Override
-			public void onEnd(File file) {
+	private static void receive(ReceiveCommand receiveCommand) {
+		Peer peer = receiveCommand.getPeer().orElseGet(Main::searchSendingPeer);
+		if (peer != null) {
+			Receiver receiver = new Receiver(peer, receiveCommand.getDownloadDirectory());
+			for (int i = 0; i < receiveCommand.getCount(); i++) {
+				System.out.println("Connecting to " + peer);
+				try {
+					receiver.receive();
+				} catch (IOException e) {
+					System.out.println();
+					System.out.println("Error while receiving file: " + e.getMessage());
+					continue;
+				}
 				System.out.println();
-				System.out.println("Received " + file.getName() + " successfully");
-				System.out.println("Path: " + file.getPath());
 			}
-		};
-
-		for (int i = 0; i < count; i++) {
-			System.out.println("Connecting to " + peer);
-			try {
-				new ReceivingTask(listener, FileUtils.availableFileInDirectoryProvider(dirFile)).receiveFrom(peer);
-			} catch (IOException e) {
-				System.out.println();
-				System.out.println("Error while receiving file: " + e.getMessage());
-				continue;
-			}
-			System.out.println();
 		}
 	}
 
-	private static Peer searchSendingPeer(String optionalIp) {
+	private static Peer searchSendingPeer() {
 		InetAddress address;
 		try {
-			address = optionalIp == null ? IPUtils.getIpAddress() : InetAddress.getByName(optionalIp);
-		} catch (IOException e) {
+			address = IPUtils.getIpAddress();
+		} catch (Exception e) { // should be IOException but IDE don't want
 			System.out.println("Couldn't find ip address");
 			return null;
 		}
