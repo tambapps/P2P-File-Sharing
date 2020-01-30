@@ -1,17 +1,22 @@
 package com.tambapps.p2p.fandem.cl;
 
+import com.tambapps.p2p.fandem.cl.command.ReceiveCommand;
 import org.junit.After;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.InetAddress;
 import java.net.URLDecoder;
+import java.util.Optional;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
 
 public class MainIntegrationTest {
 
@@ -20,17 +25,30 @@ public class MainIntegrationTest {
 
 	@Test
 	public void transferTest() throws Exception {
-		test(String.format("receive -d=./ -peer=%s:8081", IP_ADDRESS));
+		//test(String.format("receive -d=./ -peer=%s:8081", IP_ADDRESS));
 	}
 
 	// run these test individually (weird but when we run all test, this ne fails)
 	@Test
 	public void transferWithSniffTest() throws Exception {
 		System.setIn(new ByteArrayInputStream("y\n".getBytes()));
-		test("receive -ip=" + SNIFF_IP_ADDRESS);
+		Main receiveMain = new Main(Main.RECEIVE_PROGRESS_FORMAT) {
+			@Override InetAddress getIpAddress() throws IOException {
+				return InetAddress.getByName(SNIFF_IP_ADDRESS);
+			}
+		};
+
+		ReceiveCommand command = Mockito.mock(ReceiveCommand.class);
+		when(command.getCount())
+				.thenReturn(1);
+		when(command.getPeer())
+				.thenReturn(Optional.empty());
+		when(command.getDownloadDirectory())
+				.thenReturn(new File("./"));
+		test(receiveMain, command);
 	}
 
-	private void test(String receiveArgs) throws Exception {
+	private void test(Main receiveMain, ReceiveCommand receiveCommand) throws Exception {
 		String filePath = getClass().getClassLoader()
 				.getResource("file.txt")
 				.getFile();
@@ -40,11 +58,10 @@ public class MainIntegrationTest {
 						.split(" "))).start();
 		Thread.sleep(1000);
 
-		Main.main(receiveArgs.split(" "));
-
 		File originFile = new File(URLDecoder.decode(filePath, "UTF-8"));
-
 		File file = new File("./file.txt");
+
+		receiveMain.receive(receiveCommand);
 
 		assertNotNull("Shouldn't be null", file);
 		assertTrue("Didn't correctly downloaded file", file.exists());
@@ -61,20 +78,19 @@ public class MainIntegrationTest {
 	}
 
 	private boolean contentEquals(File f1, File f2) throws IOException {
-		InputStream is1 = new FileInputStream(f1);
-		InputStream is2 = new FileInputStream(f2);
-
-		final int EOF = -1;
-		int i1 = is1.read();
-		while (i1 != EOF) {
-			int i2 = is2.read();
-			if (i2 != i1) {
-				return false;
+		try (InputStream is1 = new FileInputStream(f1);
+				InputStream is2 = new FileInputStream(f2)) {
+			final int EOF = -1;
+			int i1 = is1.read();
+			while (i1 != EOF) {
+				int i2 = is2.read();
+				if (i2 != i1) {
+					return false;
+				}
+				i1 = is1.read();
 			}
-			i1 = is1.read();
+			return is2.read() == EOF;
 		}
-
-		return is2.read() == EOF;
 	}
 
 }
