@@ -6,15 +6,13 @@ import com.tambapps.p2p.fandem.Peer;
 import com.tambapps.p2p.fandem.cl.command.Arguments;
 import com.tambapps.p2p.fandem.cl.command.SendCommand;
 
+import com.tambapps.p2p.fandem.cl.exception.SendingException;
 import com.tambapps.p2p.fandem.cl.send.CommandLineSender;
 import com.tambapps.p2p.fandem.exception.SniffException;
 import com.tambapps.p2p.fandem.listener.ReceivingListener;
-import com.tambapps.p2p.fandem.listener.SendingListener;
 import com.tambapps.p2p.fandem.sniff.PeerSniffBlockingSupplier;
 import com.tambapps.p2p.fandem.sniff.SniffPeer;
-import com.tambapps.p2p.fandem.sniff.service.PeerSniffHandlerService;
 import com.tambapps.p2p.fandem.task.ReceivingTask;
-import com.tambapps.p2p.fandem.task.SendingTask;
 import com.tambapps.p2p.fandem.util.FileUtils;
 import com.tambapps.p2p.fandem.util.IPUtils;
 import com.tambapps.p2p.fandem.cl.command.ReceiveCommand;
@@ -22,13 +20,8 @@ import com.tambapps.p2p.fandem.cl.command.ReceiveCommand;
 import java.io.File;
 import java.io.IOException;
 
-import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
-import java.net.URLDecoder;
-import java.net.UnknownHostException;
-import java.nio.charset.StandardCharsets;
 
-import java.util.Objects;
 import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -75,10 +68,25 @@ public class Main {
 				}
 				break;
 			case SEND:
-				new CommandLineSender(EXECUTOR_SERVICE).send(sendCommand);
+				send(sendCommand);
 				break;
 		}
 		EXECUTOR_SERVICE.shutdownNow();
+	}
+
+	private static void send(SendCommand command) {
+		try (CommandLineSender sender = CommandLineSender.create(EXECUTOR_SERVICE, command)) {
+			for (File file : command.getFiles()) {
+				sender.send(file);
+				System.out.println();
+				System.out.println(file.getName() + " was successfully sent");
+				System.out.println();
+			}
+		} catch (SendingException e) {
+			System.out.println(e.getMessage());
+		} catch (IOException e) {
+			System.out.println("An error occurred while transferring file(s). Aborting transfer(s)");
+		}
 	}
 
 	private static Peer getSendingPeer(Peer peer, String optionalIp) {
