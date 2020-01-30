@@ -3,16 +3,25 @@ package com.tambapps.p2p.fandem.cl.command;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 
+import com.tambapps.p2p.fandem.cl.command.converter.AddressConverter;
+import com.tambapps.p2p.fandem.cl.command.converter.FileConverter;
+import com.tambapps.p2p.fandem.util.IPUtils;
+
+import java.io.File;
+import java.net.InetAddress;
 import java.util.List;
+import java.util.Optional;
 
 @Parameters(separators = "=", commandDescription = "Send file to another peer")
 public class SendCommand {
 
-    @Parameter(description = "path of the file to send", required = true)
-    private List<String> filePath;
+    @Parameter(description = "path of the file to send", required = true,
+        converter = FileConverter.class)
+    private List<File> files;
 
-    @Parameter(names = "-ip", description = "the ip used to send (optional)")
-    private String ip = null;
+    @Parameter(names = "-ip", description = "the ip used to send (optional)",
+        converter = AddressConverter.class)
+    private InetAddress ip = null;
 
     @Parameter(names = {"-p", "--port"}, description = "the port used to send (optional)")
     private Integer port;
@@ -20,16 +29,16 @@ public class SendCommand {
     @Parameter(names = {"-t", "--timeout"}, description = "the port used to send (optional)")
     private int timeout = 90 * 1000;
 
-    public List<String> getFilePath() {
-        return filePath;
+    public List<File> getFiles() {
+        return files;
     }
 
-    public String getIp() {
-        return ip;
+    public Optional<InetAddress> getIp() {
+        return Optional.ofNullable(ip != null ? ip : IPUtils.getIpAddressQuietly());
     }
 
-    public Integer getPort() {
-        return port;
+    public Optional<Integer> getPort() {
+        return Optional.ofNullable(port);
     }
 
     public int getTimeout() {
