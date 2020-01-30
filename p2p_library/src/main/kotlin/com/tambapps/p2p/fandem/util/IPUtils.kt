@@ -31,6 +31,15 @@ object IPUtils {
       throw IOException("Couldn't find IP")
     }
 
+  @JvmStatic
+  fun getIpAddressQuietly(): InetAddress? {
+    return try {
+      ipAddress
+    } catch (e: IOException) {
+      null
+    }
+  }
+
   /**
    * Get an available port
    * @param inetAddress the address of the host
