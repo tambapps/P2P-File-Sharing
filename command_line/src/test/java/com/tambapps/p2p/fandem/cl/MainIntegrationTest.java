@@ -33,7 +33,7 @@ public class MainIntegrationTest {
 	public void transferWithSniffTest() throws Exception {
 		System.setIn(new ByteArrayInputStream("y\n".getBytes()));
 		// need to 'mock' ip address that will be used for sniffing, since we're using localhost
-		Main receiveMain = new Main(Main.RECEIVE_PROGRESS_FORMAT) {
+		Main receiveMain = new Main(Mode.RECEIVE) {
 			@Override InetAddress getIpAddress() throws IOException {
 				return InetAddress.getByName(SNIFF_IP_ADDRESS);
 			}

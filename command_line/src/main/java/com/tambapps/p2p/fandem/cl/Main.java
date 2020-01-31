@@ -1,5 +1,8 @@
 package com.tambapps.p2p.fandem.cl;
 
+import static com.tambapps.p2p.fandem.cl.Mode.RECEIVE;
+import static com.tambapps.p2p.fandem.cl.Mode.SEND;
+
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
 import com.tambapps.p2p.fandem.Peer;
@@ -27,18 +30,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class Main implements ReceivingListener, SendingListener {
-	private static final String RECEIVE = "receive";
-	private static final String SEND = "send";
-
-	static final String RECEIVE_PROGRESS_FORMAT = "\rReceived %s / %s";
-	static final String SEND_PROGRESS_FORMAT = "\rSent %s / %s";
 
 	private final ExecutorService executor =
 			Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-	private final String progressFormat;
+	private final Mode mode;
 
-	public Main(String progressFormat) {
-		this.progressFormat = progressFormat;
+	public Main(Mode mode) {
+		this.mode = mode;
 	}
 
 	public static void main(String[] args) {
@@ -47,8 +45,8 @@ public class Main implements ReceivingListener, SendingListener {
 		SendCommand sendCommand = new SendCommand();
 		JCommander jCommander = JCommander.newBuilder()
 				.addObject(arguments)
-				.addCommand(RECEIVE, receiveCommand)
-				.addCommand(SEND, sendCommand)
+				.addCommand(RECEIVE.name().toLowerCase(), receiveCommand)
+				.addCommand(SEND.name().toLowerCase(), sendCommand)
 				.build();
 
 		try {
@@ -71,8 +69,9 @@ public class Main implements ReceivingListener, SendingListener {
 			return;
 		}
 
-		Main main = new Main(command.equals(SEND) ? SEND_PROGRESS_FORMAT : RECEIVE_PROGRESS_FORMAT);
-		switch (command) {
+		Mode mode = Mode.valueOf(command.toUpperCase());
+		Main main = new Main(mode);
+		switch (mode) {
 			case RECEIVE:
 				main.receive(receiveCommand);
 				break;
@@ -169,14 +168,14 @@ public class Main implements ReceivingListener, SendingListener {
 	public void onConnected(@NotNull Peer selfPeer, @NotNull Peer remotePeer,
 			@NotNull String fileName, long fileSize) {
 		System.out.println("Connected to peer " + remotePeer);
-		System.out.println("Receiving " + fileName);
-		System.out.format(progressFormat, "0kb",
+		System.out.format("%s %s", mode.ingString(), fileName).println();
+		System.out.format(mode.progressFormat(), "0kb",
 				FileUtils.bytesToString(fileSize));
 	}
 
 	@Override
 	public void onProgressUpdate(int progress, long bytesProcessed, long totalBytes) {
-		System.out.format(progressFormat,
+		System.out.format(mode.progressFormat(),
 				FileUtils.bytesToString(bytesProcessed),
 				FileUtils.bytesToString(totalBytes));
 	}
@@ -198,8 +197,8 @@ public class Main implements ReceivingListener, SendingListener {
 	}
 
 	private static void printHelp(JCommander jCommander) {
-		jCommander.usage(SEND);
-		jCommander.usage(RECEIVE);
+		jCommander.usage(SEND.name());
+		jCommander.usage(RECEIVE.name());
 	}
 
 }
