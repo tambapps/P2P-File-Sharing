@@ -25,6 +25,7 @@ import java.io.IOException;
 
 import java.net.InetAddress;
 
+import java.net.SocketTimeoutException;
 import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -92,6 +93,8 @@ public class Main implements ReceivingListener, SendingListener {
 			}
 		} catch (SendingException e) {
 			System.out.println(e.getMessage());
+		} catch (SocketTimeoutException e) {
+			System.out.println("No connection was made, canceling transfer");
 		} catch (IOException e) {
 			System.out.println("An error occurred while transferring file(s). Aborting transfer(s)");
 		}
@@ -129,6 +132,7 @@ public class Main implements ReceivingListener, SendingListener {
 			return null;
 		}
 
+		System.out.println("Looking for a sending peer...");
 		try (Scanner scanner = new Scanner(System.in)) {
 			return searchSendingPeer(scanner, address);
 		}
