@@ -22,4 +22,8 @@ public enum Mode {
   String progressFormat() {
     return "\r" + pastTense() + " %s / %s";
   }
+
+  String commandName() {
+    return name().toLowerCase();
+  }
 }

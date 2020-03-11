@@ -45,8 +45,8 @@ public class Main implements ReceivingListener, SendingListener {
 		SendCommand sendCommand = new SendCommand();
 		JCommander jCommander = JCommander.newBuilder()
 				.addObject(arguments)
-				.addCommand(RECEIVE.name().toLowerCase(), receiveCommand)
-				.addCommand(SEND.name().toLowerCase(), sendCommand)
+				.addCommand(RECEIVE.commandName(), receiveCommand)
+				.addCommand(SEND.commandName(), sendCommand)
 				.build();
 
 		try {
@@ -197,8 +197,8 @@ public class Main implements ReceivingListener, SendingListener {
 	}
 
 	private static void printHelp(JCommander jCommander) {
-		jCommander.usage(SEND.name());
-		jCommander.usage(RECEIVE.name());
+		jCommander.usage(SEND.commandName());
+		jCommander.usage(RECEIVE.commandName());
 	}
 
 }
