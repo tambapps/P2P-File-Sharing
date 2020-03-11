@@ -5,7 +5,6 @@ import com.tambapps.p2p.fandem.fandemdesktop.model.SharingTask;
 import com.tambapps.p2p.fandem.fandemdesktop.service.FileSharingService;
 import com.tambapps.p2p.fandem.listener.SharingErrorListener;
 import com.tambapps.p2p.fandem.listener.TransferListener;
-import com.tambapps.p2p.fandem.util.IPUtils;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -128,8 +127,8 @@ public class TaskViewController implements TransferListener, SharingErrorListene
   public void sendTask(File file) {
     Peer peer;
     try {
-      peer = IPUtils.getAvailablePeer();
-    } catch (SocketException e) {
+      peer = Peer.getAvailablePeer();
+    } catch (IOException e) {
       setEndMessage("Couldn't retrieve IP. Are you connected to internet?");
       return;
     }
