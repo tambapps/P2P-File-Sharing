@@ -21,6 +21,12 @@ class PeerSniffBlockingSupplier
         peerSniffer = PeerSniffer(SniffListener(), address)
     }
 
+    val started: Boolean get() = atomicFuture.get() != null
+
+    fun start() {
+        atomicFuture.set(executor.submit { peerSniffer.sniff(executor) })
+    }
+
     @Throws(SniffException::class, InterruptedException::class)
     fun get(): SniffPeer {
         if (exception != null) {
@@ -52,7 +58,7 @@ class PeerSniffBlockingSupplier
         }
 
         override fun onEnd() {
-            atomicFuture.set(null)
+            start()
         }
     }
 }
