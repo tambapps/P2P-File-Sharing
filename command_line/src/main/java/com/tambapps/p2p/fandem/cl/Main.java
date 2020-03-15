@@ -156,6 +156,7 @@ public class Main implements ReceivingListener, SendingListener {
 						.println();
 				switch (scanner.nextLine().toLowerCase().charAt(0)) {
 					case 'y':
+						sniffSupplier.stop();
 						return sniffPeer.getPeer();
 					case 's':
 						return null;
