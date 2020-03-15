@@ -19,6 +19,9 @@ object IPUtils {
     get() {
       val interfaces: List<NetworkInterface> = Collections.list(NetworkInterface.getNetworkInterfaces())
       for (intf in interfaces) {
+        if (intf.name.contains("docker")) {
+          continue
+        }
         val addrs: List<InetAddress> = Collections.list(intf.inetAddresses)
         for (addr in addrs) {
           if (!addr.isLoopbackAddress) {
