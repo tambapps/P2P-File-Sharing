@@ -5,6 +5,7 @@ import com.tambapps.p2p.fandem.Peer;
 import com.tambapps.p2p.fandem.fandemdesktop.controller.TaskViewController;
 import com.tambapps.p2p.fandem.fandemdesktop.model.SharingTask;
 import com.tambapps.p2p.fandem.util.FileUtils;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +21,7 @@ public class FileSharingService {
 
   private final FileSharer fileSharer;
 
-  public FileSharingService(ExecutorService executorService) {
+  public FileSharingService(@Qualifier("executorService") ExecutorService executorService) {
     this.fileSharer = new FileSharer(executorService);
   }
 

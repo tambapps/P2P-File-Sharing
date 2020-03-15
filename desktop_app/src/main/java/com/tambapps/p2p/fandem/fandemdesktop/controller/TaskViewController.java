@@ -16,10 +16,9 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.SocketException;
 
 @Component
-@Scope("prototype")
+@Scope("prototype") /// allow to have a new instance each time we need this component
 public class TaskViewController implements TransferListener, SharingErrorListener {
 
   private final FileSharingService fileSharingService;

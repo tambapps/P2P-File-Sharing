@@ -51,9 +51,14 @@ public class AppConfiguration {
     return appController::sendTask;
   }
 
-  @Bean
+  @Bean("executorService")
   public ExecutorService executorService() {
     return Executors.newFixedThreadPool(maxSharingTasks);
+  }
+
+  @Bean("sniffExecutorService")
+  public ExecutorService sniffExecutorService(@Value("${sniff.threads}") int sniffingThreads) {
+    return Executors.newFixedThreadPool(sniffingThreads);
   }
 
   @Bean

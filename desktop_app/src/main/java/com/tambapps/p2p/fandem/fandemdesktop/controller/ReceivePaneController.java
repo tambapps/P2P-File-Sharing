@@ -1,66 +1,76 @@
 package com.tambapps.p2p.fandem.fandemdesktop.controller;
 
 import com.tambapps.p2p.fandem.Peer;
+import com.tambapps.p2p.fandem.exception.SniffException;
 import com.tambapps.p2p.fandem.fandemdesktop.util.NodeUtils;
 import com.tambapps.p2p.fandem.fandemdesktop.util.PropertyUtils;
+import com.tambapps.p2p.fandem.sniff.PeerSniffBlockingSupplier;
+import com.tambapps.p2p.fandem.sniff.SniffPeer;
+import com.tambapps.p2p.fandem.util.IPUtils;
+import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
+import javafx.scene.control.ProgressBar;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TextField;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
-import java.net.UnknownHostException;
-import java.util.List;
+import java.io.IOException;
+import java.util.Optional;
+import java.util.concurrent.ExecutorService;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 @Component
 public class ReceivePaneController {
 
   private final Supplier<File> directoryChooser;
+  private final ExecutorService executorService;
   private final Supplier<Boolean> canAddTaskSupplier;
   private final BiConsumer<File, Peer> receiveTaskLauncher;
 
   @FXML
   private Label pathLabel;
   @FXML
-  private TextField ipField0;
-  @FXML
-  private TextField ipField1;
-  @FXML
-  private TextField ipField2;
-  @FXML
-  private TextField ipField3;
-  @FXML
-  private TextField portField;
-  @FXML
   private TextField hexCodeField;
+  @FXML
+  private Button searchPeerButton;
+  @FXML
+  private ProgressBar progressBar;
+  @FXML
+  private Label sniffText;
+  @FXML
+  private Button cancelSniffButton;
 
-  private List<TextField> ipFields;
+  PeerSniffBlockingSupplier sniffSupplier;
   private ObjectProperty<File> folderProperty = new SimpleObjectProperty<>();
 
   public ReceivePaneController(@Qualifier("directoryChooser") Supplier<File> directoryChooser,
+                               @Qualifier("sniffExecutorService") ExecutorService executorService,
                                Supplier<Boolean> canAddTaskSupplier,
                                BiConsumer<File, Peer> receiveTaskLauncher) {
     this.directoryChooser = directoryChooser;
+    this.executorService = executorService;
     this.canAddTaskSupplier = canAddTaskSupplier;
     this.receiveTaskLauncher = receiveTaskLauncher;
   }
 
   @FXML
   private void initialize() {
-    ipFields = List.of(ipField0, ipField1, ipField2, ipField3);
-    ipFields.forEach(NodeUtils::numberTextField);
-    portField.setText("8081");
-    NodeUtils.numberTextField(portField);
     PropertyUtils
       .bindMapNullableToStringProperty(folderProperty, File::getPath, pathLabel.textProperty());
+    progressBar.setProgress(ProgressIndicator.INDETERMINATE_PROGRESS);
+    progressBar.setVisible(false);
+    sniffText.setVisible(false);
+    cancelSniffButton.setVisible(false);
   }
 
   @FXML
@@ -72,22 +82,86 @@ public class ReceivePaneController {
     folderProperty.set(file);
   }
 
-  private Peer verifiedPeer() throws UnknownHostException, IllegalArgumentException {
+  private Peer verifiedPeer() throws IllegalArgumentException {
     String hexCode = hexCodeField.getText();
-    if (hexCode != null && !hexCode.isEmpty()) {
+    if (hexCode == null || hexCode.isEmpty()) {
+      throw new IllegalArgumentException("You must provide the hex code");
+    }
+    return Peer.fromHexString(hexCode);
+  }
+
+  @FXML
+  private void searchSender() {
+    searchPeerButton.setVisible(false);
+    progressBar.setVisible(true);
+    sniffText.setVisible(true);
+    cancelSniffButton.setVisible(true);
+    executorService.submit(this::sniffSenderPeer);
+
+  }
+
+  private void sniffSenderPeer() {
+    if (sniffSupplier == null) {
       try {
-        return Peer.fromHexString(hexCode);
-      } catch (IllegalArgumentException e) {
-        throw new IllegalArgumentException("Hex code is malformed");
+        sniffSupplier = new PeerSniffBlockingSupplier(executorService, IPUtils.getIpAddress());
+      } catch (IOException e) {
+        errorDialog(e);
+        return;
       }
     }
-    if (ipFields.stream().anyMatch(ipField -> ipField.textProperty().get().isEmpty())) {
-      throw new IllegalArgumentException("You must provide the sender's IP");
+
+    if (!sniffSupplier.getStarted()) {
+      sniffSupplier.start();
     }
-    if (portField.textProperty().get().isEmpty()) {
-      throw new IllegalArgumentException("You must provide the sender's port");
+
+    SniffPeer sniffedPeer;
+    try {
+      sniffedPeer = sniffSupplier.get();
+      Platform.runLater(() -> proposePeer(sniffedPeer));
+    }  catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+    } catch (SniffException e) {
+      Platform.runLater(() -> errorDialog(e));
     }
-    return Peer.of(getAddress(), Integer.parseInt(portField.textProperty().get()));
+  }
+
+  private void proposePeer(SniffPeer sniffedPeer) {
+    Alert alert = new Alert(Alert.AlertType.CONFIRMATION,
+      sniffedPeer.getDeviceName() + " wants to send " + sniffedPeer.getFileName(),
+      new ButtonType("Choose this Peer", ButtonBar.ButtonData.YES),
+      new ButtonType("Continue research", ButtonBar.ButtonData.NO));
+    alert.setTitle("Sender found");
+    alert.setHeaderText(String.format("Sender: %s\nPeer key: %s",
+      sniffedPeer.getDeviceName(), sniffedPeer.getPeer().toHexString()));
+
+    Optional<ButtonBar.ButtonData> optButton = alert.showAndWait().map(ButtonType::getButtonData);
+    switch (optButton.orElse(ButtonBar.ButtonData.OTHER)) {
+      case YES:
+        cancelSniff();
+        hexCodeField.setText(sniffedPeer.getPeer().toHexString());
+        searchPeerButton.setDisable(true);
+        break;
+      case NO:
+        executorService.submit(this::sniffSenderPeer);
+        break;
+    }
+  }
+
+  @FXML
+  private void cancelSniff() {
+    sniffSupplier.stop();
+    progressBar.setVisible(false);
+    sniffText.setVisible(false);
+    cancelSniffButton.setVisible(false);
+    searchPeerButton.setVisible(true);
+  }
+
+  private void errorDialog(IOException e) {
+    Alert alert = new Alert(Alert.AlertType.ERROR);
+    alert.setTitle("An error occurred");
+    alert.setHeaderText("an error occurred while searching for sender");
+    alert.setContentText(e.getMessage());
+    alert.showAndWait();
   }
 
   @FXML
@@ -97,10 +171,6 @@ public class ReceivePaneController {
       peer = verifiedPeer();
     } catch (IllegalArgumentException e) {
       Alert alert = new Alert(Alert.AlertType.ERROR, e.getMessage(), ButtonType.OK);
-      alert.show();
-      return;
-    } catch (UnknownHostException e) {
-      Alert alert = new Alert(Alert.AlertType.ERROR, "Couldn't find the host", ButtonType.OK);
       alert.show();
       return;
     }
@@ -120,15 +190,8 @@ public class ReceivePaneController {
     }
     receiveTaskLauncher.accept(file, peer);
     folderProperty.set(null);
-    ipFields.forEach(field -> field.setText(""));
     hexCodeField.setText("");
-    portField.setText("8081");
-  }
-
-  private String getAddress() {
-    return ipFields.stream()
-      .map(field -> field.textProperty().get())
-      .collect(Collectors.joining("."));
+    searchPeerButton.setDisable(false);
   }
 
 }

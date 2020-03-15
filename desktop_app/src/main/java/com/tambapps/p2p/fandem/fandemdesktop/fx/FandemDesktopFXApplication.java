@@ -27,7 +27,9 @@ public class FandemDesktopFXApplication extends Application {
   @Override
   public void stop() {
     ExecutorService executor = (ExecutorService) context.getBean("executorService");
-    executor.shutdownNow(); // TODO open dialog if a task isn't finished to comfirm close
+    executor.shutdownNow(); // TODO open dialog if a task isn't finished to comfirm close (but not here)
+    executor = (ExecutorService) context.getBean("sniffExecutorService");
+    executor.shutdownNow();
     context.stop();
     Platform.exit();
   }

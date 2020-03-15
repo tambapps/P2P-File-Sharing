@@ -3,6 +3,7 @@
 <?import java.net.URL?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressBar?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.Pane?>
 
@@ -12,21 +13,15 @@
    </stylesheets>
    <children>
       <Label layoutX="140.0" layoutY="30.0" styleClass="title" text="Receive File" />
-      <Button layoutX="30.0" layoutY="251.0" mnemonicParsing="false" onAction="#pickFolder" text="Pick folder" />
-      <Label fx:id="pathLabel" layoutX="138.0" layoutY="251.0" prefHeight="29.0" prefWidth="352.0" />
+      <Button layoutX="23.0" layoutY="251.0" mnemonicParsing="false" onAction="#pickFolder" text="Pick folder" />
+      <Label fx:id="pathLabel" layoutX="136.0" layoutY="251.0" prefHeight="29.0" prefWidth="352.0" />
       <Button layoutX="213.0" layoutY="344.0" mnemonicParsing="false" onAction="#receiveFile" text="Receive" />
-      <Label layoutX="20.0" layoutY="114.0" text="Peer address" />
-      <TextField fx:id="ipField0" layoutX="116.0" layoutY="109.0" prefHeight="26.0" prefWidth="48.0" />
-      <TextField fx:id="ipField1" layoutX="183.0" layoutY="109.0" prefHeight="26.0" prefWidth="48.0" />
-      <TextField fx:id="ipField2" layoutX="250.0" layoutY="109.0" prefHeight="26.0" prefWidth="48.0" />
-      <TextField fx:id="ipField3" layoutX="319.0" layoutY="109.0" prefHeight="26.0" prefWidth="48.0" />
-      <TextField fx:id="portField" layoutX="389.0" layoutY="108.0" prefHeight="26.0" prefWidth="64.0" />
-      <Label layoutX="171.0" layoutY="113.0" styleClass="separator" text="." />
-      <Label layoutX="238.0" layoutY="113.0" styleClass="separator" text="." />
-      <Label layoutX="307.0" layoutY="114.0" styleClass="separator" text="." />
-      <Label layoutX="376.0" layoutY="115.0" styleClass="separator" text=":" />
-      <Label layoutX="243.0" layoutY="149.0" text="or" />
-      <Label layoutX="164.0" layoutY="177.0" text="Hex code" />
-      <TextField fx:id="hexCodeField" layoutX="245.0" layoutY="174.0" prefHeight="26.0" prefWidth="125.0" />
+      <Label layoutX="243.0" layoutY="138.0" text="or" />
+      <Label layoutX="157.0" layoutY="102.0" text="Peer key" />
+      <TextField fx:id="hexCodeField" layoutX="238.0" layoutY="99.0" prefHeight="26.0" prefWidth="125.0" />
+      <Button fx:id="searchPeerButton" layoutX="198.0" layoutY="169.0" mnemonicParsing="false" onAction="#searchSender" text="Search sender" />
+      <ProgressBar fx:id="progressBar" layoutX="183.0" layoutY="174.0" prefHeight="20.0" prefWidth="153.0" progress="0.0" />
+      <Label fx:id="sniffText" layoutX="23.0" layoutY="174.0" text="Searching sender..." />
+      <Button fx:id="cancelSniffButton" layoutX="399.0" layoutY="171.0" mnemonicParsing="false" onAction="#cancelSniff" text="cancel" />
    </children>
 </Pane>
