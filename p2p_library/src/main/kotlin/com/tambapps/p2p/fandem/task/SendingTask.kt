@@ -46,6 +46,16 @@ class SendingTask(transferListener: TransferListener?, private val peer: Peer,
   }
 
   @Throws(IOException::class)
+  fun sendCancelSilent(fis: InputStream?, fileName: String,
+           fileSize: Long) {
+    try {
+        send(fis, fileName, fileSize)
+    } catch (e: TransferCanceledException) {
+
+    }
+  }
+
+  @Throws(IOException::class)
   fun send(fis: InputStream?, fileName: String,
            fileSize: Long) {
     try {
