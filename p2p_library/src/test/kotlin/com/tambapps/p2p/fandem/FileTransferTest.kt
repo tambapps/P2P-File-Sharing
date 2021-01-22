@@ -1,9 +1,12 @@
 package com.tambapps.p2p.fandem
 
+import com.tambapps.p2p.fandem.exception.TransferCanceledException
 import com.tambapps.p2p.fandem.task.ReceivingTask
 import com.tambapps.p2p.fandem.task.SendingTask
 import com.tambapps.p2p.fandem.util.FileUtils
 import org.junit.Assert
+import org.junit.Assert.assertTrue
+import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Test
 import java.io.File
@@ -103,21 +106,25 @@ class FileTransferTest {
   @Test
   @Throws(Exception::class)
   fun cancelSenderWhileWaiting() {
-    completionService.submit {
+    val sendingFuture = completionService.submit {
       sender!!.send(ORIGIN_FILE)
       true
     }
     Thread.sleep(250)
     sender!!.cancel()
-    Assert.assertEquals("This task didn't ended well", java.lang.Boolean.TRUE,
-        completionService.poll(2, TimeUnit.SECONDS).get())
-    Assert.assertTrue("Should be true", sender!!.isCanceled)
+    try {
+      sendingFuture.get()
+      fail("A TransferCanceledException should have been thrown")
+    }  catch (e: ExecutionException) {
+      assertTrue(e.cause is TransferCanceledException)
+    }
+    assertTrue("Should be true", sender!!.isCanceled)
   }
 
   @Test
   @Throws(Exception::class)
   fun cancelSenderWhileSending() { //closing without
-    completionService.submit {
+    val sendingFuture = completionService.submit {
       sender!!.send(ORIGIN_FILE)
       true
     }
@@ -125,15 +132,21 @@ class FileTransferTest {
     completionService.submit {
       val socket = Socket(SENDER_PEER.ip, SENDER_PEER.port)
       socket.close()
+      // sleep to make this callable end after the sending callable
+      Thread.sleep(4000)
       true
     }
-    Thread.sleep(250)
     sender!!.cancel()
-    for (i in 0..1) {
-      val success = completionService.poll(2, TimeUnit.SECONDS).get()
-      Assert.assertEquals("A task didn't ended well", java.lang.Boolean.TRUE, success)
+
+    try {
+      // sender should have thrown TransferCanceledException in first runnable submitted to executor
+      sendingFuture.get()
+      fail("A TransferCanceledException should have been thrown")
+    }  catch (e: ExecutionException) {
+      assertTrue(e.cause is TransferCanceledException)
     }
-    Assert.assertTrue("Should be true", sender!!.isCanceled)
+    assertTrue("Should be true", sender!!.isCanceled)
+
   }
 
   @Throws(IOException::class)
