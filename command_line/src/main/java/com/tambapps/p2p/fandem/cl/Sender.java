@@ -34,6 +34,7 @@ public class Sender implements Closeable {
   }
 
   public void send(File file) throws IOException {
+    sniffHandlerService.setFileName(file.getName());
     new SendingTask(listener, peer, timeout).send(file);
   }
 
