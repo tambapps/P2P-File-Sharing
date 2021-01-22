@@ -2,6 +2,7 @@ package com.tambapps.p2p.peer_transfer.android.task;
 
 import android.os.AsyncTask;
 
+import com.tambapps.p2p.fandem.exception.SniffException;
 import com.tambapps.p2p.fandem.sniff.PeerSniffer;
 
 import java.io.IOException;
@@ -25,7 +26,7 @@ public class PeerSnifferTask extends AsyncTask<Void, Void, Void> {
             PeerSniffer sniffer = new PeerSniffer(listener);
             sniffer.sniffWhileNoneFound(executorServiceReference.get());
         } catch (IOException e) {
-            listener.onError(e);
+            listener.onError(new SniffException(e));
         }
         return null;
     }

@@ -177,14 +177,14 @@ public abstract class FileJobService extends JobService implements TaskEventHand
                     .setOngoing(true)
                     .setProgress(100, 0, false)
                     .setContentText("")
-                    .setContentTitle(onConnected(remotePeer1, fileName))
+                    .setContentTitle(onConnected(remotePeer1, fileName, fileSize))
                     .setStyle(notifStyle.bigText(""));
             updateNotification();
         }
 
         abstract void run(String... params);
         abstract void cancel();
-        abstract String onConnected(String remotePeer, String fileName); //return the title of the notification
+        abstract String onConnected(String remotePeer, String fileName, long fileSize); //return the title of the notification
 
         NotificationCompat.Builder getNotifBuilder() {
             return notifBuilder;

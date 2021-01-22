@@ -10,13 +10,14 @@ import android.os.PersistableBundle;
 
 import androidx.core.app.NotificationCompat;
 
-import com.crashlytics.android.Crashlytics;
 import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.tambapps.p2p.fandem.Peer;
 import com.tambapps.p2p.fandem.listener.SendingListener;
 
 import com.tambapps.p2p.peer_transfer.android.R;
 import com.tambapps.p2p.peer_transfer.android.analytics.AnalyticsValues;
+import com.tambapps.p2p.peer_transfer.android.analytics.CrashlyticsValues;
 import com.tambapps.p2p.peer_transfer.android.service.event.SendingEventHandler;
 import com.tambapps.p2p.peer_transfer.android.service.sniff.SniffHandlerService;
 
@@ -77,6 +78,8 @@ public class FileSendingJobService extends FileJobService implements SendingEven
         }
 
         void run(String... params) {
+            FirebaseCrashlytics crashlytics = FirebaseCrashlytics.getInstance();
+            crashlytics.setCustomKey(CrashlyticsValues.SHARING_ROLE, "SENDER");
             Bundle bundle = new Bundle();
             bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, AnalyticsValues.SERVICE);
             bundle.putString(FirebaseAnalytics.Param.METHOD, "SEND");
@@ -86,8 +89,9 @@ public class FileSendingJobService extends FileJobService implements SendingEven
             Uri fileUri = Uri.parse(params[1]);
             fileName = params[2];
             long fileSize = Long.parseLong(params[3]);
+            crashlytics.setCustomKey(CrashlyticsValues.FILE_LENGTH, fileSize);
             try {
-                fileSender.send(contentResolver.openInputStream(fileUri), fileName, fileSize);
+                fileSender.sendCancelSilent(contentResolver.openInputStream(fileUri), fileName, fileSize);
                 if (fileSender.isCanceled()) {
                     finishNotification()
                             .setContentTitle(getString(R.string.transfer_canceled));
@@ -98,23 +102,22 @@ public class FileSendingJobService extends FileJobService implements SendingEven
                             .setStyle(notifStyle.bigText(getString(R.string.success_send, fileName)));
                 }
             } catch (SocketTimeoutException e) {
-                Crashlytics.logException(e);
+                FirebaseCrashlytics.getInstance().recordException(e);
                 finishNotification()
                         .setContentTitle(getString(R.string.transfer_canceled))
                         .setContentText(getString(R.string.connection_timeout));
                 ((SendingEventHandler)eventHandler).onServiceTimeout();
             } catch (FileNotFoundException e) {
-                Crashlytics.logException(e);
                 finishNotification()
                         .setContentTitle(getString(R.string.transfer_aborted))
                         .setContentText(getString(R.string.couldnt_find_file));
             } catch (IOException e) {
-                Crashlytics.logException(e);
+                FirebaseCrashlytics.getInstance().recordException(e);
                 finishNotification()
                         .setContentTitle(getString(R.string.transfer_aborted))
                         .setStyle(notifStyle.bigText(getString(R.string.error_occured, e.getMessage())));
             } catch (IllegalArgumentException e) {
-                Crashlytics.logException(e);
+                FirebaseCrashlytics.getInstance().recordException(e);
                 finishNotification()
                         .setContentTitle(getString(R.string.transfer_aborted))
                         .setContentText(getString(R.string.coudlnt_send));
@@ -131,7 +134,7 @@ public class FileSendingJobService extends FileJobService implements SendingEven
         }
 
         @Override
-        public String onConnected(String remoteAddress, String fileName) {
+        public String onConnected(String remoteAddress, String fileName, long fileSize) {
             ((SendingEventHandler)eventHandler).onServiceStarted();
             sniffHandlerService.stop();
             return getString(R.string.sending_connected, fileName);

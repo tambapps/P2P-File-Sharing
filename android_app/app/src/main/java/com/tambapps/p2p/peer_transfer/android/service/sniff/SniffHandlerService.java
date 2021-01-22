@@ -2,7 +2,7 @@ package com.tambapps.p2p.peer_transfer.android.service.sniff;
 
 import android.os.Build;
 
-import com.crashlytics.android.Crashlytics;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.tambapps.p2p.fandem.Peer;
 import com.tambapps.p2p.fandem.sniff.PeerSniffHandler;
 import com.tambapps.p2p.peer_transfer.android.service.FileSendingJobService;
@@ -28,7 +28,7 @@ public class SniffHandlerService {
                     serverSocket = sniffHandler.newServerSocket();
                     sniffHandler.handleSniff(serverSocket);
                 } catch (IOException e) {
-                    Crashlytics.logException(e);
+                    FirebaseCrashlytics.getInstance().recordException(e);
                 }
             }
         });

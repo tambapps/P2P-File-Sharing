@@ -11,14 +11,15 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.content.FileProvider;
 import android.util.Log;
 
-import com.crashlytics.android.Crashlytics;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.tambapps.p2p.fandem.Peer;
 
 import com.tambapps.p2p.fandem.util.FileUtils;
 import com.tambapps.p2p.peer_transfer.android.R;
 import com.tambapps.p2p.peer_transfer.android.analytics.AnalyticsValues;
+import com.tambapps.p2p.peer_transfer.android.analytics.CrashlyticsValues;
 import com.tambapps.p2p.peer_transfer.android.service.event.TaskEventHandler;
 
 import java.io.File;
@@ -83,6 +84,8 @@ public class FileReceivingJobService extends FileJobService {
 
         @Override
         protected void run(String... params) { //downloadPath, peer
+            FirebaseCrashlytics crashlytics = FirebaseCrashlytics.getInstance();
+            crashlytics.setCustomKey(CrashlyticsValues.SHARING_ROLE, "RECEIVER");
             Bundle bundle = new Bundle();
             bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, AnalyticsValues.SERVICE);
             bundle.putString(FirebaseAnalytics.Param.METHOD, "RECEIVE");
@@ -104,17 +107,15 @@ public class FileReceivingJobService extends FileJobService {
                 final File file = fileReceiver.getOutputFile();
                 completeNotification(file);
             } catch (SocketTimeoutException e) {
-                Crashlytics.logException(e);
                 finishNotification()
                         .setContentTitle(getString(R.string.transfer_canceled))
                         .setContentText(getString(R.string.connection_timeout));
             } catch (AsynchronousCloseException e) {
-                Crashlytics.logException(e);
                 finishNotification()
                         .setContentTitle(getString(R.string.transfer_canceled));
             } catch (IOException e) {
                 Log.e("FileReceivingJobService", "error while receiving", e);
-                Crashlytics.logException(e);
+                crashlytics.recordException(e);
                 finishNotification()
                         .setContentTitle(getString(R.string.transfer_aborted))
                         .setStyle(notifStyle.bigText(getString(R.string.error_occured, e.getMessage())));
@@ -143,8 +144,6 @@ public class FileReceivingJobService extends FileJobService {
                     try (InputStream inputStream = new FileInputStream(file)) {
                         image = BitmapFactory.decodeStream(inputStream);
                     } catch (IOException e) {
-                        Crashlytics.log("Couldn't decode img");
-                        Crashlytics.logException(e);
                     }
                 }
                 if (image != null) {
@@ -183,8 +182,9 @@ public class FileReceivingJobService extends FileJobService {
         }
 
         @Override
-        public String onConnected(String remoteAddress, String fileName) {
+        public String onConnected(String remoteAddress, String fileName, long fileSize) {
             this.fileName = fileName;
+            FirebaseCrashlytics.getInstance().setCustomKey(CrashlyticsValues.FILE_LENGTH, fileSize);
             return getString(R.string.receveiving_connected, fileName);
         }
     }

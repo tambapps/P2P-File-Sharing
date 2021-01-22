@@ -30,11 +30,12 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.crashlytics.android.Crashlytics;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.tambapps.p2p.fandem.Peer;
+import com.tambapps.p2p.fandem.exception.SniffException;
 import com.tambapps.p2p.fandem.sniff.PeerSniffer;
 import com.tambapps.p2p.fandem.sniff.SniffPeer;
 import com.tambapps.p2p.peer_transfer.android.analytics.AnalyticsValues;
@@ -42,6 +43,7 @@ import com.tambapps.p2p.peer_transfer.android.service.FileReceivingJobService;
 import com.tambapps.p2p.peer_transfer.android.task.PeerSnifferTask;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -54,7 +56,7 @@ public class ReceiveActivity extends AppCompatActivity implements PeerSniffer.Sn
     private FirebaseAnalytics analytics;
     private String downloadPath;
 
-    private List<SniffPeer> peers = new ArrayList<>();
+    private List<SniffPeer> peers = Collections.synchronizedList(new ArrayList<SniffPeer>());
     private RecyclerView.Adapter recyclerAdapter;
     private AsyncTask currentTask;
     private TextView loadingText;
@@ -209,8 +211,8 @@ public class ReceiveActivity extends AppCompatActivity implements PeerSniffer.Sn
     }
 
     @Override
-    public void onError(Exception e) {
-        Crashlytics.logException(e);
+    public void onError(SniffException e) {
+        FirebaseCrashlytics.getInstance().recordException(e);
     }
 
     @Override
