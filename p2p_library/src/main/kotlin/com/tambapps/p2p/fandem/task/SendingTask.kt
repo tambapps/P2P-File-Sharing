@@ -1,11 +1,11 @@
 package com.tambapps.p2p.fandem.task
 
 import com.tambapps.p2p.fandem.Peer
+import com.tambapps.p2p.fandem.exception.TransferCanceledException
 import com.tambapps.p2p.fandem.io.CustomDataOutputStream
 import com.tambapps.p2p.fandem.listener.SendingListener
 import com.tambapps.p2p.fandem.listener.TransferListener
 import com.tambapps.p2p.fandem.util.FileUtils
-import java.io.DataOutputStream
 import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
@@ -61,6 +61,8 @@ class SendingTask(transferListener: TransferListener?, private val peer: Peer,
         }
       }
     } catch (e: SocketException) { //socket closed because of cancel()
+      cancel()
+      throw TransferCanceledException(e)
     }
   }
 

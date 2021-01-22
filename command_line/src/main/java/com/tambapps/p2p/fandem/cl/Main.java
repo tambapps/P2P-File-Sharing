@@ -11,6 +11,7 @@ import com.tambapps.p2p.fandem.cl.command.SendCommand;
 
 import com.tambapps.p2p.fandem.cl.exception.SendingException;
 import com.tambapps.p2p.fandem.exception.SniffException;
+import com.tambapps.p2p.fandem.exception.TransferCanceledException;
 import com.tambapps.p2p.fandem.listener.ReceivingListener;
 import com.tambapps.p2p.fandem.listener.SendingListener;
 import com.tambapps.p2p.fandem.sniff.PeerSniffBlockingSupplier;
@@ -86,9 +87,14 @@ public class Main implements ReceivingListener, SendingListener {
 	void send(SendCommand command) {
 		try (Sender sender = Sender.create(executor, command, this)) {
 			for (File file : command.getFiles()) {
-				sender.send(file);
-				System.out.println();
-				System.out.println(file.getName() + " was successfully sent");
+				try {
+					sender.send(file);
+					System.out.println();
+					System.out.println(file.getName() + " was successfully sent");
+				} catch (TransferCanceledException e) {
+					System.out.println();
+					System.out.println("Transfer was cancelled.");
+				}
 				System.out.println();
 			}
 		} catch (SendingException e) {
