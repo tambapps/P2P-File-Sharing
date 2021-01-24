@@ -1,5 +1,6 @@
 package com.tambapps.p2p.peer_transfer.android;
 
+import android.Manifest;
 import android.animation.Animator;
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
@@ -7,6 +8,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
@@ -15,6 +17,8 @@ import android.os.PersistableBundle;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -48,7 +52,8 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class ReceiveActivity extends AppCompatActivity implements PeerSniffer.SniffListener {
+public class ReceiveActivity extends PermissionActivity implements PeerSniffer.SniffListener {
+    private final static int WRITE_PERMISSION_REQUEST = 2;
 
     private final ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
     private ProgressBar progressBar;
@@ -74,31 +79,10 @@ public class ReceiveActivity extends AppCompatActivity implements PeerSniffer.Sn
         initializeRefreshLayout();
         sniffPeersAsync();
         loadingText = findViewById(R.id.loading_text);
-        /*
-        errorText = findViewById(R.id.peer_key_error);
-        peerKeyInput = findViewById(R.id.peer_key);
-        peerKeyInput.requestFocus();
-        peerKeyInput.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                if (errorText.getAlpha() >= 1f && Peer.isCorrectPeerKey(s.toString())) {
-                    errorText.animate().alpha(0).setDuration(500)
-                            .start();
-                }
-            }
-        });
-
-         */
+        if (!hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            requestPermissionDialog(R.string.ask_write_permission_title,
+                R.string.ask_write_permission_message, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        }
     }
 
     private void initializeRecyclerView() {

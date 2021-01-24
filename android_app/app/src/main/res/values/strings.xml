@@ -36,7 +36,6 @@
     <string name="connecting">Connecting…</string>
     <string name="connecting_to">connecting to %s</string>
     <string name="permissions_not_granted">You didn\'t grant write permissions</string>
-    <string name="grant_permission">Please, grant file writing permission</string>
     <string name="no">no</string>
     <string name="service_started">Service started. You can see the progress in the notification bar</string>
     <string name="couldnt_get_file">Couldn\'t get file, sending canceled</string>
@@ -54,4 +53,6 @@
     <string name="loading_sending_peers">Searching sending peers…</string>
     <string name="select_peer">Select peer</string>
     <string name="send_service_canceled">Service was canceled due to timeout. Please try again</string>
+    <string name="ask_write_permission_title">Grant write permission?</string>
+    <string name="ask_write_permission_message">In order to receive a file, the app needs to write on your device. Do you want to grant write permission?</string>
 </resources>

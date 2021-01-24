@@ -29,7 +29,6 @@
     <string name="couldnt_get_size_of_file">Erreur: impossible d\'avoir la taille du fichier</string>
     <string name="error_occured">Une erreur est survenue pendant le transfert</string>
     <string name="error_incomplete">Une erreur est survenue pendant le transfert. Le fichier n\'a pas pu être téléchargé complètement. Veuillez le supprimer</string>
-    <string name="grant_permission">S\'il vous plait, donnez la permission d\'écrire</string>
     <string name="incomplete_transfer">Ce fichier n\'a pas été téléchargé entièrement. Vous devriez le supprimer</string>
     <string name="network_error">Erreur réseau: Envoi impossible</string>
     <string name="no">non</string>
@@ -53,4 +52,6 @@
     <string name="select_peer">Sélectionnez l\'appareil</string>
     <string name="loading_sending_peers">Recherche d\'appareil envoyeur…</string>
     <string name="send_service_canceled">Le service a été arreté car aucune appareil ne s\'est connecté.</string>
+    <string name="ask_write_permission_title">Accorder la permission d\'écrire?</string>
+    <string name="ask_write_permission_message">Pour recevoir un fichier, l\'application doit écrire dans votre stockage. Voulez-vous accorder la permisssion d\'écrire?</string>
 </resources>
