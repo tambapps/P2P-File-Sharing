@@ -1,28 +1,28 @@
 package com.tambapps.p2p.fandem.cl;
 
-import com.tambapps.p2p.fandem.Peer;
-import com.tambapps.p2p.fandem.listener.ReceivingListener;
-import com.tambapps.p2p.fandem.task.ReceivingTask;
+import com.tambapps.p2p.fandem.FileReceiver;
 import com.tambapps.p2p.fandem.util.FileUtils;
+import com.tambapps.p2p.fandem.util.TransferListener;
+import com.tambapps.p2p.speer.Peer;
 
 import java.io.File;
 import java.io.IOException;
 
 public class Receiver {
 
-  private final Peer peer;
+  private final Peer senderPeer;
+  private final FileReceiver fileReceiver;
   private final File directory;
-  private final ReceivingListener listener;
 
-  public Receiver(Peer peer, File directory, ReceivingListener listener) {
-    this.peer = peer;
+  public Receiver(Peer senderPeer, File directory, TransferListener listener) {
+    this.senderPeer = senderPeer;
+    this.fileReceiver = new FileReceiver(listener);
     this.directory = directory;
-    this.listener = listener;
   }
 
-  public void receive() throws IOException {
-    new ReceivingTask(listener, FileUtils.availableFileInDirectoryProvider(directory))
-        .receiveFrom(peer);
+  public File receive() throws IOException {
+    return fileReceiver.receiveFrom(senderPeer,
+        FileUtils.availableFileInDirectoryProvider(directory));
   }
 
 }

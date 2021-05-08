@@ -5,33 +5,32 @@ import static com.tambapps.p2p.fandem.cl.Mode.SEND;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
-import com.tambapps.p2p.fandem.Peer;
+import com.tambapps.p2p.fandem.Fandem;
+import com.tambapps.p2p.fandem.SenderPeer;
+import com.tambapps.p2p.fandem.util.FileUtils;
+import com.tambapps.p2p.fandem.util.TransferListener;
 import com.tambapps.p2p.fandem.cl.command.Arguments;
 import com.tambapps.p2p.fandem.cl.command.SendCommand;
 
 import com.tambapps.p2p.fandem.cl.exception.SendingException;
-import com.tambapps.p2p.fandem.exception.SniffException;
-import com.tambapps.p2p.fandem.exception.TransferCanceledException;
-import com.tambapps.p2p.fandem.listener.ReceivingListener;
-import com.tambapps.p2p.fandem.listener.SendingListener;
-import com.tambapps.p2p.fandem.sniff.PeerSniffBlockingSupplier;
-import com.tambapps.p2p.fandem.sniff.SniffPeer;
-import com.tambapps.p2p.fandem.util.FileUtils;
-import com.tambapps.p2p.fandem.util.IPUtils;
 import com.tambapps.p2p.fandem.cl.command.ReceiveCommand;
-import org.jetbrains.annotations.NotNull;
+import com.tambapps.p2p.speer.Peer;
+import com.tambapps.p2p.speer.seek.SeekedPeerSupplier;
+import com.tambapps.p2p.speer.seek.strategy.LastOctetSeekingStrategy;
+import com.tambapps.p2p.speer.util.PeerUtils;
 
 import java.io.File;
 import java.io.IOException;
 
 import java.net.InetAddress;
 
+import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class Main implements ReceivingListener, SendingListener {
+public class Main implements TransferListener {
 
 	private final ExecutorService executor =
 			Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
@@ -88,10 +87,13 @@ public class Main implements ReceivingListener, SendingListener {
 		try (Sender sender = Sender.create(executor, command, this)) {
 			for (File file : command.getFiles()) {
 				try {
+					System.out.println("Sending " + file.getName());
+					System.out.format("Waiting for a connection on %s (hex string %s)", sender.getPeer(), SenderPeer.toHexString(sender.getPeer()))
+					.println();
 					sender.send(file);
 					System.out.println();
 					System.out.println(file.getName() + " was successfully sent");
-				} catch (TransferCanceledException e) {
+				} catch (SocketException e) {
 					System.out.println();
 					System.out.println("Transfer was cancelled.");
 				}
@@ -107,13 +109,16 @@ public class Main implements ReceivingListener, SendingListener {
 	}
 
 	void receive(ReceiveCommand receiveCommand) {
-		Peer peer = receiveCommand.getPeer().orElseGet(this::searchSendingPeer);
+		Peer peer = receiveCommand.getPeer().orElseGet(this::seekSendingPeer);
 		if (peer != null) {
 			Receiver receiver = new Receiver(peer, receiveCommand.getDownloadDirectory(), this);
 			for (int i = 0; i < receiveCommand.getCount(); i++) {
 				System.out.println("Connecting to " + peer);
 				try {
-					receiver.receive();
+					File file = receiver.receive();
+					System.out.println();
+					System.out.println("Received " + file.getName() + " successfully");
+					System.out.println("Path: " + file.getPath());
 				} catch (IOException e) {
 					System.out.println();
 					System.out.println("Error while receiving file: " + e.getMessage());
@@ -126,10 +131,10 @@ public class Main implements ReceivingListener, SendingListener {
 
 	// for testing overriding
 	InetAddress getIpAddress() throws IOException {
-		return IPUtils.getIpAddress();
+		return PeerUtils.getIpAddress();
 	}
 
-	private Peer searchSendingPeer() {
+	private Peer seekSendingPeer() {
 		InetAddress address;
 		try {
 			address = getIpAddress();
@@ -140,71 +145,46 @@ public class Main implements ReceivingListener, SendingListener {
 
 		System.out.println("Looking for a sending peer...");
 		try (Scanner scanner = new Scanner(System.in)) {
-			return searchSendingPeer(scanner, address);
+			return seekSendingPeer(scanner, address);
 		}
 	}
 
-	private Peer searchSendingPeer(Scanner scanner, InetAddress address) {
-		PeerSniffBlockingSupplier sniffSupplier;
-		try {
-			sniffSupplier = new PeerSniffBlockingSupplier(executor, address);
-		} catch (IOException e) {
-			System.out.println("Couldn't start detecting sending peer: " + e.getMessage());
-			return null;
-		}
-
+	private SenderPeer seekSendingPeer(Scanner scanner, InetAddress address) {
+		SeekedPeerSupplier<SenderPeer> sniffSupplier = new SeekedPeerSupplier<>(executor, new LastOctetSeekingStrategy(address, Fandem.GREETING_PORT),
+				Fandem.seeking());
 		while (true) {
 			try {
-				SniffPeer sniffPeer = sniffSupplier.get();
+				SenderPeer sniffPeer = sniffSupplier.get();
 				System.out.format(
 						"%s wants to send %s.\nReceive this file? (Tap 'y' for yes ,'n' for no or 's' to stop)",
 						sniffPeer.getDeviceName(), sniffPeer.getFileName())
 						.println();
 				switch (scanner.nextLine().toLowerCase().charAt(0)) {
 					case 'y':
-						sniffSupplier.stop();
-						return sniffPeer.getPeer();
+						return sniffPeer;
 					case 's':
 						return null;
 						// default do nothing
 				}
-			} catch (SniffException e) {
-				System.out.println("Error while detecting sending peer: " + e.getMessage());
+			} catch (InterruptedException ignored) {
 				return null;
-			} catch (InterruptedException ignored) { }
+			}
 		}
 	}
 
 	@Override
-	public void onConnected(@NotNull Peer selfPeer, @NotNull Peer remotePeer,
-			@NotNull String fileName, long fileSize) {
+	public void onConnected(Peer remotePeer, String fileName, long fileSize) {
 		System.out.println("Connected to peer " + remotePeer);
 		System.out.format("%s %s", mode.ingString(), fileName).println();
 		System.out.format(mode.progressFormat(), "0kb",
-				FileUtils.bytesToString(fileSize));
+				FileUtils.toFileSize(fileSize));
 	}
 
 	@Override
 	public void onProgressUpdate(int progress, long bytesProcessed, long totalBytes) {
 		System.out.format(mode.progressFormat(),
-				FileUtils.bytesToString(bytesProcessed),
-				FileUtils.bytesToString(totalBytes));
-	}
-
-	// Sending only
-	@Override
-	public void onStart(Peer self, @NotNull String fileName) {
-		System.out.println("Sending " + fileName);
-		System.out.println("Waiting for a connection on " + self);
-		System.out.println("Hex string: " + self.toHexString().toUpperCase());
-	}
-
-	// Receiving only
-	@Override
-	public void onEnd(@NotNull File file) {
-		System.out.println();
-		System.out.println("Received " + file.getName() + " successfully");
-		System.out.println("Path: " + file.getPath());
+				FileUtils.toFileSize(bytesProcessed),
+				FileUtils.toFileSize(totalBytes));
 	}
 
 	private static void printHelp(JCommander jCommander) {

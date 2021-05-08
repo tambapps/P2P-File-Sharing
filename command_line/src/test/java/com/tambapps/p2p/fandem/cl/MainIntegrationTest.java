@@ -1,6 +1,8 @@
 package com.tambapps.p2p.fandem.cl;
 
+import com.tambapps.p2p.fandem.SenderPeer;
 import com.tambapps.p2p.fandem.cl.command.ReceiveCommand;
+import com.tambapps.p2p.speer.Peer;
 import org.junit.After;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -21,11 +23,17 @@ import static org.mockito.Mockito.when;
 public class MainIntegrationTest {
 
 	private static final String IP_ADDRESS = "127.0.0.1";
+	private static final String IP_ADDRESS_HEX_STRING = SenderPeer.toHexString(IP_ADDRESS);
 	private static final String SNIFF_IP_ADDRESS = "127.0.0.2";
 
 	@Test
 	public void transferTest() throws Exception {
 		test(() -> Main.main(String.format("receive -d=./ -peer=%s:8081", IP_ADDRESS).split(" ")));
+	}
+
+	@Test
+	public void transferTestHexString() throws Exception {
+		test(() -> Main.main(String.format("receive -d=./ -peer=%s", IP_ADDRESS_HEX_STRING).split(" ")));
 	}
 
 	// run these test individually (weird but when we run all test, this ne fails)

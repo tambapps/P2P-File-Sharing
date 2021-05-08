@@ -2,8 +2,8 @@ package com.tambapps.p2p.fandem.cl.command;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
-import com.tambapps.p2p.fandem.Peer;
 import com.tambapps.p2p.fandem.cl.command.converter.DirectoryFileConverter;
+import com.tambapps.p2p.speer.Peer;
 
 import java.io.File;
 import java.util.Optional;

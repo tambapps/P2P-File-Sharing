@@ -1,12 +1,15 @@
 package com.tambapps.p2p.fandem.cl;
 
-import com.tambapps.p2p.fandem.Peer;
+import com.tambapps.p2p.fandem.Fandem;
+import com.tambapps.p2p.fandem.FileSender;
+import com.tambapps.p2p.fandem.SenderPeer;
+import com.tambapps.p2p.fandem.util.TransferListener;
+import com.tambapps.p2p.speer.Peer;
 import com.tambapps.p2p.fandem.cl.command.SendCommand;
 import com.tambapps.p2p.fandem.cl.exception.SendingException;
-import com.tambapps.p2p.fandem.listener.SendingListener;
-import com.tambapps.p2p.fandem.sniff.service.PeerSniffHandlerService;
-import com.tambapps.p2p.fandem.task.SendingTask;
-import com.tambapps.p2p.fandem.util.IPUtils;
+import com.tambapps.p2p.speer.greet.PeerGreeter;
+import com.tambapps.p2p.speer.greet.PeerGreeterService;
+import com.tambapps.p2p.speer.util.PeerUtils;
 
 import java.io.Closeable;
 import java.io.File;
@@ -20,22 +23,21 @@ public class Sender implements Closeable {
   private static final String DESKTOP_NAME = getDesktopName();
 
   private final Peer peer;
-  private final PeerSniffHandlerService sniffHandlerService;
-  private final int timeout;
-  private final SendingListener listener;
+  private final PeerGreeterService<SenderPeer> greeterService;
 
-  private Sender(Peer peer, PeerSniffHandlerService sniffHandlerService, int timeout,
-      SendingListener listener) {
+  private final FileSender fileSender;
+
+  private Sender(Peer peer, PeerGreeterService<SenderPeer> greeterService, int timeout, TransferListener listener) {
     this.peer = peer;
-    this.sniffHandlerService = sniffHandlerService;
-    this.timeout = timeout;
-    this.listener = listener;
-    sniffHandlerService.start();
+    this.greeterService = greeterService;
+    this.fileSender = new FileSender(peer, listener, timeout);
   }
 
   public void send(File file) throws IOException {
-    sniffHandlerService.setFileName(file.getName());
-    new SendingTask(listener, peer, timeout).send(file);
+    greeterService.getGreeter().getAvailablePeers().clear();
+    greeterService.getGreeter().addAvailablePeer(new SenderPeer(peer.getIp(), peer.getPort(), DESKTOP_NAME, file.getName()));
+    greeterService.start(Peer.of(peer.getIp(), Fandem.GREETING_PORT));
+    fileSender.send(file);
   }
 
   private static String getDesktopName() {
@@ -51,26 +53,31 @@ public class Sender implements Closeable {
       return InetAddress.getLocalHost().getHostName();
     }
     catch (UnknownHostException ex) {
-      return  System.getProperty("user.name") + " Desktop";
+      return System.getProperty("user.name") + " Desktop";
     }
   }
 
   public static Sender create(ExecutorService executor, SendCommand sendCommand,
-      SendingListener listener)
+      TransferListener listener)
       throws SendingException {
+
+    PeerGreeter<SenderPeer> greeter = new PeerGreeter<>(Fandem.greetings());
+    PeerGreeterService<SenderPeer> greeterService = new PeerGreeterService<>(executor, greeter);
+
+    // extract the sender peer
     InetAddress address = sendCommand.getIp()
         .orElseThrow(() ->
             new SendingException("Couldn't get ip address (are you connected to the internet?)"));
-    int port  = sendCommand.getPort().orElseGet(() -> IPUtils.getAvailablePort(address));
-    Peer peer = Peer.of(address, port);
+    int port = sendCommand.getPort().orElseGet(() -> PeerUtils.getAvailablePort(address, SenderPeer.DEFAULT_PORT));
+    return new Sender(Peer.of(address, port), greeterService, sendCommand.getTimeout(), listener);
+  }
 
-    PeerSniffHandlerService
-        sniffHandlerService = new PeerSniffHandlerService(executor, peer, DESKTOP_NAME);
-    return new Sender(peer, sniffHandlerService, sendCommand.getTimeout(), listener);
+  public Peer getPeer() {
+    return peer;
   }
 
   @Override
   public void close() {
-    sniffHandlerService.stop();
+    greeterService.stop();
   }
 }

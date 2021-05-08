@@ -5,7 +5,7 @@ import com.beust.jcommander.Parameters;
 
 import com.tambapps.p2p.fandem.cl.command.converter.AddressConverter;
 import com.tambapps.p2p.fandem.cl.command.converter.FileConverter;
-import com.tambapps.p2p.fandem.util.IPUtils;
+import com.tambapps.p2p.speer.util.IPUtils;
 
 import java.io.File;
 import java.net.InetAddress;
@@ -34,7 +34,7 @@ public class SendCommand {
     }
 
     public Optional<InetAddress> getIp() {
-        return Optional.ofNullable(ip != null ? ip : IPUtils.getIpAddressQuietly());
+        return Optional.ofNullable(ip != null ? ip : IPUtils.getIpAddressOrNull());
     }
 
     public Optional<Integer> getPort() {
