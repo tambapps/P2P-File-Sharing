@@ -1,5 +1,7 @@
 package com.tambapps.p2p.fandem.handshake;
 
+import static com.tambapps.p2p.fandem.Fandem.VERSION;
+
 import com.tambapps.p2p.fandem.exception.IncompatibleVersionException;
 import com.tambapps.p2p.speer.exception.HandshakeFailException;
 import com.tambapps.p2p.speer.handshake.Handshake;
@@ -13,7 +15,6 @@ import java.util.Map;
 
 public abstract class FandemHandshake implements Handshake {
 
-  private static final String VERSION = "2.0";
 
   @Override
   public Map<String, Object> apply(DataOutputStream outputStream, DataInputStream inputStream)

@@ -42,18 +42,18 @@ public class FileSender extends FileSharer {
 
   public void send(FileInputStream inputStream, String fileName, long fileSize,
       Callable<String> checksumSupplier) throws IOException {
-    try (ServerPeer server = ServerPeer();
+    try (ServerPeer server = serverPeer();
         PeerConnection connection = server.accept()) {
       connection.writeLong(fileSize);
       connection.writeUTF(fileName);
-      share(inputStream, connection.getOutputStream(), BUFFER_SIZE, fileSize);
-      if (connection.getAttribute(FandemReceiverHandshake.BUFFER_SIZE_KEY)) {
+      if (connection.getAttribute(FandemSenderHandshake.CHECKSUM_KEY)) {
         try {
           connection.writeUTF(checksumSupplier.call());
         } catch (Exception e) {
           throw new IOException(e);
         }
       }
+      share(inputStream, connection.getOutputStream(), BUFFER_SIZE, fileSize);
     }
     serverReference.set(null);
   }
@@ -69,7 +69,7 @@ public class FileSender extends FileSharer {
       serverReference.set(null);
     }
   }
-  private ServerPeer ServerPeer() throws IOException {
+  private ServerPeer serverPeer() throws IOException {
     ServerPeer server = new ServerPeer(peer, handshake);
     server.setAcceptTimeout(socketTimeout);
     serverReference.set(server);
