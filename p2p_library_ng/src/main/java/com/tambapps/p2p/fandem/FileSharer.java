@@ -6,9 +6,14 @@ import com.tambapps.p2p.fandem.util.TransferListener;
 import com.tambapps.p2p.speer.handshake.Handshake;
 import lombok.AllArgsConstructor;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.security.DigestInputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 @AllArgsConstructor
 public abstract class FileSharer {
@@ -18,9 +23,8 @@ public abstract class FileSharer {
   protected final Handshake handshake;
   protected final TransferListener listener;
 
-  protected void share(InputStream inputStream, OutputStream outputStream,
+  protected void share(InputStream inputStream, OutputStream outputStream, int bufferSize,
       long totalBytes) throws IOException {
-    int bufferSize = 1024;
     byte[] buffer = new byte[bufferSize];
     int lastProgress = 0;
     long bytesProcessed = 0;
@@ -39,6 +43,19 @@ public abstract class FileSharer {
       throw new SharingException("Transfer was not properly finished");
     } else if (listener != null) {
        listener.onProgressUpdate(MAX_PROGRESS, totalBytes, totalBytes);
+    }
+  }
+
+  protected String computeChecksum(File file) throws IOException {
+    MessageDigest md = null;
+    try {
+      md = MessageDigest.getInstance("MD5");
+    } catch (NoSuchAlgorithmException e) {
+      throw new IOException("Couldn't find MD5 algorithm", e);
+    }
+    try (InputStream inputStream = new FileInputStream(file);
+        DigestInputStream dis = new DigestInputStream(inputStream, md)) {
+      return new String(md.digest());
     }
   }
 }
