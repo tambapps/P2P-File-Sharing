@@ -66,7 +66,10 @@ public final class Fandem {
   }
 
   public static SeekedPeerSupplier<SenderPeer> seekSupplier(ExecutorService executor, InetAddress address) {
-    return new SeekedPeerSupplier<>(executor, seekingStrategy(address), seeker());
+    PeerSeeker<SenderPeer> seeker = seeker();
+    // prevent seeking itself
+    seeker.addFilteredPeer(address);
+    return new SeekedPeerSupplier<>(executor, seekingStrategy(address), seeker);
   }
   public static PeerGreetings<SenderPeer> greetings() {
     return (peers, outputStream) -> {
