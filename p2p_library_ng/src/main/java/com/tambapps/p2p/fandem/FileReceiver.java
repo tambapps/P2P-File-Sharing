@@ -41,7 +41,7 @@ public class FileReceiver extends FileSharer {
     try (PeerConnection connection = PeerConnection.from(peer, handshake)) {
       long totalBytes = connection.readLong();
       String fileName = connection.readUTF();
-      int bufferSize = connection.getAttribute(FandemReceiverHandshake.BUFFER_SIZE_KEY);
+      int bufferSize = connection.getAttribute(FandemSenderHandshake.BUFFER_SIZE_KEY);
       if (listener != null) {
         listener.onConnected(peer, fileName, totalBytes);
       }

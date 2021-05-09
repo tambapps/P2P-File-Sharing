@@ -46,7 +46,7 @@ public class FileSender extends FileSharer {
         PeerConnection connection = server.accept()) {
       connection.writeLong(fileSize);
       connection.writeUTF(fileName);
-      if (connection.getAttribute(FandemSenderHandshake.CHECKSUM_KEY)) {
+      if (connection.getAttribute(FandemReceiverHandshake.CHECKSUM_KEY)) {
         try {
           connection.writeUTF(checksumSupplier.call());
         } catch (Exception e) {

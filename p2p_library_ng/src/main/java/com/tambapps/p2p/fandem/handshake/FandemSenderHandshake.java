@@ -1,26 +1,22 @@
 package com.tambapps.p2p.fandem.handshake;
 
-import lombok.AllArgsConstructor;
+import com.tambapps.p2p.speer.exception.HandshakeFailException;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
 import java.util.Map;
 
-@AllArgsConstructor
 public class FandemSenderHandshake extends FandemHandshake {
 
-  private final int bufferSize;
+  public static final String BUFFER_SIZE_KEY = "buffer_size";
 
-  public static final String CHECKSUM_KEY = "checksum";
-
-  @Override
-  protected void read(Map<String, Object> properties, DataInputStream inputStream) throws IOException {
-    properties.put(CHECKSUM_KEY, inputStream.readBoolean());
+  public FandemSenderHandshake(int bufferSize) {
+    super(newMap(BUFFER_SIZE_KEY, bufferSize));
   }
 
   @Override
-  protected void write(DataOutputStream outputStream) throws IOException {
-    outputStream.writeInt(bufferSize);
+  protected void validate(Map<String, Object> properties) throws HandshakeFailException {
+    super.validate(properties);
+    if (!(properties.get(FandemReceiverHandshake.CHECKSUM_KEY) instanceof Boolean)) {
+      throw new HandshakeFailException("Sender should send checksum(boolean)");
+    }
   }
 }

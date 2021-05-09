@@ -4,42 +4,44 @@ import static com.tambapps.p2p.fandem.Fandem.VERSION;
 
 import com.tambapps.p2p.fandem.exception.IncompatibleVersionException;
 import com.tambapps.p2p.speer.exception.HandshakeFailException;
-import com.tambapps.p2p.speer.handshake.Handshake;
+import com.tambapps.p2p.speer.handshake.AttributeHandshake;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-public abstract class FandemHandshake implements Handshake {
+public class FandemHandshake extends AttributeHandshake {
 
+  private static final String FANDEM_VERSION_KEY = "fandem_version";
+
+  // TODO use me when seeking/greeting
+  public FandemHandshake() {
+    super(newMap());
+  }
+
+  public FandemHandshake(Map<String, Object> properties) {
+    super(properties);
+  }
 
   @Override
-  public Map<String, Object> apply(DataOutputStream outputStream, DataInputStream inputStream)
-      throws IOException {
-    outputStream.writeUTF("FANDEM");
-    outputStream.writeUTF(VERSION);
-    write(outputStream);
-
-    if (!inputStream.readUTF().equals("FANDEM")) {
+  protected void validate(Map<String, Object> properties) throws HandshakeFailException {
+    super.validate(properties);
+    if (!properties.containsKey(FANDEM_VERSION_KEY)) {
       throw new HandshakeFailException("Not a Fandem peer");
     }
-    String version = inputStream.readUTF();
+    String version = String.valueOf(properties.get(FANDEM_VERSION_KEY));
     String[] fields = version.split("\\.");
     if (fields.length <= 0 || !fields[0].equals(VERSION.split("\\.")[0])) {
       throw new IncompatibleVersionException(String.format("Version %s is not compatible with own version %s",
           version, VERSION));
     }
-    Map<String, Object> properties = new HashMap<>();
-    properties.put("version", version);
-    read(properties, inputStream);
-    return properties;
   }
 
-  protected abstract void read(Map<String, Object> properties,
-      DataInputStream inputStream) throws IOException;
-
-  protected abstract void write(DataOutputStream outputStream) throws IOException;
+  static Map<String, Object> newMap(Object... objects) {
+    Map<String, Object> map = new HashMap<>();
+    map.put(FANDEM_VERSION_KEY, VERSION);
+    for (int i = 0; i < objects.length / 2; i++) {
+      map.put(String.valueOf(objects[i * 2]), objects[i * 2 + 1]);
+    }
+    return map;
+  }
 }
