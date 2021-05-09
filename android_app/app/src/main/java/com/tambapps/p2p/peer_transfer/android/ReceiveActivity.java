@@ -49,9 +49,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class ReceiveActivity extends PermissionActivity implements PeerSeeker.SeekListener<SenderPeer> {
-    private final static int WRITE_PERMISSION_REQUEST = 2;
 
-    private final ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+    private final ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 4);
     private ProgressBar progressBar;
 
     private FirebaseAnalytics analytics;

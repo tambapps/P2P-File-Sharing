@@ -36,7 +36,7 @@ public class PeerSnifferTask extends AsyncTask<Void, Void, Void> {
         SeekingStrategy seekingStrategy = Fandem.seekingStrategy(address);
         PeerSeeker<SenderPeer> seeker = Fandem.seeker(listenerReference.get());
         // prevent seeking itself
-        seeker.addFilteredPeer(address);
+        seeker.addFilteredAddress(address);
         try {
             List<Future<List<SenderPeer>>> futures = seeker.seek(seekingStrategy, executorServiceReference.get());
             for (Future<?> future :futures) {

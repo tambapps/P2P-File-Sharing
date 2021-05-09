@@ -25,9 +25,9 @@ public class SniffHandlerService {
         future = jobService.startSideTask(() -> {
             Peer peer = Peer.parse(peerString);
             String deviceName = Build.MANUFACTURER + " " + Build.MODEL;
-            greeter.addAvailablePeer(new SenderPeer(peer.getIp(), peer.getPort(), deviceName, fileName));
+            greeter.addAvailablePeer(new SenderPeer(peer.getAddress(), peer.getPort(), deviceName, fileName));
 
-            try (ServerPeer server = new ServerPeer(Peer.of(peer.getIp(), Fandem.GREETING_PORT), new FandemHandshake())) {
+            try (ServerPeer server = new ServerPeer(Peer.of(peer.getAddress(), Fandem.GREETING_PORT), new FandemHandshake())) {
                 greeter.greet(server);
             } catch (SocketException e) {
                 // probably just a cancel
