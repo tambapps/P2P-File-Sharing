@@ -15,6 +15,7 @@ import com.tambapps.p2p.fandem.cl.command.SendCommand;
 import com.tambapps.p2p.fandem.cl.exception.SendingException;
 import com.tambapps.p2p.fandem.cl.command.ReceiveCommand;
 import com.tambapps.p2p.speer.Peer;
+import com.tambapps.p2p.speer.exception.HandshakeFailException;
 import com.tambapps.p2p.speer.seek.SeekedPeerSupplier;
 import com.tambapps.p2p.speer.util.PeerUtils;
 
@@ -118,6 +119,8 @@ public class Main implements TransferListener {
 					System.out.println();
 					System.out.println("Received " + file.getName() + " successfully");
 					System.out.println("Path: " + file.getPath());
+				} catch (HandshakeFailException e) {
+					System.out.println("Error while communicating with other peer: " + e.getMessage());
 				} catch (IOException e) {
 					System.out.println();
 					System.out.println("Error while receiving file: " + e.getMessage());

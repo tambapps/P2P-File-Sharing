@@ -10,7 +10,6 @@ import com.tambapps.p2p.speer.greet.PeerGreetings;
 import com.tambapps.p2p.speer.seek.PeerSeeker;
 import com.tambapps.p2p.speer.seek.PeerSeeking;
 import com.tambapps.p2p.speer.seek.SeekedPeerSupplier;
-import com.tambapps.p2p.speer.seek.strategy.LastOctetSeekingStrategy;
 import com.tambapps.p2p.speer.seek.strategy.SeekingStrategy;
 import com.tambapps.p2p.speer.util.PeerUtils;
 
@@ -39,7 +38,7 @@ public final class Fandem {
         Peer peer = Peer.parse(inputStream.readUTF());
         String deviceName = inputStream.readUTF();
         String fileName = inputStream.readUTF();
-        senderPeers.add(new SenderPeer(peer.getIp(), peer.getPort(), deviceName, fileName));
+        senderPeers.add(new SenderPeer(peer.getAddress(), peer.getPort(), deviceName, fileName));
       }
       return senderPeers;
     };
@@ -62,13 +61,13 @@ public final class Fandem {
     return new PeerGreeterService<>(executor, new PeerGreeter<>(greetings()), errorListener, new FandemHandshake());
   }
   public static SeekingStrategy seekingStrategy(InetAddress address) {
-    return new LastOctetSeekingStrategy(address, Fandem.GREETING_PORT);
+    return new FandemSeekingStrategy(address);
   }
 
   public static SeekedPeerSupplier<SenderPeer> seekSupplier(ExecutorService executor, InetAddress address) {
     PeerSeeker<SenderPeer> seeker = seeker();
     // prevent seeking itself
-    seeker.addFilteredPeer(address);
+    seeker.addFilteredAddress(address);
     return new SeekedPeerSupplier<>(executor, seekingStrategy(address), seeker);
   }
   public static PeerGreetings<SenderPeer> greetings() {
@@ -105,7 +104,7 @@ public final class Fandem {
   }
 
   public static String toHexString(Peer peer) {
-    String ipHex = toHexString(peer.getIp());
+    String ipHex = toHexString(peer.getAddress());
     return peer.getPort() == DEFAULT_PORT ? ipHex : ipHex +
         toHexString(peer.getPort() - DEFAULT_PORT);
   }

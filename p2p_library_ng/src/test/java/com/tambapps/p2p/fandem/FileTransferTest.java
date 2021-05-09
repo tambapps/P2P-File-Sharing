@@ -1,9 +1,9 @@
 package com.tambapps.p2p.fandem;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.tambapps.p2p.speer.Peer;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.FileInputStream;
