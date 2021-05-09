@@ -4,6 +4,8 @@ import static com.tambapps.p2p.fandem.SenderPeer.DEFAULT_PORT;
 
 import com.tambapps.p2p.fandem.handshake.FandemHandshake;
 import com.tambapps.p2p.speer.Peer;
+import com.tambapps.p2p.speer.greet.PeerGreeter;
+import com.tambapps.p2p.speer.greet.PeerGreeterService;
 import com.tambapps.p2p.speer.greet.PeerGreetings;
 import com.tambapps.p2p.speer.seek.PeerSeeker;
 import com.tambapps.p2p.speer.seek.PeerSeeking;
@@ -50,6 +52,14 @@ public final class Fandem {
     return new PeerSeeker<>(Fandem.seeking(), listener, new FandemHandshake());
   }
 
+  public static PeerGreeterService<SenderPeer> greeterService(ExecutorService executor) {
+    return greeterService(executor, null);
+  }
+
+  public static PeerGreeterService<SenderPeer> greeterService(ExecutorService executor,
+      PeerGreeterService.ErrorListener errorListener) {
+    return new PeerGreeterService<>(executor, new PeerGreeter<>(greetings()), errorListener, new FandemHandshake());
+  }
   public static SeekingStrategy seekingStrategy(InetAddress address) {
     return new LastOctetSeekingStrategy(address, Fandem.GREETING_PORT);
   }
