@@ -106,7 +106,7 @@ public final class Fandem {
 
   public static String toHexString(Peer peer) {
     String ipHex = toHexString(peer.getIp());
-    return peer.getPort() == DEFAULT_PORT ? ipHex :
+    return peer.getPort() == DEFAULT_PORT ? ipHex : ipHex +
         toHexString(peer.getPort() - DEFAULT_PORT);
   }
 
