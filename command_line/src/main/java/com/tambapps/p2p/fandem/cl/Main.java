@@ -7,7 +7,6 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
 import com.tambapps.p2p.fandem.Fandem;
 import com.tambapps.p2p.fandem.SenderPeer;
-import com.tambapps.p2p.fandem.handshake.FandemHandshake;
 import com.tambapps.p2p.fandem.util.FileUtils;
 import com.tambapps.p2p.fandem.util.TransferListener;
 import com.tambapps.p2p.fandem.cl.command.Arguments;
@@ -16,9 +15,7 @@ import com.tambapps.p2p.fandem.cl.command.SendCommand;
 import com.tambapps.p2p.fandem.cl.exception.SendingException;
 import com.tambapps.p2p.fandem.cl.command.ReceiveCommand;
 import com.tambapps.p2p.speer.Peer;
-import com.tambapps.p2p.speer.seek.PeerSeeker;
 import com.tambapps.p2p.speer.seek.SeekedPeerSupplier;
-import com.tambapps.p2p.speer.seek.strategy.LastOctetSeekingStrategy;
 import com.tambapps.p2p.speer.util.PeerUtils;
 
 import java.io.File;
@@ -174,7 +171,8 @@ public class Main implements TransferListener {
 	}
 
 	@Override
-	public void onConnected(Peer remotePeer, String fileName, long fileSize) {
+	public void onConnected(Peer selfPeer, Peer remotePeer, String fileName,
+			long fileSize) {
 		System.out.println("Connected to peer " + remotePeer);
 		System.out.format("%s %s", mode.ingString(), fileName).println();
 		System.out.format(mode.progressFormat(), "0kb",
