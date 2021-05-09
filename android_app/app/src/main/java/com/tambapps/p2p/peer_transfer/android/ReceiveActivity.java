@@ -203,11 +203,26 @@ public class ReceiveActivity extends PermissionActivity implements PeerSeeker.Se
         FirebaseCrashlytics.getInstance().recordException(e);
     }
 
+    private String getPeerKeyPrefix() {
+        String key;
+        try {
+            key = Fandem.toHexString(PeerUtils.getIpAddress());
+        } catch (IOException e) {
+            return null;
+        }
+        // substract the last octet
+        return key.substring(0, key.length() - 2);
+
+    }
     public void receiveManually(View view) {
         final TextInputLayout layout = new TextInputLayout(this);
         final TextInputEditText editText = new TextInputEditText(this);
         layout.addView(editText);
         editText.setHint("Peer key");
+        String keyPrefix = getPeerKeyPrefix();
+        if (keyPrefix != null) {
+            editText.setText(keyPrefix);
+        }
 
         final AlertDialog dialog = new AlertDialog.Builder(this)
                 .setTitle(R.string.peer_key_input)
