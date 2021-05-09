@@ -46,15 +46,20 @@ public abstract class FileSharer {
     }
   }
 
-  protected String computeChecksum(File file) throws IOException {
+  public String computeChecksum(File file) throws IOException {
+    try (FileInputStream inputStream = new FileInputStream(file)) {
+      return computeChecksum(inputStream);
+    }
+  }
+
+  public String computeChecksum(InputStream inputStream) throws IOException {
     MessageDigest md = null;
     try {
       md = MessageDigest.getInstance("MD5");
     } catch (NoSuchAlgorithmException e) {
       throw new IOException("Couldn't find MD5 algorithm", e);
     }
-    try (InputStream inputStream = new FileInputStream(file);
-        DigestInputStream dis = new DigestInputStream(inputStream, md)) {
+    try (DigestInputStream dis = new DigestInputStream(inputStream, md)) {
       return new String(md.digest());
     }
   }

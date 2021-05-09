@@ -6,10 +6,12 @@ import com.tambapps.p2p.fandem.util.TransferListener;
 import com.tambapps.p2p.speer.Peer;
 import com.tambapps.p2p.speer.PeerConnection;
 import com.tambapps.p2p.speer.ServerPeer;
+import lombok.Getter;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -17,7 +19,9 @@ public class FileSender extends FileSharer {
 
   private static final int BUFFER_SIZE = 1024;
 
+  @Getter
   private final Peer peer;
+  @Getter
   private final int socketTimeout;
   private final AtomicReference<ServerPeer> serverReference = new AtomicReference<>();
 
@@ -40,10 +44,13 @@ public class FileSender extends FileSharer {
     }
   }
 
-  public void send(FileInputStream inputStream, String fileName, long fileSize,
+    public void send(InputStream inputStream, String fileName, long fileSize,
       Callable<String> checksumSupplier) throws IOException {
     try (ServerPeer server = serverPeer();
         PeerConnection connection = server.accept()) {
+      if (listener != null) {
+        listener.onConnected(connection.getSelfPeer(), connection.getConnectedPeer(), fileName, fileSize);
+      }
       connection.writeLong(fileSize);
       connection.writeUTF(fileName);
       if (connection.getAttribute(FandemReceiverHandshake.CHECKSUM_KEY)) {
@@ -69,6 +76,7 @@ public class FileSender extends FileSharer {
       serverReference.set(null);
     }
   }
+
   private ServerPeer serverPeer() throws IOException {
     ServerPeer server = new ServerPeer(peer, handshake);
     server.setAcceptTimeout(socketTimeout);
