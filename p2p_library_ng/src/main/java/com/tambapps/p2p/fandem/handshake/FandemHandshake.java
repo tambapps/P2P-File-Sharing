@@ -6,6 +6,7 @@ import com.tambapps.p2p.fandem.exception.IncompatibleVersionException;
 import com.tambapps.p2p.speer.exception.HandshakeFailException;
 import com.tambapps.p2p.speer.handshake.AttributeHandshake;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,7 +14,6 @@ public class FandemHandshake extends AttributeHandshake {
 
   private static final String FANDEM_VERSION_KEY = "fandem_version";
 
-  // TODO use me when seeking/greeting
   public FandemHandshake() {
     super(newMap());
   }
@@ -42,6 +42,6 @@ public class FandemHandshake extends AttributeHandshake {
     for (int i = 0; i < objects.length / 2; i++) {
       map.put(String.valueOf(objects[i * 2]), objects[i * 2 + 1]);
     }
-    return map;
+    return Collections.unmodifiableMap(map);
   }
 }

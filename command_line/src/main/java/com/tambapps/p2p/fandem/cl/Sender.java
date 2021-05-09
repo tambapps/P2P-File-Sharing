@@ -3,6 +3,7 @@ package com.tambapps.p2p.fandem.cl;
 import com.tambapps.p2p.fandem.Fandem;
 import com.tambapps.p2p.fandem.FileSender;
 import com.tambapps.p2p.fandem.SenderPeer;
+import com.tambapps.p2p.fandem.handshake.FandemHandshake;
 import com.tambapps.p2p.fandem.util.TransferListener;
 import com.tambapps.p2p.speer.Peer;
 import com.tambapps.p2p.fandem.cl.command.SendCommand;
@@ -36,7 +37,7 @@ public class Sender implements Closeable {
   public void send(File file) throws IOException {
     greeterService.getGreeter().getAvailablePeers().clear();
     greeterService.getGreeter().addAvailablePeer(new SenderPeer(peer.getIp(), peer.getPort(), DESKTOP_NAME, file.getName()));
-    greeterService.start(Peer.of(peer.getIp(), Fandem.GREETING_PORT));
+    greeterService.start(Peer.of(peer.getIp(), Fandem.GREETING_PORT), new FandemHandshake());
     fileSender.send(file);
   }
 

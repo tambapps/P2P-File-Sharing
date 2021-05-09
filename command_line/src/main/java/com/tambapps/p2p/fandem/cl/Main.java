@@ -7,6 +7,7 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
 import com.tambapps.p2p.fandem.Fandem;
 import com.tambapps.p2p.fandem.SenderPeer;
+import com.tambapps.p2p.fandem.handshake.FandemHandshake;
 import com.tambapps.p2p.fandem.util.FileUtils;
 import com.tambapps.p2p.fandem.util.TransferListener;
 import com.tambapps.p2p.fandem.cl.command.Arguments;
@@ -15,6 +16,7 @@ import com.tambapps.p2p.fandem.cl.command.SendCommand;
 import com.tambapps.p2p.fandem.cl.exception.SendingException;
 import com.tambapps.p2p.fandem.cl.command.ReceiveCommand;
 import com.tambapps.p2p.speer.Peer;
+import com.tambapps.p2p.speer.seek.PeerSeeker;
 import com.tambapps.p2p.speer.seek.SeekedPeerSupplier;
 import com.tambapps.p2p.speer.seek.strategy.LastOctetSeekingStrategy;
 import com.tambapps.p2p.speer.util.PeerUtils;
@@ -150,8 +152,9 @@ public class Main implements TransferListener {
 	}
 
 	private SenderPeer seekSendingPeer(Scanner scanner, InetAddress address) {
-		SeekedPeerSupplier<SenderPeer> sniffSupplier = new SeekedPeerSupplier<>(executor, new LastOctetSeekingStrategy(address, Fandem.GREETING_PORT),
-				Fandem.seeking());
+		PeerSeeker<SenderPeer> seeker = new PeerSeeker<>(Fandem.seeking(), null, new FandemHandshake());
+		SeekedPeerSupplier<SenderPeer> sniffSupplier = new SeekedPeerSupplier<>(executor,
+				new LastOctetSeekingStrategy(address, Fandem.GREETING_PORT), seeker);
 		while (true) {
 			try {
 				SenderPeer sniffPeer = sniffSupplier.get();
