@@ -5,6 +5,7 @@ import android.os.Build;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.tambapps.p2p.fandem.Fandem;
 import com.tambapps.p2p.fandem.SenderPeer;
+import com.tambapps.p2p.fandem.handshake.FandemHandshake;
 import com.tambapps.p2p.speer.Peer;
 import com.tambapps.p2p.peer_transfer.android.service.FileSendingJobService;
 import com.tambapps.p2p.speer.ServerPeer;
@@ -26,7 +27,7 @@ public class SniffHandlerService {
             String deviceName = Build.MANUFACTURER + " " + Build.MODEL;
             greeter.addAvailablePeer(new SenderPeer(peer.getIp(), peer.getPort(), deviceName, fileName));
 
-            try (ServerPeer server = new ServerPeer(Peer.of(peer.getIp(), Fandem.GREETING_PORT))) {
+            try (ServerPeer server = new ServerPeer(Peer.of(peer.getIp(), Fandem.GREETING_PORT), new FandemHandshake())) {
                 greeter.greet(server);
             } catch (SocketException e) {
                 // probably just a cancel

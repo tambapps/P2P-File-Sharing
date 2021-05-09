@@ -6,6 +6,7 @@ import android.os.AsyncTask;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.tambapps.p2p.fandem.Fandem;
 import com.tambapps.p2p.fandem.SenderPeer;
+import com.tambapps.p2p.speer.Peer;
 import com.tambapps.p2p.speer.seek.PeerSeeker;
 import com.tambapps.p2p.speer.seek.strategy.SeekingStrategy;
 
@@ -34,6 +35,8 @@ public class PeerSnifferTask extends AsyncTask<Void, Void, Void> {
     protected Void doInBackground(Void... voids) {
         SeekingStrategy seekingStrategy = Fandem.seekingStrategy(address);
         PeerSeeker<SenderPeer> seeker = Fandem.seeker(listenerReference.get());
+        // prevent seeking itself
+        seeker.addFilteredPeer(address);
         try {
             List<Future<List<SenderPeer>>> futures = seeker.seek(seekingStrategy, executorServiceReference.get());
             for (Future<?> future :futures) {
