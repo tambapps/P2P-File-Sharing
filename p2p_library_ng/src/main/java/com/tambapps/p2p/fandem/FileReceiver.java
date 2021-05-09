@@ -43,7 +43,7 @@ public class FileReceiver extends FileSharer {
       String fileName = connection.readUTF();
       int bufferSize = connection.getAttribute(FandemSenderHandshake.BUFFER_SIZE_KEY);
       if (listener != null) {
-        listener.onConnected(peer, fileName, totalBytes);
+        listener.onConnected(connection.getSelfPeer(), connection.getConnectedPeer(), fileName, totalBytes);
       }
       Optional<String> optExpectedChecksum = withChecksum ?
           Optional.of(connection.readUTF()) : Optional.empty();

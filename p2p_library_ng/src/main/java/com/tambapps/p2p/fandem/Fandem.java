@@ -9,6 +9,7 @@ import com.tambapps.p2p.speer.seek.PeerSeeker;
 import com.tambapps.p2p.speer.seek.PeerSeeking;
 import com.tambapps.p2p.speer.seek.SeekedPeerSupplier;
 import com.tambapps.p2p.speer.seek.strategy.LastOctetSeekingStrategy;
+import com.tambapps.p2p.speer.seek.strategy.SeekingStrategy;
 import com.tambapps.p2p.speer.util.PeerUtils;
 
 import java.net.InetAddress;
@@ -49,9 +50,12 @@ public final class Fandem {
     return new PeerSeeker<>(Fandem.seeking(), listener, new FandemHandshake());
   }
 
+  public static SeekingStrategy seekingStrategy(InetAddress address) {
+    return new LastOctetSeekingStrategy(address, Fandem.GREETING_PORT);
+  }
+
   public static SeekedPeerSupplier<SenderPeer> seekSupplier(ExecutorService executor, InetAddress address) {
-    return new SeekedPeerSupplier<>(executor,
-        new LastOctetSeekingStrategy(address, Fandem.GREETING_PORT), seeker());
+    return new SeekedPeerSupplier<>(executor, seekingStrategy(address), seeker());
   }
   public static PeerGreetings<SenderPeer> greetings() {
     return (peers, outputStream) -> {

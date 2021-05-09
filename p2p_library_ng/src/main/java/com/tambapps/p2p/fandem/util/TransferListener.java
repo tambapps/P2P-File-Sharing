@@ -7,7 +7,8 @@ import com.tambapps.p2p.speer.Peer;
  */
 public interface TransferListener {
 
-  void onConnected(Peer remotePeer, String fileName, long fileSize);
+  void onConnected(Peer selfPeer, Peer remotePeer, String fileName,
+      long fileSize);
 
   void onProgressUpdate(int progress, long bytesProcessed, long totalBytes);
 
