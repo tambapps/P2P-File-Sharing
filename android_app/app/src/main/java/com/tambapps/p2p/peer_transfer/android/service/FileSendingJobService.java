@@ -21,6 +21,7 @@ import com.tambapps.p2p.peer_transfer.android.analytics.AnalyticsValues;
 import com.tambapps.p2p.peer_transfer.android.analytics.CrashlyticsValues;
 import com.tambapps.p2p.peer_transfer.android.service.event.SendingEventHandler;
 import com.tambapps.p2p.peer_transfer.android.service.sniff.SniffHandlerService;
+import com.tambapps.p2p.speer.exception.HandshakeFailException;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -102,6 +103,10 @@ public class FileSendingJobService extends FileJobService implements SendingEven
 
                 finishNotification().setContentTitle(getString(R.string.transfer_complete))
                         .setStyle(notifStyle.bigText(getString(R.string.success_send, fileName)));
+            } catch (HandshakeFailException e) {
+                finishNotification()
+                        .setContentTitle(getString(R.string.couldnt_start))
+                        .setContentText(e.getMessage());
             } catch (SocketException e) {
                 // probably a cancel
                 finishNotification()

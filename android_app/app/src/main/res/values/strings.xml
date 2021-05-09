@@ -57,4 +57,5 @@
     <string name="ask_write_permission_message">In order to receive a file, the app needs to write on your device. Do you want to grant write permission?</string>
     <string name="no_internet">Couldn\'t start looking for senders (are you connected to the internet?)</string>
     <string name="no_sender_found">No sending peer were found. Swipe down to retry</string>
+    <string name="couldnt_start">Couldn\'t start transfer with other peer</string>
 </resources>

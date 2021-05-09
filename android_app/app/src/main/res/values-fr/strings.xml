@@ -56,4 +56,5 @@
     <string name="ask_write_permission_message">Pour recevoir un fichier, l\'application doit écrire dans votre stockage. Voulez-vous accorder la permisssion d\'écrire?</string>
     <string name="no_internet">Impossible de chercher des appareils envoyeurs (êtes vous connecté à internet?)</string>
     <string name="no_sender_found">Aucun appareil envoyeur n\'a été trouvé. Swipe down pour réessayer</string>
+    <string name="couldnt_start">Impossible de commencer le transfer avec l\'autre appareil</string>
 </resources>

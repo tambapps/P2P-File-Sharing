@@ -22,6 +22,7 @@ import com.tambapps.p2p.peer_transfer.android.R;
 import com.tambapps.p2p.peer_transfer.android.analytics.AnalyticsValues;
 import com.tambapps.p2p.peer_transfer.android.analytics.CrashlyticsValues;
 import com.tambapps.p2p.peer_transfer.android.service.event.TaskEventHandler;
+import com.tambapps.p2p.speer.exception.HandshakeFailException;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -109,8 +110,11 @@ public class FileReceivingJobService extends FileJobService {
                     return f;
                 });
                 completeNotification(file);
-            } catch (SocketException e) {
-                // TODO verify if it works. It is supposed to happen when transfer is canceled (socket closed)
+            } catch (HandshakeFailException e) {
+                finishNotification()
+                        .setContentTitle(getString(R.string.couldnt_start))
+                        .setContentText(e.getMessage());
+            }  catch (SocketException e) {
                 NotificationCompat.Builder builder = finishNotification()
                         .setContentTitle(getString(R.string.transfer_canceled));
                 File file = outputFileReference.get();
