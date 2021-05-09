@@ -75,6 +75,8 @@ public class FileReceivingJobService extends FileJobService {
         private FileReceiver fileReceiver;
         private String fileName;
         private FileIntentProvider fileIntentProvider;
+        // will be useful when file is partially written and an error occurred
+        private final AtomicReference<File> outputFileReference = new AtomicReference<>();
 
         ReceivingTask(TaskEventHandler taskEventHandler, NotificationCompat.Builder notifBuilder,
                       NotificationManager notificationManager,
@@ -100,8 +102,6 @@ public class FileReceivingJobService extends FileJobService {
                     .setContentText(getString(R.string.connecting_to, params[1]));
             updateNotification();
 
-            // will be useful when file is partially written and an error occured
-            AtomicReference<File> outputFileReference = new AtomicReference<>();
             try {
                 File file = fileReceiver.receiveFrom(Peer.parse(params[1]), (name) -> {
                     File f = FileUtils.newAvailableFile(dirPath, name);
@@ -173,10 +173,11 @@ public class FileReceivingJobService extends FileJobService {
         }
         @Override
         public void cancel() {
-            // TODO it is actually impossible to cancel a receive with this implementation
-            //   make FileReceiver accept PeerConnection instead of peer, so that I can close it
-            //   myself when I want to cancel
-//            fileReceiver.cancel();
+            fileReceiver.cancel();
+            File file = outputFileReference.get();
+            if (file != null && file.exists() && !file.delete()) {
+                // do nothing, let's assume the file deletion will always succeed
+            }
         }
 
         @Override
