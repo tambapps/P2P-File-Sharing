@@ -14,6 +14,7 @@ import com.tambapps.p2p.speer.seek.strategy.LastOctetSeekingStrategy;
 import com.tambapps.p2p.speer.seek.strategy.SeekingStrategy;
 import com.tambapps.p2p.speer.util.PeerUtils;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -76,6 +77,10 @@ public final class Fandem {
         outputStream.writeUTF(peer.getFileName());
       }
     };
+  }
+
+  public static Peer findAvailableSendingPeer() throws IOException {
+    return Peer.findAvailablePeer(SenderPeer.DEFAULT_PORT);
   }
 
   public static Peer parsePeerFromHexString(String hexString) {
