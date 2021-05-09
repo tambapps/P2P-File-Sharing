@@ -108,7 +108,6 @@ public class FileSendingJobService extends FileJobService implements SendingEven
                         .setContentTitle(getString(R.string.transfer_canceled));
                 ((SendingEventHandler)eventHandler).onServiceTimeout();
             } catch (SocketTimeoutException e) {
-                FirebaseCrashlytics.getInstance().recordException(e);
                 finishNotification()
                         .setContentTitle(getString(R.string.transfer_canceled))
                         .setContentText(getString(R.string.connection_timeout));

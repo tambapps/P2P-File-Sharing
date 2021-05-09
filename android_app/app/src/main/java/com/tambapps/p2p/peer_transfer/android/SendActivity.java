@@ -187,7 +187,7 @@ public class SendActivity extends AppCompatActivity {
 
     private Peer getPeer() {
         try {
-            return Peer.findAvailablePeer();
+            return Fandem.findAvailableSendingPeer();
         } catch (IOException e) {
             Toast.makeText(this, this.getString(R.string.couldn_get_ip_address), Toast.LENGTH_SHORT).show();
             return null;

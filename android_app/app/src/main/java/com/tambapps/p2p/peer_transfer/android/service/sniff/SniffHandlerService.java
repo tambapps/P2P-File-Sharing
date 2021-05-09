@@ -11,7 +11,6 @@ import com.tambapps.p2p.speer.ServerPeer;
 import com.tambapps.p2p.speer.greet.PeerGreeter;
 
 import java.io.IOException;
-import java.net.ServerSocket;
 import java.net.SocketException;
 import java.util.concurrent.Future;
 
@@ -27,8 +26,7 @@ public class SniffHandlerService {
             String deviceName = Build.MANUFACTURER + " " + Build.MODEL;
             greeter.addAvailablePeer(new SenderPeer(peer.getIp(), peer.getPort(), deviceName, fileName));
 
-
-            try (ServerPeer server = new ServerPeer(peer)) {
+            try (ServerPeer server = new ServerPeer(Peer.of(peer.getIp(), Fandem.GREETING_PORT))) {
                 greeter.greet(server);
             } catch (SocketException e) {
                 // probably just a cancel
