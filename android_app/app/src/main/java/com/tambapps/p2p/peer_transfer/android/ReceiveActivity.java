@@ -8,7 +8,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
@@ -16,43 +15,41 @@ import android.os.PersistableBundle;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
-import com.tambapps.p2p.fandem.Peer;
-import com.tambapps.p2p.fandem.exception.SniffException;
-import com.tambapps.p2p.fandem.sniff.PeerSniffer;
-import com.tambapps.p2p.fandem.sniff.SniffPeer;
+import com.tambapps.p2p.fandem.Fandem;
+import com.tambapps.p2p.fandem.SenderPeer;
+import com.tambapps.p2p.speer.Peer;
 import com.tambapps.p2p.peer_transfer.android.analytics.AnalyticsValues;
 import com.tambapps.p2p.peer_transfer.android.service.FileReceivingJobService;
 import com.tambapps.p2p.peer_transfer.android.task.PeerSnifferTask;
+import com.tambapps.p2p.speer.seek.PeerSeeker;
+import com.tambapps.p2p.speer.util.PeerUtils;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class ReceiveActivity extends PermissionActivity implements PeerSniffer.SniffListener {
+public class ReceiveActivity extends PermissionActivity implements PeerSeeker.SeekListener<SenderPeer> {
     private final static int WRITE_PERMISSION_REQUEST = 2;
 
     private final ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
@@ -61,7 +58,7 @@ public class ReceiveActivity extends PermissionActivity implements PeerSniffer.S
     private FirebaseAnalytics analytics;
     private String downloadPath;
 
-    private List<SniffPeer> peers = Collections.synchronizedList(new ArrayList<SniffPeer>());
+    private List<SenderPeer> peers = Collections.synchronizedList(new ArrayList<SenderPeer>());
     private RecyclerView.Adapter recyclerAdapter;
     private AsyncTask currentTask;
     private TextView loadingText;
@@ -117,7 +114,13 @@ public class ReceiveActivity extends PermissionActivity implements PeerSniffer.S
     }
 
     private void sniffPeersAsync() {
-        currentTask = new PeerSnifferTask(this, executorService).execute();
+        try {
+            currentTask = new PeerSnifferTask(this, executorService,
+                    PeerUtils.getIpAddress(), () -> runOnUiThread(() -> progressBar.setVisibility(View.INVISIBLE))).execute();
+        } catch (IOException e) {
+            Toast.makeText(this, "Couldn't start looking for senders (are you connected to the internet?)", Toast.LENGTH_SHORT).show();
+            progressBar.setVisibility(View.INVISIBLE);
+        }
     }
 
     public void startReceiving(Peer peer) {
@@ -127,7 +130,7 @@ public class ReceiveActivity extends PermissionActivity implements PeerSniffer.S
         PersistableBundle bundle = new PersistableBundle();
 
         bundle.putString("downloadPath", downloadPath);
-        bundle.putString("peer", peer.toHexString());
+        bundle.putString("peer", peer.toString());
 
         JobInfo.Builder jobInfoBuilder = new JobInfo.Builder(1,
                 new ComponentName(this, FileReceivingJobService.class))
@@ -150,8 +153,8 @@ public class ReceiveActivity extends PermissionActivity implements PeerSniffer.S
     }
 
     @Override
-    public void onPeerFound(SniffPeer peer) {
-        peers.add(peer);
+    public void onPeersFound(List<SenderPeer> peers) {
+        peers.addAll(peers);
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -195,18 +198,8 @@ public class ReceiveActivity extends PermissionActivity implements PeerSniffer.S
     }
 
     @Override
-    public void onError(SniffException e) {
+    public void onException(IOException e) {
         FirebaseCrashlytics.getInstance().recordException(e);
-    }
-
-    @Override
-    public void onEnd() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                progressBar.setVisibility(View.INVISIBLE);
-            }
-        });
     }
 
     public void receiveManually(View view) {
@@ -231,7 +224,7 @@ public class ReceiveActivity extends PermissionActivity implements PeerSniffer.S
 
             @Override
             public void afterTextChanged(Editable s) {
-                if (layout.getError() != null && Peer.isCorrectPeerKey(s.toString())) {
+                if (layout.getError() != null && Fandem.isCorrectPeerKey(s.toString())) {
                     layout.setError(null);
                 }
             }
@@ -245,10 +238,10 @@ public class ReceiveActivity extends PermissionActivity implements PeerSniffer.S
                     @Override
                     public void onClick(View view) {
                         String hexCode = editText.getText() == null ? "" : editText.getText().toString();
-                        layout.setError(Peer.isCorrectPeerKey(hexCode) ? null : getString(R.string.peer_key_malformed));
+                        layout.setError(Fandem.isCorrectPeerKey(hexCode) ? null : getString(R.string.peer_key_malformed));
                         if (layout.getError() == null) {
                             dialog.dismiss();
-                            startReceiving(Peer.fromHexString(hexCode));
+                            startReceiving(Fandem.parsePeerFromHexString(hexCode));
                         }
                     }
                 });
@@ -269,8 +262,7 @@ public class ReceiveActivity extends PermissionActivity implements PeerSniffer.S
 
         @Override
         public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
-            final SniffPeer discoveredPeer = peers.get(position);
-            final Peer peer = discoveredPeer.getPeer();
+            final SenderPeer discoveredPeer = peers.get(position);
             holder.position = position;
             holder.filenameText.setText(discoveredPeer.getFileName());
             holder.deviceNameText.setText(discoveredPeer.getDeviceName());
@@ -283,7 +275,7 @@ public class ReceiveActivity extends PermissionActivity implements PeerSniffer.S
                             .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                    startReceiving(peer);
+                                    startReceiving(discoveredPeer);
                                 }
                             })
                             .setNeutralButton(R.string.no, null)

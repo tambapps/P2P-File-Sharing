@@ -14,7 +14,8 @@ import android.util.Log;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
-import com.tambapps.p2p.fandem.Peer;
+import com.tambapps.p2p.fandem.FileReceiver;
+import com.tambapps.p2p.speer.Peer;
 
 import com.tambapps.p2p.fandem.util.FileUtils;
 import com.tambapps.p2p.peer_transfer.android.R;
@@ -26,8 +27,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.nio.channels.AsynchronousCloseException;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Created by fonkoua on 13/05/18.
@@ -69,7 +72,7 @@ public class FileReceivingJobService extends FileJobService {
 
     static class ReceivingTask extends FileTask {
 
-        private com.tambapps.p2p.fandem.task.ReceivingTask fileReceiver;
+        private FileReceiver fileReceiver;
         private String fileName;
         private FileIntentProvider fileIntentProvider;
 
@@ -91,21 +94,29 @@ public class FileReceivingJobService extends FileJobService {
             bundle.putString(FirebaseAnalytics.Param.METHOD, "RECEIVE");
 
             final String dirPath = params[0];
-            fileReceiver = new com.tambapps.p2p.fandem.task.ReceivingTask(this, new com.tambapps.p2p.fandem.task.FileProvider() {
-                @Override
-                public File newFile(String name) throws IOException {
-                    return FileUtils.newAvailableFile(dirPath, name);
-                }
-            });
+            fileReceiver = new FileReceiver(true, this);
 
             getNotifBuilder().setContentTitle(getString(R.string.connecting))
                     .setContentText(getString(R.string.connecting_to, params[1]));
             updateNotification();
 
+            // will be useful when file is partially written and an error occured
+            AtomicReference<File> outputFileReference = new AtomicReference<>();
             try {
-                fileReceiver.receiveFrom(Peer.fromHexString(params[1]));
-                final File file = fileReceiver.getOutputFile();
+                File file = fileReceiver.receiveFrom(Peer.parse(params[1]), (name) -> {
+                    File f = FileUtils.newAvailableFile(dirPath, name);
+                    outputFileReference.set(f);
+                    return f;
+                });
                 completeNotification(file);
+            } catch (SocketException e) {
+                // TODO verify if it works. It is supposed to happen when transfer is canceled (socket closed)
+                NotificationCompat.Builder builder = finishNotification()
+                        .setContentTitle(getString(R.string.transfer_canceled));
+                File file = outputFileReference.get();
+                if (file != null && file.exists() && !file.delete()) {
+                    builder.setStyle(notifStyle.bigText(getString(R.string.incomplete_transfer)));
+                }
             } catch (SocketTimeoutException e) {
                 finishNotification()
                         .setContentTitle(getString(R.string.transfer_canceled))
@@ -119,7 +130,7 @@ public class FileReceivingJobService extends FileJobService {
                 finishNotification()
                         .setContentTitle(getString(R.string.transfer_aborted))
                         .setStyle(notifStyle.bigText(getString(R.string.error_occured, e.getMessage())));
-                File file = fileReceiver.getOutputFile();
+                File file = outputFileReference.get();
                 if (file != null && file.exists() && !file.delete()) {
                     getNotifBuilder().setStyle(notifStyle.bigText(getString(R.string.error_incomplete)));
                 }
@@ -128,30 +139,22 @@ public class FileReceivingJobService extends FileJobService {
         }
 
         private void completeNotification(File file) {
-            if (fileReceiver.isCanceled()) {
-                NotificationCompat.Builder builder = finishNotification()
-                        .setContentTitle(getString(R.string.transfer_canceled));
-                if (file.exists() && !file.delete()) {
-                    builder.setStyle(notifStyle.bigText(getString(R.string.incomplete_transfer)));
-                }
-            } else {
-                finishNotification()
-                        .setContentTitle(getString(R.string.transfer_complete))
-                        .setContentIntent(fileIntentProvider.ofFile(file));
+            finishNotification()
+                    .setContentTitle(getString(R.string.transfer_complete))
+                    .setContentIntent(fileIntentProvider.ofFile(file));
 
-                Bitmap image = null;
-                if (isImage(file)) {
-                    try (InputStream inputStream = new FileInputStream(file)) {
-                        image = BitmapFactory.decodeStream(inputStream);
-                    } catch (IOException e) {
-                    }
+            Bitmap image = null;
+            if (isImage(file)) {
+                try (InputStream inputStream = new FileInputStream(file)) {
+                    image = BitmapFactory.decodeStream(inputStream);
+                } catch (IOException e) {
                 }
-                if (image != null) {
-                    getNotifBuilder().setStyle(new NotificationCompat.BigPictureStyle()
-                            .bigPicture(image).setSummaryText(fileName));
-                } else {
-                    getNotifBuilder().setStyle(notifStyle.bigText(getString(R.string.success_received, fileName)));
-                }
+            }
+            if (image != null) {
+                getNotifBuilder().setStyle(new NotificationCompat.BigPictureStyle()
+                        .bigPicture(image).setSummaryText(fileName));
+            } else {
+                getNotifBuilder().setStyle(notifStyle.bigText(getString(R.string.success_received, fileName)));
             }
         }
 
@@ -170,9 +173,10 @@ public class FileReceivingJobService extends FileJobService {
         }
         @Override
         public void cancel() {
-            if (!fileReceiver.isCanceled()) {
-                fileReceiver.cancel();
-            }
+            // TODO it is actually impossible to cancel a receive with this implementation
+            //   make FileReceiver accept PeerConnection instead of peer, so that I can close it
+            //   myself when I want to cancel
+//            fileReceiver.cancel();
         }
 
         @Override

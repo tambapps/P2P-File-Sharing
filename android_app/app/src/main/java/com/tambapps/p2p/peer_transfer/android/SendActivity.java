@@ -23,7 +23,9 @@ import android.widget.Toast;
 
 import com.google.firebase.analytics.FirebaseAnalytics;
 
-import com.tambapps.p2p.fandem.Peer;
+import com.tambapps.p2p.fandem.Fandem;
+import com.tambapps.p2p.fandem.SenderPeer;
+import com.tambapps.p2p.speer.Peer;
 import com.tambapps.p2p.peer_transfer.android.analytics.AnalyticsValues;
 import com.tambapps.p2p.peer_transfer.android.service.FileSendingJobService;
 import com.tambapps.p2p.peer_transfer.android.service.SendingEventBroadcastReceiver;
@@ -95,7 +97,7 @@ public class SendActivity extends AppCompatActivity {
     }
 
     private void sendContent(Peer peer) {
-        final String hexKey = peer.toHexString().toUpperCase();
+        final String hexKey = Fandem.toHexString(peer);
         TextView textView = findViewById(R.id.text_view);
         textView.setText((getString(R.string.started_send_service_message, hexKey)));
         textView.setGravity(Gravity.CENTER_HORIZONTAL);
@@ -122,7 +124,7 @@ public class SendActivity extends AppCompatActivity {
 
     private boolean sendFile(Uri uri, Peer peer) {
         PersistableBundle bundle = new PersistableBundle();
-        bundle.putString("peer", peer.toHexString());
+        bundle.putString("peer", peer.toString());
 
         Pair<String, Long> fileInfos = getFileInfos(uri);
         bundle.putString("fileUri", uri.toString());
@@ -185,7 +187,7 @@ public class SendActivity extends AppCompatActivity {
 
     private Peer getPeer() {
         try {
-            return Peer.getAvailablePeer();
+            return Peer.findAvailablePeer();
         } catch (IOException e) {
             Toast.makeText(this, this.getString(R.string.couldn_get_ip_address), Toast.LENGTH_SHORT).show();
             return null;

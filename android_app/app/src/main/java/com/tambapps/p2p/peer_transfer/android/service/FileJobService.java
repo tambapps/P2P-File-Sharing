@@ -17,8 +17,8 @@ import android.os.PersistableBundle;
 import androidx.core.app.NotificationCompat;
 
 import com.google.firebase.analytics.FirebaseAnalytics;
-import com.tambapps.p2p.fandem.Peer;
-import com.tambapps.p2p.fandem.listener.TransferListener;
+import com.tambapps.p2p.fandem.util.TransferListener;
+import com.tambapps.p2p.speer.Peer;
 import com.tambapps.p2p.peer_transfer.android.R;
 import com.tambapps.p2p.peer_transfer.android.service.event.TaskEventHandler;
 
@@ -158,14 +158,11 @@ public abstract class FileJobService extends JobService implements TaskEventHand
         }
 
         FileTask execute(final String... params) {
-            executor.submit(new Runnable() {
-                @Override
-                public void run() {
-                    FileTask.this.run(params);
-                    updateNotification();
-                    eventHandler.onEnd();
-                    dispose();
-                }
+            executor.submit(() -> {
+                FileTask.this.run(params);
+                updateNotification();
+                eventHandler.onEnd();
+                dispose();
             });
             return this;
         }

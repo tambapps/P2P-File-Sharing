@@ -17,8 +17,8 @@ android {
         }
     }
     compileOptions {
-        targetCompatibility = 1.7
-        sourceCompatibility = 1.7
+        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_1_8
     }
     buildToolsVersion = '28.0.3'
 }
@@ -29,6 +29,8 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'com.google.android.material:material:1.2.1'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
+    // for speer
+    implementation group: 'org.slf4j', name: 'slf4j-android', version: '1.7.30'
 
     // Crashlytics Import the BoM for the Firebase platform
     implementation platform('com.google.firebase:firebase-bom:26.3.0')

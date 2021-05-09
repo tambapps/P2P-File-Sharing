@@ -12,8 +12,9 @@ import androidx.core.app.NotificationCompat;
 
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
-import com.tambapps.p2p.fandem.Peer;
-import com.tambapps.p2p.fandem.listener.SendingListener;
+import com.tambapps.p2p.fandem.Fandem;
+import com.tambapps.p2p.fandem.FileSender;
+import com.tambapps.p2p.speer.Peer;
 
 import com.tambapps.p2p.peer_transfer.android.R;
 import com.tambapps.p2p.peer_transfer.android.analytics.AnalyticsValues;
@@ -23,6 +24,7 @@ import com.tambapps.p2p.peer_transfer.android.service.sniff.SniffHandlerService;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.SocketException;
 import java.net.SocketTimeoutException;
 
 /**
@@ -40,11 +42,11 @@ public class FileSendingJobService extends FileJobService implements SendingEven
                        PersistableBundle bundle,
                        PendingIntent cancelIntent, FirebaseAnalytics analytics) {
 
-        String peerHexCode = bundle.getString("peer");
+        String peerString = bundle.getString("peer");
         String fileName = bundle.getString("fileName");
-        sniffHandlerService.startInBackground(this, peerHexCode, fileName);
+        sniffHandlerService.startInBackground(this, peerString, fileName);
         return new SendingTask(this, notifBuilder, notificationManager, notifId, getContentResolver(), cancelIntent, analytics, sniffHandlerService)
-                .execute(peerHexCode,
+                .execute(peerString,
                         bundle.getString("fileUri"),
                         fileName,
                         bundle.getString("fileSize"));
@@ -60,10 +62,10 @@ public class FileSendingJobService extends FileJobService implements SendingEven
         return R.drawable.upload2;
     }
 
-    static class SendingTask extends FileTask implements SendingListener {
+    static class SendingTask extends FileTask {
 
         private final SniffHandlerService sniffHandlerService;
-        private com.tambapps.p2p.fandem.task.SendingTask fileSender;
+        private FileSender fileSender;
         private ContentResolver contentResolver;
         private String fileName;
 
@@ -84,23 +86,27 @@ public class FileSendingJobService extends FileJobService implements SendingEven
             bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, AnalyticsValues.SERVICE);
             bundle.putString(FirebaseAnalytics.Param.METHOD, "SEND");
 
-            fileSender = new com.tambapps.p2p.fandem.task.SendingTask(this, Peer.fromHexString(params[0]),
+            fileSender = new FileSender(Peer.parse(params[0]), this,
                     SOCKET_TIMEOUT);
             Uri fileUri = Uri.parse(params[1]);
             fileName = params[2];
             long fileSize = Long.parseLong(params[3]);
             crashlytics.setCustomKey(CrashlyticsValues.FILE_LENGTH, fileSize);
-            try {
-                fileSender.sendCancelSilent(contentResolver.openInputStream(fileUri), fileName, fileSize);
-                if (fileSender.isCanceled()) {
-                    finishNotification()
-                            .setContentTitle(getString(R.string.transfer_canceled));
-                    ((SendingEventHandler)eventHandler).onServiceTimeout();
 
-                } else {
-                    finishNotification().setContentTitle(getString(R.string.transfer_complete))
-                            .setStyle(notifStyle.bigText(getString(R.string.success_send, fileName)));
-                }
+            getNotifBuilder().setContentTitle(getString(R.string.waiting_connection))
+                    .setContentText(getString(R.string.waiting_connection_message, Fandem.toHexString(fileSender.getPeer())));
+            updateNotification();
+            try {
+                fileSender.send(contentResolver.openInputStream(fileUri), fileName, fileSize,
+                        () -> fileSender.computeChecksum(contentResolver.openInputStream(fileUri)));
+
+                finishNotification().setContentTitle(getString(R.string.transfer_complete))
+                        .setStyle(notifStyle.bigText(getString(R.string.success_send, fileName)));
+            } catch (SocketException e) {
+                // probably a cancel
+                finishNotification()
+                        .setContentTitle(getString(R.string.transfer_canceled));
+                ((SendingEventHandler)eventHandler).onServiceTimeout();
             } catch (SocketTimeoutException e) {
                 FirebaseCrashlytics.getInstance().recordException(e);
                 finishNotification()
@@ -128,9 +134,7 @@ public class FileSendingJobService extends FileJobService implements SendingEven
 
         @Override
         public void cancel() {
-            if (!fileSender.isCanceled()) {
-                fileSender.cancel();
-            }
+            fileSender.cancel();
         }
 
         @Override
@@ -147,12 +151,6 @@ public class FileSendingJobService extends FileJobService implements SendingEven
             sniffHandlerService.stop();
         }
 
-        @Override
-        public void onStart(Peer peer, String s) {
-            getNotifBuilder().setContentTitle(getString(R.string.waiting_connection))
-                    .setContentText(getString(R.string.waiting_connection_message, peer.toHexString()));
-            updateNotification();
-        }
     }
 
     @Override
