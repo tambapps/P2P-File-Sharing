@@ -36,6 +36,7 @@
             android:textColor="#fff"
             android:textSize="22sp"
             android:id="@+id/loading_text"
+            android:gravity="center"
             android:paddingBottom="40dp"
             />
         <androidx.swiperefreshlayout.widget.SwipeRefreshLayout

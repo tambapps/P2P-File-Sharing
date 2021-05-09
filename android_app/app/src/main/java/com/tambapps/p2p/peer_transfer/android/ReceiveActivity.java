@@ -27,7 +27,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -71,11 +70,11 @@ public class ReceiveActivity extends PermissionActivity implements PeerSeeker.Se
 
         downloadPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getPath();
         progressBar = findViewById(R.id.progress_bar);
+        loadingText = findViewById(R.id.loading_text);
 
         initializeRecyclerView();
         initializeRefreshLayout();
         sniffPeersAsync();
-        loadingText = findViewById(R.id.loading_text);
         if (!hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
             requestPermissionDialog(R.string.ask_write_permission_title,
                 R.string.ask_write_permission_message, Manifest.permission.WRITE_EXTERNAL_STORAGE);
@@ -98,28 +97,33 @@ public class ReceiveActivity extends PermissionActivity implements PeerSeeker.Se
     private void initializeRefreshLayout() {
         final SwipeRefreshLayout refreshLayout = findViewById(R.id.refresh_layout);
         refreshLayout.setColorSchemeColors(getResources().getColor(R.color.colorPrimaryDark));
-        refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                if (progressBar.getVisibility() == View.VISIBLE) { // if async task running
-                    return;
-                }
-                refreshLayout.setRefreshing(false);
-                progressBar.setVisibility(View.VISIBLE);
-                peers.clear();
-                recyclerAdapter.notifyDataSetChanged();
-                sniffPeersAsync();
+        refreshLayout.setOnRefreshListener(() -> {
+            if (progressBar.getVisibility() == View.VISIBLE) { // if async task running
+                return;
             }
+            refreshLayout.setRefreshing(false);
+            progressBar.setVisibility(View.VISIBLE);
+            peers.clear();
+            recyclerAdapter.notifyDataSetChanged();
+            sniffPeersAsync();
         });
     }
 
     private void sniffPeersAsync() {
         try {
             currentTask = new PeerSnifferTask(this, executorService,
-                    PeerUtils.getIpAddress(), () -> runOnUiThread(() -> progressBar.setVisibility(View.INVISIBLE))).execute();
+                    PeerUtils.getIpAddress(), () -> runOnUiThread(() -> runOnUiThread(this::onSniffEnd))).execute();
+            loadingText.setText(R.string.loading_sending_peers);
         } catch (IOException e) {
-            Toast.makeText(this, "Couldn't start looking for senders (are you connected to the internet?)", Toast.LENGTH_SHORT).show();
             progressBar.setVisibility(View.INVISIBLE);
+            loadingText.setText(R.string.no_internet);
+        }
+    }
+
+    private void onSniffEnd() {
+        progressBar.setVisibility(View.INVISIBLE);
+        if (this.peers.isEmpty()) {
+            loadingText.setText(R.string.no_sender_found);
         }
     }
 
@@ -154,36 +158,33 @@ public class ReceiveActivity extends PermissionActivity implements PeerSeeker.Se
 
     @Override
     public void onPeersFound(List<SenderPeer> peers) {
-        peers.addAll(peers);
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                recyclerAdapter.notifyDataSetChanged();
-                if (loadingText.getAlpha() >= 1f) {
-                    loadingText.animate().alpha(0).setDuration(250)
-                            .setListener(new Animator.AnimatorListener() {
-                                @Override
-                                public void onAnimationStart(Animator animation) {
+        this.peers.addAll(peers);
+        runOnUiThread(() -> {
+            recyclerAdapter.notifyDataSetChanged();
+            if (loadingText.getAlpha() >= 1f) {
+                loadingText.animate().alpha(0).setDuration(250)
+                        .setListener(new Animator.AnimatorListener() {
+                            @Override
+                            public void onAnimationStart(Animator animation) {
 
-                                }
+                            }
 
-                                @Override
-                                public void onAnimationEnd(Animator animation) {
-                                    loadingText.setVisibility(View.GONE);
-                                }
+                            @Override
+                            public void onAnimationEnd(Animator animation) {
+                                loadingText.setVisibility(View.GONE);
+                            }
 
-                                @Override
-                                public void onAnimationCancel(Animator animation) {
+                            @Override
+                            public void onAnimationCancel(Animator animation) {
 
-                                }
+                            }
 
-                                @Override
-                                public void onAnimationRepeat(Animator animation) {
+                            @Override
+                            public void onAnimationRepeat(Animator animation) {
 
-                                }
-                            })
-                            .start();
-                }
+                            }
+                        })
+                        .start();
             }
         });
     }
