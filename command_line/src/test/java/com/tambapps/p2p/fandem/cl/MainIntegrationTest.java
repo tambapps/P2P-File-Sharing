@@ -1,5 +1,6 @@
 package com.tambapps.p2p.fandem.cl;
 
+import com.tambapps.p2p.fandem.Fandem;
 import com.tambapps.p2p.fandem.SenderPeer;
 import com.tambapps.p2p.fandem.cl.command.ReceiveCommand;
 import com.tambapps.p2p.speer.Peer;
@@ -23,7 +24,7 @@ import static org.mockito.Mockito.when;
 public class MainIntegrationTest {
 
 	private static final String IP_ADDRESS = "127.0.0.1";
-	private static final String IP_ADDRESS_HEX_STRING = SenderPeer.toHexString(IP_ADDRESS);
+	private static final String IP_ADDRESS_HEX_STRING = Fandem.toHexString(IP_ADDRESS);
 	private static final String SNIFF_IP_ADDRESS = "127.0.0.2";
 
 	@Test

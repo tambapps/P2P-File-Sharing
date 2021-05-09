@@ -90,7 +90,7 @@ public class Main implements TransferListener {
 			for (File file : command.getFiles()) {
 				try {
 					System.out.println("Sending " + file.getName());
-					System.out.format("Waiting for a connection on %s (hex string %s)", sender.getPeer(), SenderPeer.toHexString(sender.getPeer()))
+					System.out.format("Waiting for a connection on %s (hex string %s)", sender.getPeer(), Fandem.toHexString(sender.getPeer()))
 					.println();
 					sender.send(file);
 					System.out.println();
@@ -152,9 +152,7 @@ public class Main implements TransferListener {
 	}
 
 	private SenderPeer seekSendingPeer(Scanner scanner, InetAddress address) {
-		PeerSeeker<SenderPeer> seeker = new PeerSeeker<>(Fandem.seeking(), null, new FandemHandshake());
-		SeekedPeerSupplier<SenderPeer> sniffSupplier = new SeekedPeerSupplier<>(executor,
-				new LastOctetSeekingStrategy(address, Fandem.GREETING_PORT), seeker);
+		SeekedPeerSupplier<SenderPeer> sniffSupplier = Fandem.seekSupplier(executor, address);
 		while (true) {
 			try {
 				SenderPeer sniffPeer = sniffSupplier.get();
