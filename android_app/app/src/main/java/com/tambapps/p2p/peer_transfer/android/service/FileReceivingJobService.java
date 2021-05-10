@@ -19,7 +19,6 @@ import com.tambapps.p2p.speer.Peer;
 
 import com.tambapps.p2p.fandem.util.FileUtils;
 import com.tambapps.p2p.peer_transfer.android.R;
-import com.tambapps.p2p.peer_transfer.android.analytics.AnalyticsValues;
 import com.tambapps.p2p.peer_transfer.android.analytics.CrashlyticsValues;
 import com.tambapps.p2p.peer_transfer.android.service.event.TaskEventHandler;
 import com.tambapps.p2p.speer.exception.HandshakeFailException;
@@ -78,6 +77,7 @@ public class FileReceivingJobService extends FileJobService {
         private FileIntentProvider fileIntentProvider;
         // will be useful when file is partially written and an error occurred
         private final AtomicReference<File> outputFileReference = new AtomicReference<>();
+        private long startTime;
 
         ReceivingTask(TaskEventHandler taskEventHandler, NotificationCompat.Builder notifBuilder,
                       NotificationManager notificationManager,
@@ -92,9 +92,6 @@ public class FileReceivingJobService extends FileJobService {
         protected void run(String... params) { //downloadPath, peer
             FirebaseCrashlytics crashlytics = FirebaseCrashlytics.getInstance();
             crashlytics.setCustomKey(CrashlyticsValues.SHARING_ROLE, "RECEIVER");
-            Bundle bundle = new Bundle();
-            bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, AnalyticsValues.SERVICE);
-            bundle.putString(FirebaseAnalytics.Param.METHOD, "RECEIVE");
 
             final String dirPath = params[0];
             fileReceiver = new FileReceiver(true, this);
@@ -110,6 +107,11 @@ public class FileReceivingJobService extends FileJobService {
                     return f;
                 });
                 completeNotification(file);
+                Bundle bundle = new Bundle();
+                bundle.putString(FirebaseAnalytics.Param.METHOD, "RECEIVE");
+                bundle.putLong("size", file.length());
+                bundle.putLong("duration", System.currentTimeMillis() - startTime);
+                getAnalytics().logEvent(FirebaseAnalytics.Event.SHARE, bundle);
             } catch (HandshakeFailException e) {
                 finishNotification()
                         .setContentTitle(getString(R.string.couldnt_start))
@@ -139,7 +141,6 @@ public class FileReceivingJobService extends FileJobService {
                     getNotifBuilder().setStyle(notifStyle.bigText(getString(R.string.error_incomplete)));
                 }
             }
-            getAnalytics().logEvent(FirebaseAnalytics.Event.SHARE, bundle);
         }
 
         private void completeNotification(File file) {
@@ -193,6 +194,7 @@ public class FileReceivingJobService extends FileJobService {
         @Override
         public String onConnected(String remoteAddress, String fileName, long fileSize) {
             this.fileName = fileName;
+            this.startTime = System.currentTimeMillis();
             FirebaseCrashlytics.getInstance().setCustomKey(CrashlyticsValues.FILE_LENGTH, fileSize);
             return getString(R.string.receveiving_connected, fileName);
         }

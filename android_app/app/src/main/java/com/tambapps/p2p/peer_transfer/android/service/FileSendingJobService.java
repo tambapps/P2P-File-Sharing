@@ -17,7 +17,6 @@ import com.tambapps.p2p.fandem.FileSender;
 import com.tambapps.p2p.speer.Peer;
 
 import com.tambapps.p2p.peer_transfer.android.R;
-import com.tambapps.p2p.peer_transfer.android.analytics.AnalyticsValues;
 import com.tambapps.p2p.peer_transfer.android.analytics.CrashlyticsValues;
 import com.tambapps.p2p.peer_transfer.android.service.event.SendingEventHandler;
 import com.tambapps.p2p.peer_transfer.android.service.sniff.SniffHandlerService;
@@ -69,6 +68,7 @@ public class FileSendingJobService extends FileJobService implements SendingEven
         private FileSender fileSender;
         private ContentResolver contentResolver;
         private String fileName;
+        private long startTime;
 
         SendingTask(SendingEventHandler eventHandler, NotificationCompat.Builder notifBuilder,
                     NotificationManager notificationManager,
@@ -83,9 +83,6 @@ public class FileSendingJobService extends FileJobService implements SendingEven
         void run(String... params) {
             FirebaseCrashlytics crashlytics = FirebaseCrashlytics.getInstance();
             crashlytics.setCustomKey(CrashlyticsValues.SHARING_ROLE, "SENDER");
-            Bundle bundle = new Bundle();
-            bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, AnalyticsValues.SERVICE);
-            bundle.putString(FirebaseAnalytics.Param.METHOD, "SEND");
 
             fileSender = new FileSender(Peer.parse(params[0]), this,
                     SOCKET_TIMEOUT);
@@ -103,6 +100,12 @@ public class FileSendingJobService extends FileJobService implements SendingEven
 
                 finishNotification().setContentTitle(getString(R.string.transfer_complete))
                         .setStyle(notifStyle.bigText(getString(R.string.success_send, fileName)));
+
+                Bundle bundle = new Bundle();
+                bundle.putString(FirebaseAnalytics.Param.METHOD, "SEND");
+                bundle.putLong("size", fileSize);
+                bundle.putLong("duration", System.currentTimeMillis() - startTime);
+                getAnalytics().logEvent(FirebaseAnalytics.Event.SHARE, bundle);
             } catch (HandshakeFailException e) {
                 finishNotification()
                         .setContentTitle(getString(R.string.couldnt_start))
@@ -132,8 +135,6 @@ public class FileSendingJobService extends FileJobService implements SendingEven
                         .setContentTitle(getString(R.string.transfer_aborted))
                         .setContentText(getString(R.string.coudlnt_send));
             }
-
-            getAnalytics().logEvent(FirebaseAnalytics.Event.SHARE, bundle);
         }
 
         @Override
@@ -143,6 +144,7 @@ public class FileSendingJobService extends FileJobService implements SendingEven
 
         @Override
         public String onConnected(String remoteAddress, String fileName, long fileSize) {
+            this.startTime = System.currentTimeMillis();
             ((SendingEventHandler)eventHandler).onServiceStarted();
             sniffHandlerService.stop();
             return getString(R.string.sending_connected, fileName);

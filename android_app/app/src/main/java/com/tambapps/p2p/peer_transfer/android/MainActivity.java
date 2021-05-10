@@ -28,7 +28,6 @@ public class MainActivity extends AppCompatActivity implements OnInitializationC
     public static final String RETURN_TEXT_KEY = "rtk";
     private static final int START_FILE_SERVICE = 888;
 
-    private FirebaseAnalytics analytics;
     private Snackbar snackbar;
     private InterstitialAd mInterstitialAd;
     private boolean backPressed;
@@ -37,7 +36,6 @@ public class MainActivity extends AppCompatActivity implements OnInitializationC
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        analytics = FirebaseAnalytics.getInstance(this);
 
         MobileAds.initialize(this, this);
         loadInterstitiel();
@@ -91,7 +89,6 @@ public class MainActivity extends AppCompatActivity implements OnInitializationC
     }
 
     public void sendIntent(View view) {
-        logScreenEvent("SEND");
         startActivityForResult(new Intent(this, SendActivity.class), START_FILE_SERVICE);
     }
 
@@ -99,15 +96,7 @@ public class MainActivity extends AppCompatActivity implements OnInitializationC
         startActivity(new Intent(this, HelpActivity.class));
     }
 
-    private void logScreenEvent(String name) {
-        Bundle bundle = new Bundle();
-        bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "SCREEN");
-        bundle.putString(FirebaseAnalytics.Param.CONTENT, name);
-        analytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
-
-    }
     public void receiveIntent(View view) {
-        logScreenEvent("RECEIVE");
         startActivityForResult(new Intent(this, ReceiveActivity.class), START_FILE_SERVICE);
     }
 

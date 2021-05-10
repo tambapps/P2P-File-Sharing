@@ -127,6 +127,14 @@ public class ReceiveActivity extends PermissionActivity implements PeerSeeker.Se
     }
 
     public void startReceiving(Peer peer) {
+        // analytics
+        Bundle analyticsBundle = new Bundle();
+        analyticsBundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "sought peer");
+        if (peer instanceof SenderPeer) {
+            // TODO add file size to it and
+        }
+        analytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, analyticsBundle);
+
         JobScheduler jobScheduler =
                 (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
 
