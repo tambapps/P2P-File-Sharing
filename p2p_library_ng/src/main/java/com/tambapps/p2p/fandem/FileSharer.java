@@ -1,9 +1,12 @@
 package com.tambapps.p2p.fandem;
 
+import static com.tambapps.p2p.fandem.util.FileUtils.bytesToHex;
+
 import com.tambapps.p2p.fandem.exception.SharingException;
 import com.tambapps.p2p.fandem.util.TransferListener;
 import lombok.AllArgsConstructor;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -52,14 +55,18 @@ public abstract class FileSharer {
   }
 
   public String computeChecksum(InputStream inputStream) throws IOException {
-    MessageDigest md = null;
+    byte[] buffer= new byte[DEFAULT_BUFFER_SIZE];
+    int count;
+    MessageDigest digest = null;
     try {
-      md = MessageDigest.getInstance("MD5");
+      digest = MessageDigest.getInstance("SHA-256");
     } catch (NoSuchAlgorithmException e) {
       throw new IOException("Couldn't find MD5 algorithm", e);
     }
-    try (DigestInputStream dis = new DigestInputStream(inputStream, md)) {
-      return new String(md.digest());
+    while ((count = inputStream.read(buffer)) > 0) {
+      digest.update(buffer, 0, count);
     }
+    byte[] hash = digest.digest();
+    return bytesToHex(hash);
   }
 }
