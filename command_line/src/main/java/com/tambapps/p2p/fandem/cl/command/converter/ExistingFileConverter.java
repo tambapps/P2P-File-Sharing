@@ -4,7 +4,7 @@ import com.beust.jcommander.ParameterException;
 
 import java.io.File;
 
-public class FileConverter extends AbstractFileConverter {
+public class ExistingFileConverter extends AbstractFileConverter {
 
   @Override
   protected void validate(File file) {

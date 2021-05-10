@@ -4,8 +4,8 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 
 import com.tambapps.p2p.fandem.cl.command.converter.AddressConverter;
-import com.tambapps.p2p.fandem.cl.command.converter.FileConverter;
-import com.tambapps.p2p.speer.util.IPUtils;
+import com.tambapps.p2p.fandem.cl.command.converter.ExistingFileConverter;
+import com.tambapps.p2p.speer.util.PeerUtils;
 
 import java.io.File;
 import java.net.InetAddress;
@@ -16,7 +16,7 @@ import java.util.Optional;
 public class SendCommand {
 
     @Parameter(description = "path of the file to send", required = true,
-        converter = FileConverter.class)
+        converter = ExistingFileConverter.class)
     private List<File> files;
 
     @Parameter(names = "-ip", description = "the ip used to send (optional)",
@@ -34,7 +34,7 @@ public class SendCommand {
     }
 
     public Optional<InetAddress> getIp() {
-        return Optional.ofNullable(ip != null ? ip : IPUtils.getIpAddressOrNull());
+        return Optional.ofNullable(ip != null ? ip : PeerUtils.getIpAddressOrNull());
     }
 
     public Optional<Integer> getPort() {

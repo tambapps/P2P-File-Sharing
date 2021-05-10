@@ -111,7 +111,7 @@ public class Main implements TransferListener {
 	void receive(ReceiveCommand receiveCommand) {
 		Peer peer = receiveCommand.getPeer().orElseGet(this::seekSendingPeer);
 		if (peer != null) {
-			Receiver receiver = new Receiver(peer, receiveCommand.getDownloadDirectory(), this);
+			Receiver receiver = new Receiver(peer, receiveCommand.getDownloadFile(), this);
 			for (int i = 0; i < receiveCommand.getCount(); i++) {
 				System.out.println("Connecting to " + peer);
 				try {

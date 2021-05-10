@@ -12,17 +12,18 @@ public class Receiver {
 
   private final Peer senderPeer;
   private final FileReceiver fileReceiver;
-  private final File directory;
+  private final File downloadFile;
 
-  public Receiver(Peer senderPeer, File directory, TransferListener listener) {
+  public Receiver(Peer senderPeer, File downloadFile, TransferListener listener) {
     this.senderPeer = senderPeer;
     this.fileReceiver = new FileReceiver(listener);
-    this.directory = directory;
+    this.downloadFile = downloadFile;
   }
 
   public File receive() throws IOException {
-    return fileReceiver.receiveFrom(senderPeer,
-        FileUtils.availableFileInDirectoryProvider(directory));
+    return downloadFile.isDirectory() ? fileReceiver.receiveFrom(senderPeer,
+        FileUtils.availableFileInDirectoryProvider(downloadFile)) :
+        fileReceiver.receiveFrom(senderPeer, downloadFile);
   }
 
 }

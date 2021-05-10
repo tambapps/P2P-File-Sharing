@@ -1,9 +1,7 @@
 package com.tambapps.p2p.fandem.cl;
 
 import com.tambapps.p2p.fandem.Fandem;
-import com.tambapps.p2p.fandem.SenderPeer;
 import com.tambapps.p2p.fandem.cl.command.ReceiveCommand;
-import com.tambapps.p2p.speer.Peer;
 import org.junit.After;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -15,9 +13,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.URLDecoder;
+import java.nio.file.Files;
 import java.util.Optional;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
@@ -27,14 +26,16 @@ public class MainIntegrationTest {
 	private static final String IP_ADDRESS_HEX_STRING = Fandem.toHexString(IP_ADDRESS);
 	private static final String SNIFF_IP_ADDRESS = "127.0.0.2";
 
+	private static final File OUTPUT_FILE = new File("./file-received.txt");
+
 	@Test
 	public void transferTest() throws Exception {
-		test(() -> Main.main(String.format("receive -d=./ -peer=%s:8081", IP_ADDRESS).split(" ")));
+		test(() -> Main.main(String.format("receive -d=%s -peer=%s:8081", OUTPUT_FILE, IP_ADDRESS).split(" ")));
 	}
 
 	@Test
 	public void transferTestHexString() throws Exception {
-		test(() -> Main.main(String.format("receive -d=./ -peer=%s", IP_ADDRESS_HEX_STRING).split(" ")));
+		test(() -> Main.main(String.format("receive -d=%s -peer=%s", OUTPUT_FILE, IP_ADDRESS_HEX_STRING).split(" ")));
 	}
 
 	// run these test individually (weird but when we run all test, this ne fails)
@@ -53,8 +54,8 @@ public class MainIntegrationTest {
 				.thenReturn(1);
 		when(command.getPeer())
 				.thenReturn(Optional.empty());
-		when(command.getDownloadDirectory())
-				.thenReturn(new File("./"));
+		when(command.getDownloadFile())
+				.thenReturn(OUTPUT_FILE);
 		test(() -> receiveMain.receive(command));
 	}
 
@@ -69,21 +70,19 @@ public class MainIntegrationTest {
 		Thread.sleep(1000);
 
 		File originFile = new File(URLDecoder.decode(filePath, "UTF-8"));
-		File file = new File("./file.txt");
 
 		receiveRunnable.run();
 
-		assertNotNull("Shouldn't be null", file);
-		assertTrue("Didn't correctly downloaded file", file.exists());
-		assertTrue("Content of received file differs from origin file",
-				contentEquals(originFile, file));
+		assertTrue("Didn't correctly downloaded file", OUTPUT_FILE.exists());
+
+		assertEquals("Content of received file differs from origin file",
+				Files.readString(originFile.toPath()), Files.readString(OUTPUT_FILE.toPath()));
 	}
 
 	@After
 	public void dispose() {
-		File file = new File("./file.txt");
-		if (file.exists()) {
-			file.delete();
+		if (OUTPUT_FILE.exists()) {
+			OUTPUT_FILE.delete();
 		}
 	}
 
