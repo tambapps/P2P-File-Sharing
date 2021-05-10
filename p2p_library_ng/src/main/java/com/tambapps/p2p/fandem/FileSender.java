@@ -2,10 +2,12 @@ package com.tambapps.p2p.fandem;
 
 import com.tambapps.p2p.fandem.handshake.FandemReceiverHandshake;
 import com.tambapps.p2p.fandem.handshake.FandemSenderHandshake;
+import com.tambapps.p2p.fandem.handshake.ReceiverHandshakeData;
 import com.tambapps.p2p.fandem.util.TransferListener;
 import com.tambapps.p2p.speer.Peer;
 import com.tambapps.p2p.speer.PeerConnection;
 import com.tambapps.p2p.speer.ServerPeer;
+import com.tambapps.p2p.speer.handshake.Handshake;
 import lombok.Getter;
 
 import java.io.File;
@@ -33,7 +35,7 @@ public class FileSender extends FileSharer {
   }
 
   public FileSender(Peer peer, TransferListener listener, int socketTimeout) {
-    super(new FandemSenderHandshake(BUFFER_SIZE), listener);
+    super(listener);
     this.peer = peer;
     this.socketTimeout = socketTimeout;
   }
@@ -46,14 +48,15 @@ public class FileSender extends FileSharer {
 
     public void send(InputStream inputStream, String fileName, long fileSize,
       Callable<String> checksumSupplier) throws IOException {
-    try (ServerPeer server = serverPeer();
+
+    try (ServerPeer server = serverPeer(new FandemSenderHandshake(fileName, fileSize));
         PeerConnection connection = server.accept()) {
       if (listener != null) {
-        listener.onConnected(connection.getSelfPeer(), connection.getConnectedPeer(), fileName, fileSize);
+        listener.onConnected(connection.getSelfPeer(), connection.getPeer(), fileName, fileSize);
       }
-      connection.writeLong(fileSize);
-      connection.writeUTF(fileName);
-      if (connection.getAttribute(FandemReceiverHandshake.CHECKSUM_KEY)) {
+      ReceiverHandshakeData data = connection.getHandshakeData();
+      // TODO move checksum to handshake
+      if (data.isSendChecksum()) {
         try {
           connection.writeUTF(checksumSupplier.call());
         } catch (Exception e) {
@@ -77,7 +80,7 @@ public class FileSender extends FileSharer {
     }
   }
 
-  private ServerPeer serverPeer() throws IOException {
+  private ServerPeer serverPeer(Handshake handshake) throws IOException {
     ServerPeer server = new ServerPeer(peer, handshake);
     server.setAcceptTimeout(socketTimeout);
     serverReference.set(server);

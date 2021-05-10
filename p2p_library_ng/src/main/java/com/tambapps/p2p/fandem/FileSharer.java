@@ -20,7 +20,6 @@ public abstract class FileSharer {
 
   private static final int MAX_PROGRESS = 100;
 
-  protected final Handshake handshake;
   protected final TransferListener listener;
 
   protected void share(InputStream inputStream, OutputStream outputStream, int bufferSize,

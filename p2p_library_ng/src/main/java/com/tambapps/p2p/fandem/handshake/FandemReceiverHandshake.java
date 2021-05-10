@@ -6,17 +6,25 @@ import java.util.Map;
 
 public class FandemReceiverHandshake extends FandemHandshake {
 
-  public static final String CHECKSUM_KEY = "checksum";
+  public static final String SEND_CHECKSUM_KEY = "send_checksum";
 
   public FandemReceiverHandshake(boolean checksum) {
-    super(newMap(CHECKSUM_KEY, checksum));
+    super(newMap(SEND_CHECKSUM_KEY, checksum));
   }
 
   @Override
   protected void validate(Map<String, Object> properties) throws HandshakeFailException {
     super.validate(properties);
-    if (!(properties.get(FandemSenderHandshake.BUFFER_SIZE_KEY) instanceof Integer)) {
-      throw new HandshakeFailException("Sender should send buffer_size(integer)");
+    if (!(properties.get(FandemSenderHandshake.FILE_NAME_KEY) instanceof String)) {
+      throw new HandshakeFailException("Sender should send file_name (string)");
     }
+    if (!(properties.get(FandemSenderHandshake.FILE_SIZE_KEY) instanceof Long)) {
+      throw new HandshakeFailException("Sender should send file_size (long)");
+    }
+  }
+
+  @Override
+  protected Object map(Map<String, Object> properties) {
+    return SenderHandshakeData.from(properties);
   }
 }

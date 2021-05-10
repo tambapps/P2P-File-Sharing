@@ -3,10 +3,12 @@ package com.tambapps.p2p.fandem;
 import com.tambapps.p2p.fandem.exception.CorruptedFileException;
 import com.tambapps.p2p.fandem.handshake.FandemReceiverHandshake;
 import com.tambapps.p2p.fandem.handshake.FandemSenderHandshake;
+import com.tambapps.p2p.fandem.handshake.SenderHandshakeData;
 import com.tambapps.p2p.fandem.util.FileProvider;
 import com.tambapps.p2p.fandem.util.TransferListener;
 import com.tambapps.p2p.speer.Peer;
 import com.tambapps.p2p.speer.PeerConnection;
+import com.tambapps.p2p.speer.handshake.Handshake;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -18,6 +20,8 @@ public class FileReceiver extends FileSharer {
 
   private final boolean withChecksum;
   private final AtomicReference<PeerConnection> connectionReference = new AtomicReference<>();
+  private final Handshake handshake;
+  private final int bufferSize;
 
   public FileReceiver() {
     this(true, null);
@@ -26,13 +30,19 @@ public class FileReceiver extends FileSharer {
   public FileReceiver(TransferListener listener) {
     this(true, listener);
   }
+
   public FileReceiver(boolean withChecksum) {
     this(withChecksum, null);
   }
 
   public FileReceiver(boolean withChecksum, TransferListener listener) {
-    super(new FandemReceiverHandshake(withChecksum), listener);
+    this(withChecksum, listener, 1024);
+  }
+  public FileReceiver(boolean withChecksum, TransferListener listener, int bufferSize) {
+    super(listener);
     this.withChecksum = withChecksum;
+    this.handshake = new FandemReceiverHandshake(withChecksum);
+    this.bufferSize = bufferSize;
   }
 
   public File receiveFrom(Peer peer, File file) throws IOException {
@@ -42,11 +52,11 @@ public class FileReceiver extends FileSharer {
   public File receiveFrom(Peer peer, FileProvider fileProvider) throws IOException {
     try (PeerConnection connection = PeerConnection.from(peer, handshake)) {
       connectionReference.set(connection);
-      long totalBytes = connection.readLong();
-      String fileName = connection.readUTF();
-      int bufferSize = connection.getAttribute(FandemSenderHandshake.BUFFER_SIZE_KEY);
+      SenderHandshakeData data = connection.getHandshakeData();
+      long totalBytes = data.getFileSize();
+      String fileName = data.getFileName();
       if (listener != null) {
-        listener.onConnected(connection.getSelfPeer(), connection.getConnectedPeer(), fileName, totalBytes);
+        listener.onConnected(connection.getSelfPeer(), connection.getPeer(), fileName, totalBytes);
       }
       Optional<String> optExpectedChecksum = withChecksum ?
           Optional.of(connection.readUTF()) : Optional.empty();
