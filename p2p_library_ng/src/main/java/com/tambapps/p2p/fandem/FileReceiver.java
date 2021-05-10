@@ -1,7 +1,6 @@
 package com.tambapps.p2p.fandem;
 
 import com.tambapps.p2p.fandem.exception.CorruptedFileException;
-import com.tambapps.p2p.fandem.exception.ReceiverIOException;
 import com.tambapps.p2p.fandem.handshake.FandemReceiverHandshake;
 import com.tambapps.p2p.fandem.handshake.SenderHandshakeData;
 import com.tambapps.p2p.fandem.util.FileProvider;
@@ -62,19 +61,15 @@ public class FileReceiver extends FileSharer {
       if (!outputFile.exists() && !outputFile.createNewFile()) {
         throw new IOException("Couldn't create file " + outputFile);
       }
-      try {
-        try (FileOutputStream fos = new FileOutputStream(outputFile)) {
-          share(connection.getInputStream(), fos, bufferSize, totalBytes);
+      try (FileOutputStream fos = new FileOutputStream(outputFile)) {
+        share(connection.getInputStream(), fos, bufferSize, totalBytes);
+      }
+      if (optExpectedChecksum.isPresent()) {
+        String expectedChecksum = optExpectedChecksum.get();
+        String actualChecksum = computeChecksum(outputFile);
+        if (!expectedChecksum.equals(actualChecksum)) {
+          throw new CorruptedFileException(outputFile);
         }
-        if (optExpectedChecksum.isPresent()) {
-          String expectedChecksum = optExpectedChecksum.get();
-          String actualChecksum = computeChecksum(outputFile);
-          if (!expectedChecksum.equals(actualChecksum)) {
-            throw new CorruptedFileException(outputFile);
-          }
-        }
-      } catch (IOException e) {
-        throw new ReceiverIOException(e, outputFile);
       }
       return outputFile;
     }
