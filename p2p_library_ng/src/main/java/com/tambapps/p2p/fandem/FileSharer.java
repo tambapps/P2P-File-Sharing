@@ -6,13 +6,11 @@ import com.tambapps.p2p.fandem.exception.SharingException;
 import com.tambapps.p2p.fandem.util.TransferListener;
 import lombok.AllArgsConstructor;
 
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -44,7 +42,7 @@ public abstract class FileSharer {
     if (bytesProcessed != totalBytes) {
       throw new SharingException("Transfer was not properly finished");
     } else if (listener != null) {
-       listener.onProgressUpdate(MAX_PROGRESS, totalBytes, totalBytes);
+      listener.onProgressUpdate(MAX_PROGRESS, totalBytes, totalBytes);
     }
   }
 
@@ -55,7 +53,7 @@ public abstract class FileSharer {
   }
 
   public String computeChecksum(InputStream inputStream) throws IOException {
-    byte[] buffer= new byte[DEFAULT_BUFFER_SIZE];
+    byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
     int count;
     MessageDigest digest = null;
     try {

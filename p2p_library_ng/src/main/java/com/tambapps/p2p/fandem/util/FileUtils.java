@@ -11,6 +11,7 @@ public class FileUtils {
 
   /**
    * Display size of bytes with a appropriate unit
+   *
    * @param bytes the bytes to display
    * @return a String representing the bytes in the appropriate unit
    */
@@ -23,9 +24,10 @@ public class FileUtils {
       denominator *= 1024;
       i++;
     }
-    float fileSize = ((float)bytes)/((float)denominator);
+    float fileSize = ((float) bytes) / ((float) denominator);
     int fileSizeInt = (int) fileSize;
-    return String.format(Locale.US, "%s %s", fileSizeInt == fileSize ? fileSizeInt : String.format("%.1f", fileSize),
+    return String.format(Locale.US, "%s %s",
+        fileSizeInt == fileSize ? fileSizeInt : String.format("%.1f", fileSize),
         i == 0 ? "bytes" : units.charAt(i - 1) + "B");
   }
 
@@ -33,8 +35,9 @@ public class FileUtils {
    * provide a non-existing file in the given directory with the given name if it does not exists.
    * If a file with the given name exits, it will look for a non-existing file with the following name
    * fileName_xxx with xxx a number
+   *
    * @param directory the directory in which to get the file
-   * @param name the name wanted of the file
+   * @param name      the name wanted of the file
    * @return an non-existing file in the given directory with a name starting with to the given one
    * @throws IOException in case of I/O error
    */
@@ -82,7 +85,7 @@ public class FileUtils {
     StringBuilder hexString = new StringBuilder(2 * hash.length);
     for (int i = 0; i < hash.length; i++) {
       String hex = Integer.toHexString(0xff & hash[i]);
-      if(hex.length() == 1) {
+      if (hex.length() == 1) {
         hexString.append('0');
       }
       hexString.append(hex);

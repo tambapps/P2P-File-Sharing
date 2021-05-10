@@ -38,7 +38,7 @@ public class FandemReceiverHandshake extends FandemHandshake {
     }
 
     if (checksum &&
-    !(properties.get(FandemSenderHandshake.CHECKSUM_KEY) instanceof String)) {
+        !(properties.get(FandemSenderHandshake.CHECKSUM_KEY) instanceof String)) {
       throw new HandshakeFailException("Sender should send checksum (string)");
     }
 

@@ -5,7 +5,6 @@ import java.io.IOException;
 
 /**
  * util IO Exception thrown AFTER the output file was created
- *
  */
 public class ReceiverIOException extends IOException {
 

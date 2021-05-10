@@ -42,6 +42,7 @@ public class FandemSenderHandshake extends FandemHandshake {
       throw new IOException("Couldn't compute checksum", e);
     }
   }
+
   @Override
   protected void validate(Map<String, Object> properties) throws HandshakeFailException {
     super.validate(properties);

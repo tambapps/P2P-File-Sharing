@@ -26,6 +26,7 @@ public class FileSender extends FileSharer {
   public FileSender(Peer peer) {
     this(peer, null);
   }
+
   public FileSender(Peer peer, TransferListener listener) {
     this(peer, listener, 0);
   }
@@ -42,9 +43,10 @@ public class FileSender extends FileSharer {
     }
   }
 
-    public void send(InputStream inputStream, String fileName, long fileSize,
+  public void send(InputStream inputStream, String fileName, long fileSize,
       Callable<String> checksumSupplier) throws IOException {
-    try (ServerPeer server = serverPeer(new FandemSenderHandshake(fileName, fileSize, checksumSupplier));
+    try (ServerPeer server = serverPeer(
+        new FandemSenderHandshake(fileName, fileSize, checksumSupplier));
         PeerConnection connection = server.accept()) {
       if (listener != null) {
         listener.onConnected(connection.getSelfPeer(), connection.getPeer(), fileName, fileSize);

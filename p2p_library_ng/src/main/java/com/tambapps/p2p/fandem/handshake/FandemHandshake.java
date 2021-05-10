@@ -24,6 +24,15 @@ public class FandemHandshake extends AbstractAttributeHandshake {
     super(properties);
   }
 
+  static Map<String, Object> newMap(Object... objects) {
+    Map<String, Object> map = new HashMap<>();
+    map.put(FANDEM_VERSION_KEY, VERSION);
+    for (int i = 0; i < objects.length / 2; i++) {
+      map.put(String.valueOf(objects[i * 2]), objects[i * 2 + 1]);
+    }
+    return map;
+  }
+
   @Override
   public Object apply(DataOutputStream outputStream, DataInputStream inputStream)
       throws IOException {
@@ -40,17 +49,9 @@ public class FandemHandshake extends AbstractAttributeHandshake {
     String version = String.valueOf(properties.get(FANDEM_VERSION_KEY));
     String[] fields = version.split("\\.");
     if (fields.length <= 0 || !fields[0].equals(VERSION.split("\\.")[0])) {
-      throw new IncompatibleVersionException(String.format("Version %s is not compatible with own version %s",
-          version, VERSION));
+      throw new IncompatibleVersionException(
+          String.format("Version %s is not compatible with own version %s",
+              version, VERSION));
     }
-  }
-
-  static Map<String, Object> newMap(Object... objects) {
-    Map<String, Object> map = new HashMap<>();
-    map.put(FANDEM_VERSION_KEY, VERSION);
-    for (int i = 0; i < objects.length / 2; i++) {
-      map.put(String.valueOf(objects[i * 2]), objects[i * 2 + 1]);
-    }
-    return map;
   }
 }

@@ -24,14 +24,14 @@ import java.util.stream.Collectors;
 
 public final class Fandem {
 
-  private Fandem() {}
-
   public static final String VERSION = "2.0";
-
   public static final int GREETING_PORT = 50000;
 
+  private Fandem() {
+  }
+
   public static PeerSeeking<SenderPeer> seeking() {
-    return inputStream ->  {
+    return inputStream -> {
       int count = inputStream.readInt();
       List<SenderPeer> senderPeers = new ArrayList<>();
       for (int i = 0; i < count; i++) {
@@ -39,7 +39,8 @@ public final class Fandem {
         String deviceName = inputStream.readUTF();
         String fileName = inputStream.readUTF();
         long fileSize = inputStream.readLong();
-        senderPeers.add(new SenderPeer(peer.getAddress(), peer.getPort(), deviceName, fileName, fileSize));
+        senderPeers
+            .add(new SenderPeer(peer.getAddress(), peer.getPort(), deviceName, fileName, fileSize));
       }
       return senderPeers;
     };
@@ -59,18 +60,22 @@ public final class Fandem {
 
   public static PeerGreeterService<SenderPeer> greeterService(ExecutorService executor,
       PeerGreeterService.ErrorListener errorListener) {
-    return new PeerGreeterService<>(executor, new PeerGreeter<>(greetings()), errorListener, new FandemHandshake());
+    return new PeerGreeterService<>(executor, new PeerGreeter<>(greetings()), errorListener,
+        new FandemHandshake());
   }
+
   public static SeekingStrategy seekingStrategy(InetAddress address) {
     return new FandemSeekingStrategy(address);
   }
 
-  public static SeekedPeerSupplier<SenderPeer> seekSupplier(ExecutorService executor, InetAddress address) {
+  public static SeekedPeerSupplier<SenderPeer> seekSupplier(ExecutorService executor,
+      InetAddress address) {
     PeerSeeker<SenderPeer> seeker = seeker();
     // prevent seeking itself
     seeker.addFilteredAddress(address);
     return new SeekedPeerSupplier<>(executor, seekingStrategy(address), seeker);
   }
+
   public static PeerGreetings<SenderPeer> greetings() {
     return (peers, outputStream) -> {
       outputStream.writeInt(peers.size());

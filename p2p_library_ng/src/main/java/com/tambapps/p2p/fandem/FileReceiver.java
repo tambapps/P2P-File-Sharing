@@ -37,6 +37,7 @@ public class FileReceiver extends FileSharer {
   public FileReceiver(boolean withChecksum, TransferListener listener) {
     this(withChecksum, listener, 1024);
   }
+
   public FileReceiver(boolean withChecksum, TransferListener listener, int bufferSize) {
     super(listener);
     this.handshake = new FandemReceiverHandshake(withChecksum);
