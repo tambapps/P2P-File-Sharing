@@ -23,8 +23,10 @@ public class FileUtils {
       denominator *= 1024;
       i++;
     }
-    return String.format(Locale.US, "%.1f %sB", ((float)bytes)/((float)denominator),
-        i == 0 ? "" : units.charAt(i - 1));
+    float fileSize = ((float)bytes)/((float)denominator);
+    int fileSizeInt = (int) fileSize;
+    return String.format(Locale.US, "%s %s", fileSizeInt == fileSize ? fileSizeInt : String.format("%.1f", fileSize),
+        i == 0 ? "bytes" : units.charAt(i - 1) + "B");
   }
 
   /**

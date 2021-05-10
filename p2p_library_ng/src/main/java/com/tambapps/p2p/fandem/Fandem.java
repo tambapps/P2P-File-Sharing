@@ -38,7 +38,8 @@ public final class Fandem {
         Peer peer = Peer.parse(inputStream.readUTF());
         String deviceName = inputStream.readUTF();
         String fileName = inputStream.readUTF();
-        senderPeers.add(new SenderPeer(peer.getAddress(), peer.getPort(), deviceName, fileName));
+        long fileSize = inputStream.readLong();
+        senderPeers.add(new SenderPeer(peer.getAddress(), peer.getPort(), deviceName, fileName, fileSize));
       }
       return senderPeers;
     };
@@ -77,6 +78,7 @@ public final class Fandem {
         outputStream.writeUTF(peer.peerString());
         outputStream.writeUTF(peer.getDeviceName());
         outputStream.writeUTF(peer.getFileName());
+        outputStream.writeLong(peer.getFileSize());
       }
     };
   }

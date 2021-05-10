@@ -12,11 +12,13 @@ public class SenderPeer extends Peer {
 
   private final String deviceName;
   private final String fileName;
+  private final long fileSize;
 
-  public SenderPeer(InetAddress ip, int port, String deviceName, String fileName) {
+  public SenderPeer(InetAddress ip, int port, String deviceName, String fileName, long fileSize) {
     super(ip, port);
     this.deviceName = deviceName;
     this.fileName = fileName;
+    this.fileSize = fileSize;
   }
 
   public String peerString() {
