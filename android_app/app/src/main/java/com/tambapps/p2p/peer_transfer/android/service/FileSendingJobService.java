@@ -50,7 +50,7 @@ public class FileSendingJobService extends FileJobService implements SendingEven
                 .execute(peerString,
                         bundle.getString("fileUri"),
                         fileName,
-                        bundle.getString("fileSize"));
+                        String.valueOf(bundle.getLong("fileSize")));
     }
 
     @Override
