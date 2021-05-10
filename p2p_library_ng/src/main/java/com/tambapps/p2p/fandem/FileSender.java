@@ -1,8 +1,6 @@
 package com.tambapps.p2p.fandem;
 
-import com.tambapps.p2p.fandem.handshake.FandemReceiverHandshake;
 import com.tambapps.p2p.fandem.handshake.FandemSenderHandshake;
-import com.tambapps.p2p.fandem.handshake.ReceiverHandshakeData;
 import com.tambapps.p2p.fandem.util.TransferListener;
 import com.tambapps.p2p.speer.Peer;
 import com.tambapps.p2p.speer.PeerConnection;
@@ -18,8 +16,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class FileSender extends FileSharer {
-
-  private static final int BUFFER_SIZE = 1024;
 
   @Getter
   private final Peer peer;
@@ -48,22 +44,12 @@ public class FileSender extends FileSharer {
 
     public void send(InputStream inputStream, String fileName, long fileSize,
       Callable<String> checksumSupplier) throws IOException {
-
-    try (ServerPeer server = serverPeer(new FandemSenderHandshake(fileName, fileSize));
+    try (ServerPeer server = serverPeer(new FandemSenderHandshake(fileName, fileSize, checksumSupplier));
         PeerConnection connection = server.accept()) {
       if (listener != null) {
         listener.onConnected(connection.getSelfPeer(), connection.getPeer(), fileName, fileSize);
       }
-      ReceiverHandshakeData data = connection.getHandshakeData();
-      // TODO move checksum to handshake
-      if (data.isSendChecksum()) {
-        try {
-          connection.writeUTF(checksumSupplier.call());
-        } catch (Exception e) {
-          throw new IOException(e);
-        }
-      }
-      share(inputStream, connection.getOutputStream(), BUFFER_SIZE, fileSize);
+      share(inputStream, connection.getOutputStream(), DEFAULT_BUFFER_SIZE, fileSize);
     }
     serverReference.set(null);
   }

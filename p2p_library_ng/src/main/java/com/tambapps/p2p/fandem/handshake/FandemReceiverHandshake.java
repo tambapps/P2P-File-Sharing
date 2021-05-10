@@ -2,6 +2,9 @@ package com.tambapps.p2p.fandem.handshake;
 
 import com.tambapps.p2p.speer.exception.HandshakeFailException;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.Map;
 
 public class FandemReceiverHandshake extends FandemHandshake {
@@ -13,6 +16,15 @@ public class FandemReceiverHandshake extends FandemHandshake {
   }
 
   @Override
+  public Object apply(DataOutputStream outputStream, DataInputStream inputStream)
+      throws IOException {
+    writeAttributes(properties, outputStream);
+    Map<String, Object> attributes = readAttributes(inputStream);
+    validate(attributes);
+    return SenderHandshakeData.from(attributes);
+  }
+
+  @Override
   protected void validate(Map<String, Object> properties) throws HandshakeFailException {
     super.validate(properties);
     if (!(properties.get(FandemSenderHandshake.FILE_NAME_KEY) instanceof String)) {
@@ -21,10 +33,5 @@ public class FandemReceiverHandshake extends FandemHandshake {
     if (!(properties.get(FandemSenderHandshake.FILE_SIZE_KEY) instanceof Long)) {
       throw new HandshakeFailException("Sender should send file_size (long)");
     }
-  }
-
-  @Override
-  protected Object map(Map<String, Object> properties) {
-    return SenderHandshakeData.from(properties);
   }
 }

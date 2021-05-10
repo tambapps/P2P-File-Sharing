@@ -1,9 +1,7 @@
 package com.tambapps.p2p.fandem;
 
 import com.tambapps.p2p.fandem.exception.SharingException;
-import com.tambapps.p2p.fandem.handshake.FandemHandshake;
 import com.tambapps.p2p.fandem.util.TransferListener;
-import com.tambapps.p2p.speer.handshake.Handshake;
 import lombok.AllArgsConstructor;
 
 import java.io.File;
@@ -17,6 +15,8 @@ import java.security.NoSuchAlgorithmException;
 
 @AllArgsConstructor
 public abstract class FileSharer {
+
+  protected static final int DEFAULT_BUFFER_SIZE = 1024;
 
   private static final int MAX_PROGRESS = 100;
 

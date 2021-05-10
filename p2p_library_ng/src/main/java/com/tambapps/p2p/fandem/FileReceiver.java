@@ -1,8 +1,8 @@
 package com.tambapps.p2p.fandem;
 
 import com.tambapps.p2p.fandem.exception.CorruptedFileException;
+import com.tambapps.p2p.fandem.exception.ReceiverIOException;
 import com.tambapps.p2p.fandem.handshake.FandemReceiverHandshake;
-import com.tambapps.p2p.fandem.handshake.FandemSenderHandshake;
 import com.tambapps.p2p.fandem.handshake.SenderHandshakeData;
 import com.tambapps.p2p.fandem.util.FileProvider;
 import com.tambapps.p2p.fandem.util.TransferListener;
@@ -18,7 +18,6 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class FileReceiver extends FileSharer {
 
-  private final boolean withChecksum;
   private final AtomicReference<PeerConnection> connectionReference = new AtomicReference<>();
   private final Handshake handshake;
   private final int bufferSize;
@@ -40,7 +39,6 @@ public class FileReceiver extends FileSharer {
   }
   public FileReceiver(boolean withChecksum, TransferListener listener, int bufferSize) {
     super(listener);
-    this.withChecksum = withChecksum;
     this.handshake = new FandemReceiverHandshake(withChecksum);
     this.bufferSize = bufferSize;
   }
@@ -58,18 +56,24 @@ public class FileReceiver extends FileSharer {
       if (listener != null) {
         listener.onConnected(connection.getSelfPeer(), connection.getPeer(), fileName, totalBytes);
       }
-      Optional<String> optExpectedChecksum = withChecksum ?
-          Optional.of(connection.readUTF()) : Optional.empty();
+      Optional<String> optExpectedChecksum = data.getChecksum();
       File outputFile = fileProvider.newFile(fileName);
-      try (FileOutputStream fos = new FileOutputStream(outputFile)) {
-        share(connection.getInputStream(), fos, bufferSize, totalBytes);
+      if (!outputFile.exists() && !outputFile.createNewFile()) {
+        throw new IOException("Couldn't create file " + outputFile);
       }
-      if (optExpectedChecksum.isPresent()) {
-        String expectedChecksum = optExpectedChecksum.get();
-        String actualChecksum = computeChecksum(outputFile);
-        if (!expectedChecksum.equals(actualChecksum)) {
-          throw new CorruptedFileException();
+      try {
+        try (FileOutputStream fos = new FileOutputStream(outputFile)) {
+          share(connection.getInputStream(), fos, bufferSize, totalBytes);
         }
+        if (optExpectedChecksum.isPresent()) {
+          String expectedChecksum = optExpectedChecksum.get();
+          String actualChecksum = computeChecksum(outputFile);
+          if (!expectedChecksum.equals(actualChecksum)) {
+            throw new CorruptedFileException(outputFile);
+          }
+        }
+      } catch (IOException e) {
+        throw new ReceiverIOException(e, outputFile);
       }
       return outputFile;
     }

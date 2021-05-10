@@ -29,7 +29,6 @@ public class FileTransferTest {
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
-    FILE.deleteOnExit();
   }
 
   private final FileSender sender = new FileSender(SENDER_PEER);

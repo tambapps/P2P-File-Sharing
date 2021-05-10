@@ -4,13 +4,15 @@ import static com.tambapps.p2p.fandem.Fandem.VERSION;
 
 import com.tambapps.p2p.fandem.exception.IncompatibleVersionException;
 import com.tambapps.p2p.speer.exception.HandshakeFailException;
-import com.tambapps.p2p.speer.handshake.AttributeHandshake;
+import com.tambapps.p2p.speer.handshake.AbstractAttributeHandshake;
 
-import java.util.Collections;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class FandemHandshake extends AttributeHandshake {
+public class FandemHandshake extends AbstractAttributeHandshake {
 
   private static final String FANDEM_VERSION_KEY = "fandem_version";
 
@@ -23,8 +25,15 @@ public class FandemHandshake extends AttributeHandshake {
   }
 
   @Override
+  public Object apply(DataOutputStream outputStream, DataInputStream inputStream)
+      throws IOException {
+    writeAttributes(properties, outputStream);
+    Map<String, Object> attributes = readAttributes(inputStream);
+    validate(attributes);
+    return attributes;
+  }
+
   protected void validate(Map<String, Object> properties) throws HandshakeFailException {
-    super.validate(properties);
     if (!properties.containsKey(FANDEM_VERSION_KEY)) {
       throw new HandshakeFailException("Not a Fandem peer");
     }
@@ -42,6 +51,6 @@ public class FandemHandshake extends AttributeHandshake {
     for (int i = 0; i < objects.length / 2; i++) {
       map.put(String.valueOf(objects[i * 2]), objects[i * 2 + 1]);
     }
-    return Collections.unmodifiableMap(map);
+    return map;
   }
 }
