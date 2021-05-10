@@ -157,8 +157,8 @@ public class Main implements TransferListener {
 			try {
 				SenderPeer sniffPeer = sniffSupplier.get();
 				System.out.format(
-						"%s wants to send %s.\nReceive this file? (Tap 'y' for yes ,'n' for no or 's' to stop)",
-						sniffPeer.getDeviceName(), sniffPeer.getFileName())
+						"%s wants to send %s (%s).\nReceive this file? (Tap 'y' for yes ,'n' for no or 's' to stop)",
+						sniffPeer.getDeviceName(), sniffPeer.getFileName(), FileUtils.toFileSize(sniffPeer.getFileSize()))
 						.println();
 				switch (scanner.nextLine().toLowerCase().charAt(0)) {
 					case 'y':

@@ -36,8 +36,8 @@ public class Sender implements Closeable {
   }
 
   public void send(File file) throws IOException {
-    greeterService.setAvailablePeers(List.of(new SenderPeer(peer.getIp(), peer.getPort(), DESKTOP_NAME, file.getName())));
-    greeterService.start(Peer.of(peer.getIp(), Fandem.GREETING_PORT));
+    greeterService.setAvailablePeers(List.of(new SenderPeer(peer.getAddress(), peer.getPort(), DESKTOP_NAME, file.getName(), file.length())));
+    greeterService.start(Peer.of(peer.getAddress(), Fandem.GREETING_PORT));
     fileSender.send(file);
   }
 
