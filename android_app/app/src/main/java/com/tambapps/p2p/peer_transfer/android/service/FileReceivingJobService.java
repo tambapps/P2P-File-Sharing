@@ -15,6 +15,7 @@ import com.google.firebase.analytics.FirebaseAnalytics;
 
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.tambapps.p2p.fandem.FileReceiver;
+import com.tambapps.p2p.fandem.exception.CorruptedFileException;
 import com.tambapps.p2p.speer.Peer;
 
 import com.tambapps.p2p.fandem.util.FileUtils;
@@ -116,7 +117,11 @@ public class FileReceivingJobService extends FileJobService {
                 finishNotification()
                         .setContentTitle(getString(R.string.couldnt_start))
                         .setContentText(e.getMessage());
-            }  catch (SocketException e) {
+            } catch (CorruptedFileException e) {
+                finishNotification()
+                        .setContentTitle(getString(R.string.corrupted_file))
+                        .setContentText(e.getMessage());
+            } catch (SocketException e) {
                 NotificationCompat.Builder builder = finishNotification()
                         .setContentTitle(getString(R.string.transfer_canceled));
                 File file = outputFileReference.get();

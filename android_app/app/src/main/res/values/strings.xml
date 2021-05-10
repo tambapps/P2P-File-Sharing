@@ -58,4 +58,5 @@
     <string name="no_internet">Couldn\'t start looking for senders (are you connected to the internet?)</string>
     <string name="no_sender_found">No sending peer were found. Swipe down to retry</string>
     <string name="couldnt_start">Couldn\'t start transfer with other peer</string>
+    <string name="corrupted_file">The received file is corrupted, you should delete it and restart the transfer</string>
 </resources>
