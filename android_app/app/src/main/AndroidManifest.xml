@@ -13,6 +13,10 @@
         android:roundIcon="@drawable/round_appicon"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="${admobApplicationId}"/>
+
         <activity
             android:name=".HelpActivity"
             android:theme="@style/AppTheme.NoActionBar"/>
