@@ -44,7 +44,8 @@ public class FileSendingJobService extends FileJobService implements SendingEven
 
         String peerString = bundle.getString("peer");
         String fileName = bundle.getString("fileName");
-        sniffHandlerService.startInBackground(this, peerString, fileName);
+        long fileSize = bundle.getLong("fileSize");
+        sniffHandlerService.startInBackground(this, peerString, fileName, fileSize);
         return new SendingTask(this, notifBuilder, notificationManager, notifId, getContentResolver(), cancelIntent, analytics, sniffHandlerService)
                 .execute(peerString,
                         bundle.getString("fileUri"),

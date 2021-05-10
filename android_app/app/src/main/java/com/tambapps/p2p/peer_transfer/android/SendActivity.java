@@ -137,7 +137,7 @@ public class SendActivity extends AppCompatActivity {
         }
 
         if (fileInfos.second != null) {
-            bundle.putString("fileSize", String.valueOf(fileInfos.second));
+            bundle.putLong("fileSize", fileInfos.second);
         } else {
             Toast.makeText(this, this.getString(R.string.couldnt_get_size_of_file), Toast.LENGTH_SHORT).show();
             return false;

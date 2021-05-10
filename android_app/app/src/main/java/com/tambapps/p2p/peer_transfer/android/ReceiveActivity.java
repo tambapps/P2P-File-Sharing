@@ -34,6 +34,7 @@ import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.tambapps.p2p.fandem.Fandem;
 import com.tambapps.p2p.fandem.SenderPeer;
+import com.tambapps.p2p.fandem.util.FileUtils;
 import com.tambapps.p2p.speer.Peer;
 import com.tambapps.p2p.peer_transfer.android.analytics.AnalyticsValues;
 import com.tambapps.p2p.peer_transfer.android.service.FileReceivingJobService;
@@ -287,7 +288,8 @@ public class ReceiveActivity extends PermissionActivity implements PeerSeeker.Se
         public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
             final SenderPeer discoveredPeer = peers.get(position);
             holder.position = position;
-            holder.filenameText.setText(discoveredPeer.getFileName());
+            holder.fileNameText.setText(discoveredPeer.getFileName());
+            holder.fileSizeText.setText(FileUtils.toFileSize(discoveredPeer.getFileSize()));
             holder.deviceNameText.setText(discoveredPeer.getDeviceName());
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -319,13 +321,15 @@ public class ReceiveActivity extends PermissionActivity implements PeerSeeker.Se
 
         class MyViewHolder extends RecyclerView.ViewHolder {
 
-            private final TextView filenameText;
+            private final TextView fileNameText;
+            private final TextView fileSizeText;
             private final TextView deviceNameText;
             int position;
 
             public MyViewHolder(@NonNull View itemView) {
                 super(itemView);
-                filenameText = itemView.findViewById(R.id.element_peer_filename);
+                fileNameText = itemView.findViewById(R.id.element_peer_filename);
+                fileSizeText = itemView.findViewById(R.id.element_peer_filesize);
                 deviceNameText = itemView.findViewById(R.id.element_peer_devicename);
             }
         }

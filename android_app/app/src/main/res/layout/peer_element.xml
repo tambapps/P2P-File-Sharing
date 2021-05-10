@@ -28,6 +28,15 @@
         android:textSize="16sp"
         />
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/element_peer_filesize"
+        android:layout_marginBottom="8dp"
+        android:layout_marginStart="10dp"
+        android:textColor="#fff"
+        android:textSize="16sp"
+        />
 
 
     <View

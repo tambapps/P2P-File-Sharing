@@ -20,12 +20,12 @@ public class SniffHandlerService {
     private Future<?> future;
 
     public void startInBackground(FileSendingJobService jobService,
-                                  final String peerString, final String fileName) {
+                                  final String peerString, final String fileName, long fileSize) {
         PeerGreeter<SenderPeer> greeter = new PeerGreeter<>(Fandem.greetings());
         future = jobService.startSideTask(() -> {
             Peer peer = Peer.parse(peerString);
             String deviceName = Build.MANUFACTURER + " " + Build.MODEL;
-            greeter.addAvailablePeer(new SenderPeer(peer.getAddress(), peer.getPort(), deviceName, fileName));
+            greeter.addAvailablePeer(new SenderPeer(peer.getAddress(), peer.getPort(), deviceName, fileName, fileSize));
 
             try (ServerPeer server = new ServerPeer(Peer.of(peer.getAddress(), Fandem.GREETING_PORT), new FandemHandshake())) {
                 greeter.greet(server);
