@@ -8,17 +8,21 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.PersistableBundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import android.provider.Settings;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -27,6 +31,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -50,6 +55,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class ReceiveActivity extends PermissionActivity implements MulticastReceiverService.DiscoveryListener<List<SenderPeer>> {
+
+    private static final int REQUEST_ALL_FILES_PERMISSION = 8084;
 
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private ProgressBar progressBar;
@@ -76,9 +83,20 @@ public class ReceiveActivity extends PermissionActivity implements MulticastRece
         initializeRecyclerView();
         initializeRefreshLayout();
         sniffPeersAsync();
-        if (!hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R && !hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
             requestPermissionDialog(R.string.ask_write_permission_title,
                 R.string.ask_write_permission_message, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            // isExternalStorageManager is the hasPermission(MANAGE_EXTERNAL_STORAGE) for Android 30+
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && !Environment.isExternalStorageManager()) {
+            requestPermissionDialog(R.string.ask_write_permission_title, R.string.ask_write_permission_message, (dialogInterface, i) -> {
+                senderPeersReceiverService.stop();
+                Uri uri = Uri.fromParts("package", getPackageName(), null);
+                startActivityForResult(
+                        new Intent(
+                                Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION,
+                                uri
+                        ), REQUEST_ALL_FILES_PERMISSION);
+            });
         }
     }
 
@@ -102,10 +120,7 @@ public class ReceiveActivity extends PermissionActivity implements MulticastRece
             refreshLayout.setRefreshing(false);
             peers.clear();
             recyclerAdapter.notifyDataSetChanged();
-
-            if (progressBar.getVisibility() == View.VISIBLE) { // if seeking job still running
-                return;
-            }
+            senderPeersReceiverService.stop();
             progressBar.setVisibility(View.VISIBLE);
             sniffPeersAsync();
         });
