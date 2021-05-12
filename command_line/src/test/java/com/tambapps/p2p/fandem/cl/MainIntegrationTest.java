@@ -3,6 +3,7 @@ package com.tambapps.p2p.fandem.cl;
 import com.tambapps.p2p.fandem.Fandem;
 import com.tambapps.p2p.fandem.cl.command.ReceiveCommand;
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -39,6 +40,7 @@ public class MainIntegrationTest {
 	}
 
 	// run these test individually (weird but when we run all test, this ne fails)
+	@Ignore("Can't run it with only one computer since broadcasting")
 	@Test
 	public void transferWithSniffTest() throws Exception {
 		System.setIn(new ByteArrayInputStream("y\n".getBytes()));

@@ -2,88 +2,77 @@ package com.tambapps.p2p.fandem;
 
 import static com.tambapps.p2p.fandem.SenderPeer.DEFAULT_PORT;
 
-import com.tambapps.p2p.fandem.handshake.FandemHandshake;
 import com.tambapps.p2p.speer.Peer;
-import com.tambapps.p2p.speer.greet.PeerGreeter;
-import com.tambapps.p2p.speer.greet.PeerGreeterService;
-import com.tambapps.p2p.speer.greet.PeerGreetings;
-import com.tambapps.p2p.speer.seek.PeerSeeker;
-import com.tambapps.p2p.speer.seek.PeerSeeking;
-import com.tambapps.p2p.speer.seek.SeekedPeerSupplier;
-import com.tambapps.p2p.speer.seek.strategy.SeekingStrategy;
+import com.tambapps.p2p.speer.datagram.DatagramSupplier;
+import com.tambapps.p2p.speer.datagram.MulticastDatagramPeer;
+import com.tambapps.p2p.speer.datagram.service.PeriodicMulticastService;
+import com.tambapps.p2p.speer.util.Deserializer;
 import com.tambapps.p2p.speer.util.PeerUtils;
+import com.tambapps.p2p.speer.util.Serializer;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.stream.Collectors;
 
 public final class Fandem {
 
+  public static final InetAddress PEER_DISCOVERY_MULTICAST_ADDRESS = PeerUtils.getAddress("230.0.8.8");
+  public static final int PEER_DISCOVERY_PORT = 50000;
+
   public static final String VERSION = "2.0";
-  public static final int GREETING_PORT = 50000;
 
   private Fandem() {
   }
 
-  public static PeerSeeking<SenderPeer> seeking() {
-    return inputStream -> {
-      int count = inputStream.readInt();
-      List<SenderPeer> senderPeers = new ArrayList<>();
-      for (int i = 0; i < count; i++) {
-        Peer peer = Peer.parse(inputStream.readUTF());
-        String deviceName = inputStream.readUTF();
-        String fileName = inputStream.readUTF();
-        long fileSize = inputStream.readLong();
-        senderPeers
-            .add(new SenderPeer(peer.getAddress(), peer.getPort(), deviceName, fileName, fileSize));
+  public static PeriodicMulticastService<List<SenderPeer>> multicastService(
+      ScheduledExecutorService executor) {
+    return new PeriodicMulticastService<>(executor, PEER_DISCOVERY_MULTICAST_ADDRESS, PEER_DISCOVERY_PORT, senderPeersSerializer());
+  }
+
+  public static DatagramSupplier<List<SenderPeer>> senderPeersSupplier() throws IOException {
+    return new DatagramSupplier<>(multicastReceiverDatagram(), senderPeersDeserializer());
+  }
+
+  public static MulticastDatagramPeer multicastReceiverDatagram() throws IOException {
+    MulticastDatagramPeer datagramPeer = new MulticastDatagramPeer(PEER_DISCOVERY_PORT);
+    datagramPeer.joinGroup(PEER_DISCOVERY_MULTICAST_ADDRESS);
+    return datagramPeer;
+  }
+
+  public static Serializer<List<SenderPeer>> senderPeersSerializer() {
+    return (peers, os) -> {
+      try (DataOutputStream outputStream = new DataOutputStream(os)) {
+        outputStream.writeInt(peers.size());
+        for (SenderPeer peer : peers) {
+          outputStream.writeUTF(peer.peerString());
+          outputStream.writeUTF(peer.getDeviceName());
+          outputStream.writeUTF(peer.getFileName());
+          outputStream.writeLong(peer.getFileSize());
+        }
       }
-      return senderPeers;
     };
   }
-
-  public static PeerSeeker<SenderPeer> seeker() {
-    return seeker(null);
-  }
-
-  public static PeerSeeker<SenderPeer> seeker(PeerSeeker.SeekListener<SenderPeer> listener) {
-    return new PeerSeeker<>(Fandem.seeking(), listener, new FandemHandshake());
-  }
-
-  public static PeerGreeterService<SenderPeer> greeterService(ExecutorService executor) {
-    return greeterService(executor, null);
-  }
-
-  public static PeerGreeterService<SenderPeer> greeterService(ExecutorService executor,
-      PeerGreeterService.ErrorListener errorListener) {
-    return new PeerGreeterService<>(executor, new PeerGreeter<>(greetings()), errorListener,
-        new FandemHandshake());
-  }
-
-  public static SeekingStrategy seekingStrategy(InetAddress address) {
-    return new FandemSeekingStrategy(address);
-  }
-
-  public static SeekedPeerSupplier<SenderPeer> seekSupplier(ExecutorService executor,
-      InetAddress address) {
-    PeerSeeker<SenderPeer> seeker = seeker();
-    // prevent seeking itself
-    seeker.addFilteredAddress(address);
-    return new SeekedPeerSupplier<>(executor, seekingStrategy(address), seeker);
-  }
-
-  public static PeerGreetings<SenderPeer> greetings() {
-    return (peers, outputStream) -> {
-      outputStream.writeInt(peers.size());
-      for (SenderPeer peer : peers) {
-        outputStream.writeUTF(peer.peerString());
-        outputStream.writeUTF(peer.getDeviceName());
-        outputStream.writeUTF(peer.getFileName());
-        outputStream.writeLong(peer.getFileSize());
+  public static Deserializer<List<SenderPeer>> senderPeersDeserializer() {
+    return is -> {
+      try (DataInputStream inputStream = new DataInputStream(is)){
+        int count = inputStream.readInt();
+        List<SenderPeer> senderPeers = new ArrayList<>();
+        for (int i = 0; i < count; i++) {
+          Peer peer = Peer.parse(inputStream.readUTF());
+          String deviceName = inputStream.readUTF();
+          String fileName = inputStream.readUTF();
+          long fileSize = inputStream.readLong();
+          senderPeers
+              .add(new SenderPeer(peer.getAddress(), peer.getPort(), deviceName, fileName, fileSize));
+        }
+        return senderPeers;
       }
     };
   }

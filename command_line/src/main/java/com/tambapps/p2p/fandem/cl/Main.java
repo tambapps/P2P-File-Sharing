@@ -15,8 +15,8 @@ import com.tambapps.p2p.fandem.cl.command.SendCommand;
 import com.tambapps.p2p.fandem.cl.exception.SendingException;
 import com.tambapps.p2p.fandem.cl.command.ReceiveCommand;
 import com.tambapps.p2p.speer.Peer;
+import com.tambapps.p2p.speer.datagram.DatagramSupplier;
 import com.tambapps.p2p.speer.exception.HandshakeFailException;
-import com.tambapps.p2p.speer.seek.SeekedPeerSupplier;
 import com.tambapps.p2p.speer.util.PeerUtils;
 
 import java.io.File;
@@ -26,14 +26,18 @@ import java.net.InetAddress;
 
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
+import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 public class Main implements TransferListener {
 
-	private final ExecutorService executor =
-			Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+	private final ScheduledExecutorService senderExecutor =
+			Executors.newSingleThreadScheduledExecutor();
+	private final ExecutorService seekExecutor =
+			Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 4);
 	private final Mode mode;
 
 	public Main(Mode mode) {
@@ -80,11 +84,12 @@ public class Main implements TransferListener {
 				main.send(sendCommand);
 				break;
 		}
-		main.executor.shutdownNow();
+		main.senderExecutor.shutdownNow();
+		main.seekExecutor.shutdownNow();
 	}
 
 	void send(SendCommand command) {
-		try (Sender sender = Sender.create(executor, command, this)) {
+		try (Sender sender = Sender.create(senderExecutor, command, this)) {
 			for (File file : command.getFiles()) {
 				try {
 					System.out.println("Sending " + file.getName());
@@ -152,22 +157,30 @@ public class Main implements TransferListener {
 	}
 
 	private SenderPeer seekSendingPeer(Scanner scanner, InetAddress address) {
-		SeekedPeerSupplier<SenderPeer> sniffSupplier = Fandem.seekSupplier(executor, address);
+		DatagramSupplier<List<SenderPeer>> sniffSupplier = null;
+		try {
+			sniffSupplier = Fandem.senderPeersSupplier();
+		} catch (IOException e) {
+			System.out.println("Couldn't start seeking peers: " + e.getMessage());
+			System.exit(1);
+		}
 		while (true) {
 			try {
-				SenderPeer sniffPeer = sniffSupplier.get();
-				System.out.format(
-						"%s wants to send %s (%s).\nReceive this file? (Tap 'y' for yes ,'n' for no or 's' to stop)",
-						sniffPeer.getDeviceName(), sniffPeer.getFileName(), FileUtils.toFileSize(sniffPeer.getFileSize()))
-						.println();
-				switch (scanner.nextLine().toLowerCase().charAt(0)) {
-					case 'y':
-						return sniffPeer;
-					case 's':
-						return null;
+				List<SenderPeer> senderPeers = sniffSupplier.get();
+				for (SenderPeer senderPeer : senderPeers) {
+					System.out.format(
+							"%s wants to send %s (%s).\nReceive this file? (Tap 'y' for yes ,'n' for no or 's' to stop)",
+							senderPeer.getDeviceName(), senderPeer.getFileName(), FileUtils.toFileSize(senderPeer.getFileSize()))
+							.println();
+					switch (scanner.nextLine().toLowerCase().charAt(0)) {
+						case 'y':
+							return senderPeer;
+						case 's':
+							return null;
 						// default do nothing
+					}
 				}
-			} catch (InterruptedException ignored) {
+			} catch (IOException e) {
 				return null;
 			}
 		}
