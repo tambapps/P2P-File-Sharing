@@ -1,6 +1,6 @@
 package com.tambapps.p2p.fandem.fandemdesktop.configuration;
 
-import com.tambapps.p2p.fandem.Peer;
+import com.tambapps.p2p.speer.Peer;
 import com.tambapps.p2p.fandem.fandemdesktop.controller.AppController;
 import com.tambapps.p2p.fandem.fandemdesktop.model.SharingTask;
 import javafx.collections.FXCollections;

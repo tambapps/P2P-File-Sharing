@@ -1,12 +1,10 @@
 package com.tambapps.p2p.fandem.fandemdesktop.controller;
 
-import com.tambapps.p2p.fandem.Peer;
-import com.tambapps.p2p.fandem.exception.SniffException;
-import com.tambapps.p2p.fandem.fandemdesktop.util.NodeUtils;
+import com.tambapps.p2p.fandem.Fandem;
+import com.tambapps.p2p.fandem.SenderPeer;
+import com.tambapps.p2p.speer.Peer;
 import com.tambapps.p2p.fandem.fandemdesktop.util.PropertyUtils;
-import com.tambapps.p2p.fandem.sniff.PeerSniffBlockingSupplier;
-import com.tambapps.p2p.fandem.sniff.SniffPeer;
-import com.tambapps.p2p.fandem.util.IPUtils;
+import com.tambapps.p2p.speer.datagram.DatagramSupplier;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -24,6 +22,8 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.SocketException;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.function.BiConsumer;
@@ -50,8 +50,8 @@ public class ReceivePaneController {
   @FXML
   private Button cancelSniffButton;
 
-  PeerSniffBlockingSupplier sniffSupplier;
-  private ObjectProperty<File> folderProperty = new SimpleObjectProperty<>();
+  DatagramSupplier<List<SenderPeer>> sniffSupplier;
+  private final ObjectProperty<File> folderProperty = new SimpleObjectProperty<>();
 
   public ReceivePaneController(@Qualifier("directoryChooser") Supplier<File> directoryChooser,
                                @Qualifier("sniffExecutorService") ExecutorService executorService,
@@ -87,7 +87,7 @@ public class ReceivePaneController {
     if (hexCode == null || hexCode.isEmpty()) {
       throw new IllegalArgumentException("You must provide the hex code");
     }
-    return Peer.fromHexString(hexCode);
+    return Fandem.parsePeerFromHexString(hexCode);
   }
 
   @FXML
@@ -103,53 +103,58 @@ public class ReceivePaneController {
   private void sniffSenderPeer() {
     if (sniffSupplier == null) {
       try {
-        sniffSupplier = new PeerSniffBlockingSupplier(executorService, IPUtils.getIpAddress());
+        sniffSupplier = Fandem.senderPeersSupplier();
       } catch (IOException e) {
         errorDialog(e);
         return;
       }
     }
 
-    if (!sniffSupplier.getStarted()) {
-      sniffSupplier.start();
-    }
-
-    SniffPeer sniffedPeer;
+    List<SenderPeer> senderPeers;
     try {
-      sniffedPeer = sniffSupplier.get();
-      Platform.runLater(() -> proposePeer(sniffedPeer));
-    }  catch (InterruptedException e) {
-      Thread.currentThread().interrupt();
-    } catch (SniffException e) {
-      Platform.runLater(() -> errorDialog(e));
+      senderPeers = sniffSupplier.get();
+      if (senderPeers.isEmpty()) {
+        return;
+      }
+      Platform.runLater(() -> {
+        int i = 0;
+        while (i < senderPeers.size() && !proposePeer(senderPeers.get(i))) {
+          i++;
+        }
+      });
+    }  catch (IOException e) {
+      if (!(e instanceof SocketException)) {
+        Platform.runLater(() -> errorDialog(e));
+      }
     }
   }
 
-  private void proposePeer(SniffPeer sniffedPeer) {
+  private boolean proposePeer(SenderPeer sniffedPeer) {
     Alert alert = new Alert(Alert.AlertType.CONFIRMATION,
       sniffedPeer.getDeviceName() + " wants to send " + sniffedPeer.getFileName(),
       new ButtonType("Choose this Peer", ButtonBar.ButtonData.YES),
       new ButtonType("Continue research", ButtonBar.ButtonData.NO));
     alert.setTitle("Sender found");
     alert.setHeaderText(String.format("Sender: %s\nPeer key: %s",
-      sniffedPeer.getDeviceName(), sniffedPeer.getPeer().toHexString()));
+      sniffedPeer.getDeviceName(), Fandem.toHexString(sniffedPeer)));
 
     Optional<ButtonBar.ButtonData> optButton = alert.showAndWait().map(ButtonType::getButtonData);
     switch (optButton.orElse(ButtonBar.ButtonData.OTHER)) {
       case YES:
         cancelSniff();
-        hexCodeField.setText(sniffedPeer.getPeer().toHexString());
+        hexCodeField.setText(Fandem.toHexString(sniffedPeer));
         searchPeerButton.setDisable(true);
-        break;
+        return true;
       case NO:
         executorService.submit(this::sniffSenderPeer);
         break;
     }
+    return false;
   }
 
   @FXML
   private void cancelSniff() {
-    sniffSupplier.stop();
+    sniffSupplier.close();
     progressBar.setVisible(false);
     sniffText.setVisible(false);
     cancelSniffButton.setVisible(false);

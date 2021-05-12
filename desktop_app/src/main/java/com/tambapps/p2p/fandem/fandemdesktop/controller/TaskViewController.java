@@ -1,10 +1,11 @@
 package com.tambapps.p2p.fandem.fandemdesktop.controller;
 
-import com.tambapps.p2p.fandem.Peer;
+import com.tambapps.p2p.fandem.Fandem;
+import com.tambapps.p2p.fandem.fandemdesktop.util.SharingErrorListener;
+import com.tambapps.p2p.fandem.util.TransferListener;
+import com.tambapps.p2p.speer.Peer;
 import com.tambapps.p2p.fandem.fandemdesktop.model.SharingTask;
 import com.tambapps.p2p.fandem.fandemdesktop.service.FileSharingService;
-import com.tambapps.p2p.fandem.listener.SharingErrorListener;
-import com.tambapps.p2p.fandem.listener.TransferListener;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -126,14 +127,14 @@ public class TaskViewController implements TransferListener, SharingErrorListene
   public void sendTask(File file) {
     Peer peer;
     try {
-      peer = Peer.getAvailablePeer();
+      peer = Fandem.findAvailableSendingPeer();
     } catch (IOException e) {
       setEndMessage("Couldn't retrieve IP. Are you connected to internet?");
       return;
     }
     task = fileSharingService.sendFile(peer, file, this);
     sharingTasks.add(task);
-    centerLabel.setText(String.format("Waiting for other peer on %s (hex code: %s)...", peer, peer.toHexString().toUpperCase()));
+    centerLabel.setText(String.format("Waiting for other peer on %s (hex code: %s)...", peer, Fandem.toHexString(peer)));
   }
 
   public void receiveTask(File folder, Peer peer) {
