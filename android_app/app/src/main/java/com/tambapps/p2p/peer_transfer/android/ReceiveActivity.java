@@ -126,7 +126,7 @@ public class ReceiveActivity extends PermissionActivity implements MulticastRece
         Bundle analyticsBundle = new Bundle();
         analyticsBundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "sought peer");
         if (peer instanceof SenderPeer) {
-            // TODO add file size to it and
+            analyticsBundle.putLong("size", ((SenderPeer) peer).getFileSize());
         }
         analytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, analyticsBundle);
 
