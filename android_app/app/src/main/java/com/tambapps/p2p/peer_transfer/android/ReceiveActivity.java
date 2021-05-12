@@ -38,28 +38,28 @@ import com.tambapps.p2p.fandem.util.FileUtils;
 import com.tambapps.p2p.speer.Peer;
 import com.tambapps.p2p.peer_transfer.android.analytics.AnalyticsValues;
 import com.tambapps.p2p.peer_transfer.android.service.FileReceivingJobService;
-import com.tambapps.p2p.peer_transfer.android.task.PeerSnifferTask;
-import com.tambapps.p2p.speer.seek.PeerSeeker;
+import com.tambapps.p2p.speer.datagram.service.MulticastReceiverService;
 import com.tambapps.p2p.speer.util.PeerUtils;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class ReceiveActivity extends PermissionActivity implements PeerSeeker.SeekListener<SenderPeer> {
+public class ReceiveActivity extends PermissionActivity implements MulticastReceiverService.DiscoveryListener<List<SenderPeer>> {
 
-    private final ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 4);
+    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private ProgressBar progressBar;
 
     private FirebaseAnalytics analytics;
     private String downloadPath;
 
-    private List<SenderPeer> peers = Collections.synchronizedList(new ArrayList<SenderPeer>());
+    private List<SenderPeer> peers = Collections.synchronizedList(new ArrayList<>());
     private RecyclerView.Adapter recyclerAdapter;
-    private AsyncTask currentTask;
+    private MulticastReceiverService<List<SenderPeer>> senderPeersReceiverService;
     private TextView loadingText;
 
     @Override
@@ -72,6 +72,7 @@ public class ReceiveActivity extends PermissionActivity implements PeerSeeker.Se
         progressBar = findViewById(R.id.progress_bar);
         loadingText = findViewById(R.id.loading_text);
 
+        senderPeersReceiverService = Fandem.senderPeersReceiverService(executorService, this);
         initializeRecyclerView();
         initializeRefreshLayout();
         sniffPeersAsync();
@@ -98,32 +99,25 @@ public class ReceiveActivity extends PermissionActivity implements PeerSeeker.Se
         final SwipeRefreshLayout refreshLayout = findViewById(R.id.refresh_layout);
         refreshLayout.setColorSchemeColors(getResources().getColor(R.color.colorPrimaryDark));
         refreshLayout.setOnRefreshListener(() -> {
-            if (progressBar.getVisibility() == View.VISIBLE) { // if async task running
-                return;
-            }
             refreshLayout.setRefreshing(false);
-            progressBar.setVisibility(View.VISIBLE);
             peers.clear();
             recyclerAdapter.notifyDataSetChanged();
+
+            if (progressBar.getVisibility() == View.VISIBLE) { // if seeking job still running
+                return;
+            }
+            progressBar.setVisibility(View.VISIBLE);
             sniffPeersAsync();
         });
     }
 
     private void sniffPeersAsync() {
         try {
-            currentTask = new PeerSnifferTask(this, executorService,
-                    PeerUtils.getIpAddress(), () -> runOnUiThread(() -> runOnUiThread(this::onSniffEnd))).execute();
+            senderPeersReceiverService.start();
             loadingText.setText(R.string.loading_sending_peers);
         } catch (IOException e) {
             progressBar.setVisibility(View.INVISIBLE);
             loadingText.setText(R.string.no_internet);
-        }
-    }
-
-    private void onSniffEnd() {
-        progressBar.setVisibility(View.INVISIBLE);
-        if (this.peers.isEmpty()) {
-            loadingText.setText(R.string.no_sender_found);
         }
     }
 
@@ -165,8 +159,19 @@ public class ReceiveActivity extends PermissionActivity implements PeerSeeker.Se
     }
 
     @Override
-    public void onPeersFound(List<SenderPeer> peers) {
-        this.peers.addAll(peers);
+    public void onDiscovery(List<SenderPeer> peers) {
+        boolean newPeers = false;
+        InetAddress ownAddress = PeerUtils.getIpAddressOrNull();
+        for (SenderPeer peer : peers) {
+            // filter own peers
+            if (!peer.getAddress().equals(ownAddress) && !this.peers.contains(peer)) {
+                newPeers = true;
+                this.peers.add(peer);
+            }
+        }
+        if (!newPeers) {
+            return;
+        }
         runOnUiThread(() -> {
             recyclerAdapter.notifyDataSetChanged();
             if (loadingText.getAlpha() >= 1f) {
@@ -199,15 +204,13 @@ public class ReceiveActivity extends PermissionActivity implements PeerSeeker.Se
 
     @Override
     protected void onStop() {
-        if (currentTask != null) {
-            currentTask.cancel(true);
-        }
+        senderPeersReceiverService.stop();
         executorService.shutdownNow();
         super.onStop();
     }
 
     @Override
-    public void onException(IOException e) {
+    public void onError(IOException e) {
         FirebaseCrashlytics.getInstance().recordException(e);
     }
 

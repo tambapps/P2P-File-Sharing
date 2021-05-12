@@ -245,10 +245,6 @@ public abstract class FileJobService extends JobService implements TaskEventHand
                 i == 0 ? "" : units.charAt(i - 1));
     }
 
-    public Future startSideTask(Runnable runnable) {
-        return executor.submit(runnable);
-    }
-
     @Override
     public void onEnd() {
         unregisterReceiver(notificationBroadcastReceiver);

@@ -5,8 +5,10 @@ import android.app.PendingIntent;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.PersistableBundle;
+import android.widget.Toast;
 
 import androidx.core.app.NotificationCompat;
 
@@ -14,18 +16,23 @@ import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.tambapps.p2p.fandem.Fandem;
 import com.tambapps.p2p.fandem.FileSender;
+import com.tambapps.p2p.fandem.SenderPeer;
 import com.tambapps.p2p.speer.Peer;
 
 import com.tambapps.p2p.peer_transfer.android.R;
 import com.tambapps.p2p.peer_transfer.android.analytics.CrashlyticsValues;
 import com.tambapps.p2p.peer_transfer.android.service.event.SendingEventHandler;
-import com.tambapps.p2p.peer_transfer.android.service.sniff.SniffHandlerService;
+import com.tambapps.p2p.speer.datagram.service.PeriodicMulticastService;
 import com.tambapps.p2p.speer.exception.HandshakeFailException;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * Created by fonkoua on 05/05/18.
@@ -33,7 +40,8 @@ import java.net.SocketTimeoutException;
 
 public class FileSendingJobService extends FileJobService implements SendingEventHandler {
 
-    private final SniffHandlerService sniffHandlerService = new SniffHandlerService();
+    private final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
+    private final PeriodicMulticastService<List<SenderPeer>> senderPeersMulticastService = Fandem.multicastService(scheduledExecutorService);
 
     @Override
     FileTask startTask(NotificationCompat.Builder notifBuilder,
@@ -43,10 +51,18 @@ public class FileSendingJobService extends FileJobService implements SendingEven
                        PendingIntent cancelIntent, FirebaseAnalytics analytics) {
 
         String peerString = bundle.getString("peer");
+        Peer peer = Peer.parse(peerString);
         String fileName = bundle.getString("fileName");
+        String deviceName = Build.MANUFACTURER + " " + Build.MODEL;
         long fileSize = bundle.getLong("fileSize");
-        sniffHandlerService.startInBackground(this, peerString, fileName, fileSize);
-        return new SendingTask(this, notifBuilder, notificationManager, notifId, getContentResolver(), cancelIntent, analytics, sniffHandlerService)
+        List<SenderPeer> senderPeers = Collections.singletonList(new SenderPeer(peer.getAddress(), peer.getPort(), deviceName, fileName, fileSize));
+        senderPeersMulticastService.setData(senderPeers);
+        try {
+            senderPeersMulticastService.start(1000L);
+        } catch (IOException e) {
+            Toast.makeText(this, "Couldn't communicate sender key. The receiver will have to enter it manually", Toast.LENGTH_LONG).show();
+        }
+        return new SendingTask(this, notifBuilder, notificationManager, notifId, getContentResolver(), cancelIntent, analytics, senderPeersMulticastService)
                 .execute(peerString,
                         bundle.getString("fileUri"),
                         fileName,
@@ -65,20 +81,19 @@ public class FileSendingJobService extends FileJobService implements SendingEven
 
     static class SendingTask extends FileTask {
 
-        private final SniffHandlerService sniffHandlerService;
+        private final PeriodicMulticastService<List<SenderPeer>> senderPeersMulticastService;
         private FileSender fileSender;
         private ContentResolver contentResolver;
-        private String fileName;
         private long startTime;
 
         SendingTask(SendingEventHandler eventHandler, NotificationCompat.Builder notifBuilder,
                     NotificationManager notificationManager,
                     int notifId,
                     ContentResolver contentResolver,
-                    PendingIntent cancelIntent, FirebaseAnalytics analytics, SniffHandlerService sniffHandlerService) {
+                    PendingIntent cancelIntent, FirebaseAnalytics analytics, PeriodicMulticastService<List<SenderPeer>> senderPeersMulticastService) {
             super(eventHandler, notifBuilder, notificationManager, notifId, cancelIntent, analytics);
             this.contentResolver = contentResolver;
-            this.sniffHandlerService = sniffHandlerService;
+            this.senderPeersMulticastService = senderPeersMulticastService;
         }
 
         void run(String... params) {
@@ -88,7 +103,7 @@ public class FileSendingJobService extends FileJobService implements SendingEven
             fileSender = new FileSender(Peer.parse(params[0]), this,
                     SOCKET_TIMEOUT);
             Uri fileUri = Uri.parse(params[1]);
-            fileName = params[2];
+            String fileName = params[2];
             long fileSize = Long.parseLong(params[3]);
             crashlytics.setCustomKey(CrashlyticsValues.FILE_LENGTH, fileSize);
 
@@ -147,7 +162,7 @@ public class FileSendingJobService extends FileJobService implements SendingEven
         public String onConnected(String remoteAddress, String fileName, long fileSize) {
             this.startTime = System.currentTimeMillis();
             ((SendingEventHandler)eventHandler).onServiceStarted();
-            sniffHandlerService.stop();
+            senderPeersMulticastService.stop(true);
             return getString(R.string.sending_connected, fileName);
         }
 
@@ -155,7 +170,7 @@ public class FileSendingJobService extends FileJobService implements SendingEven
         void dispose() {
             super.dispose();
             contentResolver = null;
-            sniffHandlerService.stop();
+            senderPeersMulticastService.stop(true);
         }
 
     }
@@ -163,7 +178,7 @@ public class FileSendingJobService extends FileJobService implements SendingEven
     @Override
     void cancel() {
         super.cancel();
-        sniffHandlerService.stop();
+        senderPeersMulticastService.stop(true);
     }
 
     @Override
