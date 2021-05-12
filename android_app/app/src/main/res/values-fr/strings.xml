@@ -3,7 +3,7 @@
     <string name="tab_text_2">Envoyer un fichier</string>
     <string name="tab_text_3">Recevoir un fichier</string>
     <string name="help_title">Bienvenue sur Fandem</string>
-    <string name="help_description">\t\t\t\tCette application permet d\'envoyer/recevoir des fichiers en Peer to Peer (P2P) avec le partage de données (point d\'accès). P2P signifie que les données sont transférées directement d\'un appareil à l\'autre, aucune donnée n\'est envoyée à un serveur intermédiaire.\n\nPour transférer des fichiers, les deux appareils doivent être dans le même réseau local.\nPartagez la connexion 3/4G d\'un des smartphones avec l\'autre, et connecter ce dernier sur le WI-FI crée par le partage de connexion.</string>
+    <string name="help_description">\t\t\t\tCette application permet d\'envoyer/recevoir des fichiers en Peer to Peer (P2P) avec le partage de données (point d\'accès). P2P signifie que les données sont transférées directement d\'un appareil à l\'autre, aucune donnée n\'est envoyée à un serveur intermédiaire.\n\nPour transférer des fichiers, les deux appareils doivent être dans le même réseau local.\nPartagez la connexion 3/4G d\'un des smartphones avec l\'autre, et connecter ce dernier sur le WI-FI crée par le partage de connexion.\n\nAfin que le transfert se déroule sans problème, assurez vous que les 2 appareils<b> aient la dernière version de l\'application</b></string>
     <string name="pick_a_file_to_send">Choisissez un fichier à envoyer</string>
     <string name="port">port</string>
     <string name="receive_file">Recevoir un fichier</string>
