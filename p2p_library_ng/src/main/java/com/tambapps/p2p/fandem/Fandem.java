@@ -5,6 +5,7 @@ import static com.tambapps.p2p.fandem.SenderPeer.DEFAULT_PORT;
 import com.tambapps.p2p.speer.Peer;
 import com.tambapps.p2p.speer.datagram.DatagramSupplier;
 import com.tambapps.p2p.speer.datagram.MulticastDatagramPeer;
+import com.tambapps.p2p.speer.datagram.service.MulticastReceiverService;
 import com.tambapps.p2p.speer.datagram.service.PeriodicMulticastService;
 import com.tambapps.p2p.speer.util.Deserializer;
 import com.tambapps.p2p.speer.util.PeerUtils;
@@ -18,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.stream.Collectors;
 
@@ -75,6 +77,13 @@ public final class Fandem {
         return senderPeers;
       }
     };
+  }
+
+  public static MulticastReceiverService<List<SenderPeer>> senderPeersReceiverService(
+      ExecutorService executorService,
+      MulticastReceiverService.DiscoveryListener<List<SenderPeer>> listener) {
+    return new MulticastReceiverService<>(executorService, PEER_DISCOVERY_MULTICAST_ADDRESS,
+        PEER_DISCOVERY_PORT, senderPeersDeserializer(), listener);
   }
 
   public static Peer findAvailableSendingPeer() throws IOException {

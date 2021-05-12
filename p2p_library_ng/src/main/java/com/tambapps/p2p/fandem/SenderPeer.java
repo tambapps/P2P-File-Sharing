@@ -1,10 +1,12 @@
 package com.tambapps.p2p.fandem;
 
 import com.tambapps.p2p.speer.Peer;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 import java.net.InetAddress;
 
+@EqualsAndHashCode(callSuper = true)
 @Getter
 public class SenderPeer extends Peer {
 
@@ -25,4 +27,7 @@ public class SenderPeer extends Peer {
     return super.toString();
   }
 
+  public boolean peerEquals(Peer peer) {
+    return super.equals(peer);
+  }
 }
