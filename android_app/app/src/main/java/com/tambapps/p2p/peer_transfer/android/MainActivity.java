@@ -2,6 +2,7 @@ package com.tambapps.p2p.peer_transfer.android;
 
 import android.content.Intent;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 
 import com.google.android.gms.ads.AdError;
@@ -37,6 +38,10 @@ public class MainActivity extends AppCompatActivity implements OnInitializationC
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // only Android 30+ needs to manage files
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            findViewById(R.id.managed_files_button).setVisibility(View.GONE);
+        }
         MobileAds.initialize(this, this);
         loadInterstitiel();
     }
@@ -147,5 +152,9 @@ public class MainActivity extends AppCompatActivity implements OnInitializationC
             snackbar.dismiss();
         }
         super.onStop();
+    }
+
+    public void manageFilesIntent(View view) {
+        startActivity(new Intent(this, ManageFilesActivity.class));
     }
 }

@@ -41,5 +41,15 @@
             style="@style/mainButton"
             android:onClick="receiveIntent"
             />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/managed_received_files"
+            android:layout_gravity="center_horizontal"
+            style="@style/mainButton"
+            android:id="@+id/managed_files_button"
+            android:onClick="manageFilesIntent"
+            />
     </LinearLayout>
 </RelativeLayout>
