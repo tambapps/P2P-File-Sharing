@@ -5,7 +5,11 @@ This project aims to transfer files from one device (computer or android smartph
 ## P2P Library
 
 This is the library I built, used by both the Android app and the Desktop app. It is because of this library that we can also share files between android and desktop.
-I first developed it in Java 7 but then decided to migrate it to Kotlin. Kotlin was a better choice for making this library compatible on both Android and Java desktop applications.
+
+It was previously implemented in Kotlin. If you are more familiar with the old implementation, you can consult
+the [legacy branch](TODO).
+
+Now it uses my [speer](https://github.com/tambapps/speer) library, a general purpose P2P library in Java.
 
 ## Android app
 
@@ -22,3 +26,16 @@ The desktop app was developed with JavaFX and Spring Boot (for dependency inject
 ![alt text](https://raw.githubusercontent.com/tambapps/P2P-File-Sharing/master/screenshots/desktop.png)
 
 
+## How it works
+
+This project only works if the two devices are on the same local network.
+This allows peers to communicate between them, without any intermediate server. Your data
+goes from the sender, directly to the receiver
+
+### Peer discovery
+The receiver can detect sending peers automatically. This is implemented with
+UDP multicast:
+
+The receiver register to a multicast address group, and the sender sends its peer data periodically 
+to that group, with UDP packet. This is much faster than with TCP, where we would have to try to connect to
+every IP on the local network.
