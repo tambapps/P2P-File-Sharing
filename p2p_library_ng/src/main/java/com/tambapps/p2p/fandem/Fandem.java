@@ -35,7 +35,7 @@ public final class Fandem {
 
   public static PeriodicMulticastService<List<SenderPeer>> multicastService(
       ScheduledExecutorService executor) {
-    return new PeriodicMulticastService<>(executor, PEER_DISCOVERY_MULTICAST_ADDRESS, PEER_DISCOVERY_PORT, senderPeersSerializer());
+    return new PeriodicMulticastService<>(executor, PEER_DISCOVERY_MULTICAST_ADDRESS, PEER_DISCOVERY_PORT, senderPeersSerializer(), new ArrayList<>());
   }
 
   public static DatagramSupplier<List<SenderPeer>> senderPeersSupplier() throws IOException {
