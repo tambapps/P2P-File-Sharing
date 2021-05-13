@@ -2,6 +2,7 @@ package com.tambapps.p2p.fandem;
 
 import static com.tambapps.p2p.fandem.util.FileUtils.bytesToHex;
 
+import com.tambapps.p2p.fandem.exception.CorruptedFileException;
 import com.tambapps.p2p.fandem.exception.SharingException;
 import com.tambapps.p2p.fandem.util.TransferListener;
 import lombok.AllArgsConstructor;
@@ -13,6 +14,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Optional;
 
 @AllArgsConstructor
 public abstract class FileSharer {
@@ -23,6 +25,33 @@ public abstract class FileSharer {
 
   protected final TransferListener listener;
 
+  protected void share(InputStream inputStream, OutputStream outputStream, int bufferSize,
+      long totalBytes, String expectedChecksum, File file) throws IOException {
+    byte[] buffer = new byte[bufferSize];
+    int lastProgress = 0;
+    long bytesProcessed = 0;
+    int progress;
+    int count;
+    MessageDigest digest = getMessageDigest();
+    while ((count = inputStream.read(buffer)) > 0) {
+      bytesProcessed += count;
+      outputStream.write(buffer, 0, count);
+      digest.update(buffer, 0, count);
+      progress = (int) Math.min(MAX_PROGRESS - 1, MAX_PROGRESS * bytesProcessed / totalBytes);
+      if (progress != lastProgress && listener != null) {
+        lastProgress = progress;
+        listener.onProgressUpdate(progress, bytesProcessed, totalBytes);
+      }
+    }
+    if (bytesProcessed != totalBytes) {
+      throw new SharingException("Transfer was not properly finished");
+    } else if (listener != null) {
+      listener.onProgressUpdate(MAX_PROGRESS, totalBytes, totalBytes);
+    }
+    if (!bytesToHex(digest.digest()).equals(expectedChecksum)) {
+      throw new CorruptedFileException(file);
+    }
+  }
   protected void share(InputStream inputStream, OutputStream outputStream, int bufferSize,
       long totalBytes) throws IOException {
     byte[] buffer = new byte[bufferSize];
@@ -52,15 +81,19 @@ public abstract class FileSharer {
     }
   }
 
-  public String computeChecksum(InputStream inputStream) throws IOException {
-    byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
-    int count;
+  private MessageDigest getMessageDigest() throws IOException {
     MessageDigest digest = null;
     try {
-      digest = MessageDigest.getInstance("SHA-256");
+      return MessageDigest.getInstance("SHA-256");
     } catch (NoSuchAlgorithmException e) {
       throw new IOException("Couldn't find MD5 algorithm", e);
     }
+  }
+
+  public String computeChecksum(InputStream inputStream) throws IOException {
+    byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
+    int count;
+    MessageDigest digest = getMessageDigest();
     while ((count = inputStream.read(buffer)) > 0) {
       digest.update(buffer, 0, count);
     }
