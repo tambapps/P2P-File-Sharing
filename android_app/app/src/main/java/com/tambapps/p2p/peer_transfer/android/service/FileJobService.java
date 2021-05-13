@@ -17,6 +17,7 @@ import android.os.PersistableBundle;
 import androidx.core.app.NotificationCompat;
 
 import com.google.firebase.analytics.FirebaseAnalytics;
+import com.tambapps.p2p.fandem.util.FileUtils;
 import com.tambapps.p2p.fandem.util.TransferListener;
 import com.tambapps.p2p.speer.Peer;
 import com.tambapps.p2p.peer_transfer.android.R;
@@ -148,7 +149,7 @@ public abstract class FileJobService extends JobService implements TaskEventHand
         public void onProgressUpdate(int progress, long bytesProcessed, long totalBytes) {
             if (progress < 100) {
                 notifBuilder.setProgress(100, progress, false);
-                notifStyle.bigText(FileJobService.bytesToString(bytesProcessed) + "/ " + FileJobService.bytesToString(totalBytes));
+                notifStyle.bigText(FileUtils.toFileSize(bytesProcessed) + "/ " + FileUtils.toFileSize(totalBytes));
             }
             long now = System.currentTimeMillis();
             if (now - lastNotificationUpdate >= 500L) {
@@ -230,19 +231,6 @@ public abstract class FileJobService extends JobService implements TaskEventHand
                 cancel();
             }
         }
-    }
-
-    static String bytesToString(long bytes) {
-        String units = "kMG";
-        long denominator = 1;
-        int i = 0;
-
-        while (bytes / (denominator * 1024) > 0 && i < units.length()) {
-            denominator *= 1024;
-            i++;
-        }
-        return String.format(Locale.US, "%.1f %sB", ((float)bytes)/((float)denominator),
-                i == 0 ? "" : units.charAt(i - 1));
     }
 
     @Override
