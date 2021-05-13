@@ -1,11 +1,12 @@
 package com.tambapps.p2p.fandem.fandemdesktop.controller;
 
 import com.tambapps.p2p.fandem.Fandem;
+import com.tambapps.p2p.fandem.fandemdesktop.service.FileSenderService;
 import com.tambapps.p2p.fandem.fandemdesktop.util.SharingErrorListener;
 import com.tambapps.p2p.fandem.util.TransferListener;
 import com.tambapps.p2p.speer.Peer;
 import com.tambapps.p2p.fandem.fandemdesktop.model.SharingTask;
-import com.tambapps.p2p.fandem.fandemdesktop.service.FileSharingService;
+import com.tambapps.p2p.fandem.fandemdesktop.service.FileReceiverService;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -22,7 +23,8 @@ import java.io.IOException;
 @Scope("prototype") /// allow to have a new instance each time we need this component
 public class TaskViewController implements TransferListener, SharingErrorListener {
 
-  private final FileSharingService fileSharingService;
+  private final FileSenderService fileSenderService;
+  private final FileReceiverService fileReceiverService;
   private final ObservableList<SharingTask> sharingTasks;
 
   @FXML
@@ -38,8 +40,11 @@ public class TaskViewController implements TransferListener, SharingErrorListene
 
   private SharingTask task;
 
-  public TaskViewController(FileSharingService fileSharingService, ObservableList<SharingTask> sharingTasks) {
-    this.fileSharingService = fileSharingService;
+  public TaskViewController(
+      FileSenderService fileSenderService,
+      FileReceiverService fileReceiverService, ObservableList<SharingTask> sharingTasks) {
+    this.fileSenderService = fileSenderService;
+    this.fileReceiverService = fileReceiverService;
     this.sharingTasks = sharingTasks;
   }
 
@@ -132,13 +137,13 @@ public class TaskViewController implements TransferListener, SharingErrorListene
       setEndMessage("Couldn't retrieve IP. Are you connected to internet?");
       return;
     }
-    task = fileSharingService.sendFile(peer, file, this);
+    task = fileSenderService.sendFile(peer, file, this);
     sharingTasks.add(task);
     centerLabel.setText(String.format("Waiting for other peer on %s (hex code: %s)...", peer, Fandem.toHexString(peer)));
   }
 
   public void receiveTask(File folder, Peer peer) {
-    task = fileSharingService.receiveFile(folder, peer, this);
+    task = fileReceiverService.receiveFile(folder, peer, this);
     sharingTasks.add(task);
     centerLabel.setText("Connecting to " + peer + " ...");
   }

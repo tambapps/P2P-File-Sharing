@@ -2,6 +2,7 @@ package com.tambapps.p2p.fandem.fandemdesktop.controller;
 
 import com.tambapps.p2p.fandem.Fandem;
 import com.tambapps.p2p.fandem.SenderPeer;
+import com.tambapps.p2p.fandem.util.FileUtils;
 import com.tambapps.p2p.speer.Peer;
 import com.tambapps.p2p.fandem.fandemdesktop.util.PropertyUtils;
 import com.tambapps.p2p.speer.datagram.DatagramSupplier;
@@ -25,6 +26,7 @@ import java.io.IOException;
 import java.net.SocketException;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
@@ -50,17 +52,20 @@ public class ReceivePaneController {
   @FXML
   private Button cancelSniffButton;
 
-  DatagramSupplier<List<SenderPeer>> sniffSupplier;
+  private DatagramSupplier<List<SenderPeer>> sniffSupplier;
+  private final Callable<DatagramSupplier<List<SenderPeer>>> sniffSupplierSupplier;
   private final ObjectProperty<File> folderProperty = new SimpleObjectProperty<>();
 
   public ReceivePaneController(@Qualifier("directoryChooser") Supplier<File> directoryChooser,
-                               @Qualifier("sniffExecutorService") ExecutorService executorService,
-                               Supplier<Boolean> canAddTaskSupplier,
-                               BiConsumer<File, Peer> receiveTaskLauncher) {
+      @Qualifier("sniffExecutorService") ExecutorService executorService,
+      Supplier<Boolean> canAddTaskSupplier,
+      BiConsumer<File, Peer> receiveTaskLauncher,
+      Callable<DatagramSupplier<List<SenderPeer>>> sniffSupplierSupplier) {
     this.directoryChooser = directoryChooser;
     this.executorService = executorService;
     this.canAddTaskSupplier = canAddTaskSupplier;
     this.receiveTaskLauncher = receiveTaskLauncher;
+    this.sniffSupplierSupplier = sniffSupplierSupplier;
   }
 
   @FXML
@@ -101,15 +106,12 @@ public class ReceivePaneController {
   }
 
   private void sniffSenderPeer() {
-    if (sniffSupplier == null) {
-      try {
-        sniffSupplier = Fandem.senderPeersSupplier();
-      } catch (IOException e) {
-        errorDialog(e);
-        return;
-      }
+    try {
+      sniffSupplier = sniffSupplierSupplier.call();
+    } catch (Exception e) {
+      Platform.runLater(() -> errorDialog((IOException) e));
+      return;
     }
-
     List<SenderPeer> senderPeers;
     try {
       senderPeers = sniffSupplier.get();
@@ -129,21 +131,21 @@ public class ReceivePaneController {
     }
   }
 
-  private boolean proposePeer(SenderPeer sniffedPeer) {
+  private boolean proposePeer(SenderPeer senderPeer) {
     Alert alert = new Alert(Alert.AlertType.CONFIRMATION,
-      sniffedPeer.getDeviceName() + " wants to send " + sniffedPeer.getFileName(),
+        String.format("%s wants to send %s (%s)", senderPeer.getDeviceName(), senderPeer.getFileName(),
+            FileUtils.toFileSize(senderPeer.getFileSize())),
       new ButtonType("Choose this Peer", ButtonBar.ButtonData.YES),
       new ButtonType("Continue research", ButtonBar.ButtonData.NO));
     alert.setTitle("Sender found");
     alert.setHeaderText(String.format("Sender: %s\nPeer key: %s",
-      sniffedPeer.getDeviceName(), Fandem.toHexString(sniffedPeer)));
+      senderPeer.getDeviceName(), Fandem.toHexString(senderPeer)));
 
     Optional<ButtonBar.ButtonData> optButton = alert.showAndWait().map(ButtonType::getButtonData);
     switch (optButton.orElse(ButtonBar.ButtonData.OTHER)) {
       case YES:
         cancelSniff();
-        hexCodeField.setText(Fandem.toHexString(sniffedPeer));
-        searchPeerButton.setDisable(true);
+        hexCodeField.setText(Fandem.toHexString(senderPeer));
         return true;
       case NO:
         executorService.submit(this::sniffSenderPeer);
