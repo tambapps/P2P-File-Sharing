@@ -74,4 +74,5 @@
     <string name="moving_file">Déplacement du fichier...</string>
     <string name="successfully_moved">%s a été déplacé avec succès</string>
     <string name="warning_couldnt_delete">Attention: le fichier source n\'a pas pu être supprimé</string>
+    <string name="manage">gérer</string>
 </resources>

@@ -75,4 +75,5 @@
     <string name="moving_file">Moving file...</string>
     <string name="successfully_moved">%s was successfully moved</string>
     <string name="warning_couldnt_delete">Warning: source file couldn\'t be deleted</string>
+    <string name="manage">manage</string>
 </resources>

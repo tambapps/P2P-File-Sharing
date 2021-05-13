@@ -5,7 +5,6 @@ import android.app.PendingIntent;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.PersistableBundle;
@@ -18,6 +17,7 @@ import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.tambapps.p2p.fandem.FileReceiver;
 import com.tambapps.p2p.fandem.exception.CorruptedFileException;
+import com.tambapps.p2p.peer_transfer.android.ManageFilesActivity;
 import com.tambapps.p2p.speer.Peer;
 
 import com.tambapps.p2p.fandem.util.FileUtils;
@@ -41,8 +41,9 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class FileReceivingJobService extends FileJobService {
 
-    interface FileIntentProvider {
+    static public interface FileIntentProvider {
         PendingIntent ofFile(File file);
+        PendingIntent manageFile(File file);
     }
     @Override
     FileTask startTask(NotificationCompat.Builder notifBuilder,
@@ -59,6 +60,15 @@ public class FileReceivingJobService extends FileJobService {
                                 getApplicationContext().getPackageName() + ".io", file));
                         fileIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                         return PendingIntent.getActivity(FileReceivingJobService.this, notifId, fileIntent, PendingIntent.FLAG_UPDATE_CURRENT);                    }
+
+
+                    @Override
+                    public PendingIntent manageFile(File file) {
+                        Intent fileIntent = new Intent(FileReceivingJobService.this, ManageFilesActivity.class);
+                        fileIntent.putExtra("from_file", file);
+                        fileIntent.putExtra("notifId", notifId);
+                        return PendingIntent.getActivity(FileReceivingJobService.this, notifId, fileIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                    }
                 }, analytics)
                 .execute(bundle.getString("downloadPath"), bundle.getString("peer"));
     }
@@ -152,9 +162,12 @@ public class FileReceivingJobService extends FileJobService {
         }
 
         private void completeNotification(File file) {
-            finishNotification()
+            NotificationCompat.Builder builder = finishNotification()
                     .setContentTitle(getString(R.string.transfer_complete))
                     .setContentIntent(fileIntentProvider.ofFile(file));
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                builder.addAction(android.R.drawable.ic_menu_view, builder.mContext.getString(R.string.manage), fileIntentProvider.manageFile(file));
+            }
 
             Bitmap image = null;
             if (isImage(file)) {

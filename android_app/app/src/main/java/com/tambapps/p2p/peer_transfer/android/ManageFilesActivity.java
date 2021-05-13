@@ -8,6 +8,7 @@ import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.NotificationManager;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -27,6 +28,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -67,6 +69,20 @@ public class ManageFilesActivity extends AppCompatActivity {
         }
         adapter = new MyAdapter();
         recyclerView.setAdapter(adapter);
+        Intent data = getIntent();
+        if (data != null) {
+            if (data.hasExtra("from_file")) {
+                Serializable file = data.getSerializableExtra("from_file");
+                if (file instanceof File) {
+                    manageFileDialog((File) file);
+                }
+            }
+            if (data.hasExtra("notifId")) {
+                int notifId = data.getIntExtra("notifId", 0);
+                NotificationManager notificationManager  = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+                notificationManager.cancel(notifId);
+            }
+        }
     }
 
     @Override
