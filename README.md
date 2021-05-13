@@ -7,7 +7,7 @@ This project aims to transfer files from one device (computer or android smartph
 This is the library I built, used by both the Android app and the Desktop app. It is because of this library that we can also share files between android and desktop.
 
 It was previously implemented in Kotlin. If you are more familiar with the old implementation, you can consult
-the [legacy branch](TODO).
+the [legacy branch](https://github.com/tambapps/P2P-File-Sharing/tree/legacy).
 
 Now it uses my [speer](https://github.com/tambapps/speer) library, a general purpose P2P library in Java.
 
