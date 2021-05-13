@@ -24,25 +24,24 @@ public class PermissionActivity extends AppCompatActivity {
   }
 
   public void requestPermissionDialog(int title, int message, final String permission) {
-    requestPermissionDialog(title, message, (dialogInterface, i) -> requestWritePermission(permission));
-  }
-
-
-  public void requestPermissionDialog(int title, int message, DialogInterface.OnClickListener onOkClickListener) {
     new AlertDialog.Builder(this)
-            .setTitle(title)
-            .setMessage(message)
-            .setNeutralButton(this.getString(R.string.no), new DialogInterface.OnClickListener() {
-              @Override
-              public void onClick(DialogInterface dialog, int which) {
-                Toast.makeText(getApplicationContext(), getString(R.string.permissions_not_granted), Toast.LENGTH_SHORT).show();
-                finish();
-              }
-            })
-            .setPositiveButton("ok", onOkClickListener)
-            .setCancelable(false)
-            .create()
-            .show();
+        .setTitle(title)
+        .setMessage(message)
+        .setNeutralButton(this.getString(R.string.no), new DialogInterface.OnClickListener() {
+          @Override
+          public void onClick(DialogInterface dialog, int which) {
+            Toast.makeText(getApplicationContext(), getString(R.string.permissions_not_granted), Toast.LENGTH_SHORT).show();
+            finish();
+          }
+        })
+        .setPositiveButton("ok", new DialogInterface.OnClickListener() {
+          @Override
+          public void onClick(DialogInterface dialogInterface, int i) {
+            requestWritePermission(permission);
+          }
+        })
+        .create()
+        .show();
   }
 
   @Override
