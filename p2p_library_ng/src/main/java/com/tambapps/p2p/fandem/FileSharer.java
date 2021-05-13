@@ -14,12 +14,11 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Optional;
 
 @AllArgsConstructor
 public abstract class FileSharer {
 
-  protected static final int DEFAULT_BUFFER_SIZE = 1024;
+  protected static final int DEFAULT_BUFFER_SIZE = 8192;
 
   private static final int MAX_PROGRESS = 100;
 
