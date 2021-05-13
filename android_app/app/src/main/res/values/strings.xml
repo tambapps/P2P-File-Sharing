@@ -60,4 +60,9 @@
     <string name="couldnt_start">Couldn\'t start transfer with other peer</string>
     <string name="corrupted_file">The received file is corrupted, you should delete it and restart the transfer</string>
     <string name="managed_received_files">Manage received files</string>
+    <string name="delete">Delete</string>
+    <string name="move_to_downloads">Move to accessible storage</string>
+    <string name="handle_received_file">Manage %s</string>
+    <string name="move_to_downloads_description">You can move this file to your phone\'s accessible storage (e.g your Download folder), or delete it</string>
+    <string name="confirm_delete">Are you sure you want to delete %s?</string>
 </resources>

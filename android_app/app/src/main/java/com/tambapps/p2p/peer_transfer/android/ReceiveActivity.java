@@ -42,6 +42,7 @@ import com.tambapps.p2p.peer_transfer.android.service.FileReceivingJobService;
 import com.tambapps.p2p.speer.datagram.service.MulticastReceiverService;
 import com.tambapps.p2p.speer.util.PeerUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.ArrayList;
@@ -51,6 +52,14 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class ReceiveActivity extends PermissionActivity implements MulticastReceiverService.DiscoveryListener<List<SenderPeer>> {
+
+    public static File getReceivedFilesDirectory(Context context) {
+        File file = new File(context.getFilesDir(), "received_files");
+        if (!file.exists()) {
+            file.mkdirs();
+        }
+        return file;
+    }
 
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private ProgressBar progressBar;
@@ -75,7 +84,7 @@ public class ReceiveActivity extends PermissionActivity implements MulticastRece
         // TODO create manage received files screen (for android 30+ only)
         downloadPath = Build.VERSION.SDK_INT < Build.VERSION_CODES.R ?
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getPath() :
-        getFilesDir().getPath();
+        getReceivedFilesDirectory(this).getPath();
         progressBar = findViewById(R.id.progress_bar);
         loadingText = findViewById(R.id.loading_text);
 
