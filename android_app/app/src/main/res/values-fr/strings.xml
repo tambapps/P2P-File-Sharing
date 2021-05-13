@@ -58,4 +58,20 @@
     <string name="no_sender_found">Aucun appareil envoyeur n\'a été trouvé. Swipe down pour réessayer</string>
     <string name="couldnt_start">Impossible de commencer le transfer avec l\'autre appareil</string>
     <string name="corrupted_file">Le fichier reçu est corrompu. Vous devriez le supprimer</string>
+    <string name="managed_received_files">Gérer les fichiers reçus</string>
+    <string name="delete">Supprimer</string>
+    <string name="move_to_downloads">Déplacer dans le storage accessible</string>
+    <string name="handle_received_file">Gérer %s</string>
+    <string name="move_to_downloads_description">Vous pouvez bouger ce fichier dans le stockage accessible de votre téléphone (par exemple votre dossier de téléchargements), ou supprimer ce fichier</string>
+    <string name="confirm_delete">Voulez-vous vraiment supprimer %s?</string>
+    <string name="couldnt_delete_file">Impossible de supprimer le fichier</string>
+    <string name="file_size">Taille du fichier: %s</string>
+    <string name="received_date">Date de réception: %s</string>
+    <string name="couldnt_get_files_list">Impossible de récuperer la liste de fichier. Veuillez réessayer</string>
+    <string name="no_received_files">Aucun fichier reçu n\'a été trouvé</string>
+    <string name="couldnt_move_file">Impossible de déplacer le fichier</string>
+    <string name="error_occured_retry">Une erreur est survenue. Veuillez réessayer</string>
+    <string name="moving_file">Déplacement du fichier...</string>
+    <string name="successfully_moved">%s a été déplacé avec succès</string>
+    <string name="warning_couldnt_delete">Attention: le fichier source n\'a pas pu être supprimé</string>
 </resources>

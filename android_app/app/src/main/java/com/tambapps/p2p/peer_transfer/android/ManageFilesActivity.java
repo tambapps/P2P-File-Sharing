@@ -56,10 +56,10 @@ public class ManageFilesActivity extends AppCompatActivity {
         files = new ArrayList<>();
         File[] files = ReceiveActivity.getReceivedFilesDirectory(this).listFiles();
         if (files == null) {
-            Toast.makeText(getApplicationContext(), "Couldn't get files list. Please retry", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), getString(R.string.couldnt_get_files_list), Toast.LENGTH_SHORT).show();
             finish();
         } else if (files.length == 0) {
-            Toast.makeText(getApplicationContext(), "No received files were found", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), getString(R.string.no_received_files), Toast.LENGTH_SHORT).show();
             finish();
         } else {
             this.files.addAll(Arrays.asList(files));
@@ -88,9 +88,9 @@ public class ManageFilesActivity extends AppCompatActivity {
             final File file = files.get(position);
             holder.position = position;
             holder.fileNameText.setText(file.getName());
-            holder.fileSizeText.setText("File size: " + FileUtils.toFileSize(file.length()));
+            holder.fileSizeText.setText(getString(R.string.file_size, FileUtils.toFileSize(file.length())));
 
-            holder.receivedDateText.setText("Received date: " + DATE_FORMAT.format(new Date(file.lastModified())));
+            holder.receivedDateText.setText(getString(R.string.received_date, DATE_FORMAT.format(new Date(file.lastModified()))));
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -115,7 +115,7 @@ public class ManageFilesActivity extends AppCompatActivity {
                                         .setNeutralButton(R.string.no, null)
                                         .setPositiveButton(R.string.yes, (dialog1, which1) -> {
                                             if (!file.delete()) {
-                                                Toast.makeText(ManageFilesActivity.this, "Couldn't delete file", Toast.LENGTH_SHORT).show();
+                                                Toast.makeText(ManageFilesActivity.this, getString(R.string.couldnt_delete_file), Toast.LENGTH_SHORT).show();
                                                 return;
                                             }
                                             removeFromRecycler(file);
@@ -169,12 +169,12 @@ public class ManageFilesActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == SAVE_FILE_REQUEST_CODE) {
             if (resultCode != RESULT_OK) {
-                Toast.makeText(this, "Couldn't move file", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, getString(R.string.couldnt_move_file), Toast.LENGTH_SHORT).show();
             } else if (data.getData() == null) {
-                Toast.makeText(this, "An error occurred, please retry", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, getString(R.string.error_occured_retry), Toast.LENGTH_SHORT).show();
             } else {
                 ProgressDialog progressDialog = new ProgressDialog(this);
-                progressDialog.setTitle("Moving file...");
+                progressDialog.setTitle(getString(R.string.moving_file));
                 progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
                 progressDialog.setMax(100);
                 progressDialog.setCancelable(false);
@@ -202,14 +202,14 @@ public class ManageFilesActivity extends AppCompatActivity {
                     runOnUiThread(() -> progressDialog.setProgress(progress));
                 }
             }
-            String message = !sourceFile.delete() ? "Warning: source file couldn't be deleted" : null;
+            String message = !sourceFile.delete() ? getString(R.string.warning_couldnt_delete) : null;
             progressDialog.dismiss();
             final File fileToRemove = sourceFile;
             runOnUiThread(() -> {
                 new AlertDialog.Builder(this)
-                        .setTitle("File successfully moved")
+                        .setTitle(getString(R.string.successfully_moved, fileToRemove.getName()))
                         .setMessage(message)
-                        .setNeutralButton("ok", (dialog, which) -> removeFromRecycler(fileToRemove))
+                        .setNeutralButton(android.R.string.ok, (dialog, which) -> removeFromRecycler(fileToRemove))
                         .setCancelable(false)
                         .show();
                 ManageFilesActivity.this.sourceFile = null;
@@ -217,9 +217,9 @@ public class ManageFilesActivity extends AppCompatActivity {
         } catch (IOException e) {
             progressDialog.dismiss();
             runOnUiThread(() -> new AlertDialog.Builder(this)
-                    .setTitle("An error occurred")
+                    .setTitle(R.string.error_occured_retry)
                     .setMessage(e.getMessage())
-                    .setNeutralButton("ok", null)
+                    .setNeutralButton(android.R.string.ok, null)
                     .show());
         }
     }

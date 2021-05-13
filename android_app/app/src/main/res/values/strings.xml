@@ -63,6 +63,16 @@
     <string name="delete">Delete</string>
     <string name="move_to_downloads">Move to accessible storage</string>
     <string name="handle_received_file">Manage %s</string>
-    <string name="move_to_downloads_description">You can move this file to your phone\'s accessible storage (e.g your Download folder), or delete it</string>
+    <string name="move_to_downloads_description">You can move this file to your phone\'s accessible storage (e.g your Download folder), or delete this file</string>
     <string name="confirm_delete">Are you sure you want to delete %s?</string>
+    <string name="couldnt_delete_file">Couldn\'t delete file</string>
+    <string name="file_size">File size: %s</string>
+    <string name="received_date">Received date: %s</string>
+    <string name="couldnt_get_files_list">Couldn\'t get files list. Please retry</string>
+    <string name="no_received_files">No received files were found</string>
+    <string name="couldnt_move_file">Couldn\'t move file</string>
+    <string name="error_occured_retry">An error occurred, please retry</string>
+    <string name="moving_file">Moving file...</string>
+    <string name="successfully_moved">%s was successfully moved</string>
+    <string name="warning_couldnt_delete">Warning: source file couldn\'t be deleted</string>
 </resources>
