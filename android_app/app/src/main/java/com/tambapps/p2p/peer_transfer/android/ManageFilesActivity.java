@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -16,6 +17,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -39,7 +41,6 @@ public class ManageFilesActivity extends AppCompatActivity {
     private static final int SAVE_FILE_REQUEST_CODE = 12345;
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.US);
 
-    private RecyclerView recyclerView;
     private MyAdapter adapter;
     private List<File> files;
     // will be used on activity result
@@ -50,7 +51,7 @@ public class ManageFilesActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_manage_files);
-        recyclerView = findViewById(R.id.recyclerview);
+        RecyclerView recyclerView = findViewById(R.id.recyclerview);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         files = new ArrayList<>();
@@ -64,13 +65,36 @@ public class ManageFilesActivity extends AppCompatActivity {
         } else {
             this.files.addAll(Arrays.asList(files));
         }
+        adapter = new MyAdapter();
+        recyclerView.setAdapter(adapter);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        adapter = new MyAdapter();
-        recyclerView.setAdapter(adapter);
+        File[] files = ReceiveActivity.getReceivedFilesDirectory(this).listFiles();
+        if (files != null) {
+            List<File> fileList = Arrays.asList(files);
+            if (!this.files.equals(fileList)) {
+                this.files.clear();
+                this.files.addAll(fileList);
+                notifyDataSetChanged();
+            }
+        }
+    }
+
+    public void viewFile(File file) {
+        // Get URI and MIME type of file
+        Uri uri = FileProvider.getUriForFile(this,
+                getApplicationContext().getPackageName() + ".io", file);
+        String mime = getContentResolver().getType(uri);
+
+        // Open file with user selected app
+        Intent intent = new Intent();
+        intent.setAction(Intent.ACTION_VIEW);
+        intent.setDataAndType(uri, mime);
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        startActivity(intent);
     }
 
     class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
@@ -79,7 +103,7 @@ public class ManageFilesActivity extends AppCompatActivity {
         @Override
         public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             View v =  LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.peer_element, parent, false);
+                    .inflate(R.layout.received_file_item, parent, false);
             return new MyViewHolder(v);
         }
 
@@ -91,49 +115,11 @@ public class ManageFilesActivity extends AppCompatActivity {
             holder.fileSizeText.setText(getString(R.string.file_size, FileUtils.toFileSize(file.length())));
 
             holder.receivedDateText.setText(getString(R.string.received_date, DATE_FORMAT.format(new Date(file.lastModified()))));
-            holder.itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    AlertDialog alertDialog = new AlertDialog.Builder(ManageFilesActivity.this)
-                            .setTitle(getString(R.string.handle_received_file, file.getName()))
-                            .setMessage(getString(R.string.move_to_downloads_description))
-                            .setPositiveButton(R.string.move_to_downloads, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
-                                    intent.addCategory(Intent.CATEGORY_OPENABLE);
-                                    intent.setType("*/*");
-                                    intent.putExtra(Intent.EXTRA_TITLE, file.getName());
-                                    sourceFile = file;
-                                    startActivityForResult(intent, SAVE_FILE_REQUEST_CODE);
-                                }
-                            })
-                            .setNeutralButton(R.string.cancel, null)
-                            .setNegativeButton(R.string.delete, (dialog, which) -> {
-                                new AlertDialog.Builder(ManageFilesActivity.this)
-                                        .setTitle(getString(R.string.confirm_delete, file.getName()))
-                                        .setNeutralButton(R.string.no, null)
-                                        .setPositiveButton(R.string.yes, (dialog1, which1) -> {
-                                            if (!file.delete()) {
-                                                Toast.makeText(ManageFilesActivity.this, getString(R.string.couldnt_delete_file), Toast.LENGTH_SHORT).show();
-                                                return;
-                                            }
-                                            removeFromRecycler(file);
-                                        })
-                                        .show();
-                            })
-                            .create();
-                    alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
-                        @Override
-                        public void onShow(DialogInterface dialog) {
-                            alertDialog.getButton(DialogInterface.BUTTON_NEGATIVE)
-                                    .setTextColor(Color.RED);
-
-                        }
-                    });
-                    alertDialog
-                            .show();
-                }
+            holder.itemView.setOnClickListener(v -> viewFile(file));
+            holder.manageButton.setOnClickListener(v -> manageFileDialog(file));
+            holder.itemView.setOnLongClickListener(v -> {
+                manageFileDialog(file);
+                return true;
             });
             holder.itemView.setAlpha(0f);
             holder.itemView.animate()
@@ -153,17 +139,54 @@ public class ManageFilesActivity extends AppCompatActivity {
         private final TextView fileNameText;
         private final TextView fileSizeText;
         private final TextView receivedDateText;
+        private final ImageButton manageButton;
         int position;
 
         public MyViewHolder(@NonNull View itemView) {
             super(itemView);
-            fileNameText = itemView.findViewById(R.id.element_peer_devicename);
-            fileSizeText = itemView.findViewById(R.id.element_peer_filename);
+            fileNameText = itemView.findViewById(R.id.filename);
+            fileSizeText = itemView.findViewById(R.id.filesize);
             // it's normal, we just recycle peer_element
-            receivedDateText = itemView.findViewById(R.id.element_peer_filesize);
+            receivedDateText = itemView.findViewById(R.id.received_date);
+            manageButton = itemView.findViewById(R.id.manage_button);
         }
     }
 
+    public void manageFileDialog(File file) {
+        AlertDialog alertDialog = new AlertDialog.Builder(ManageFilesActivity.this)
+                .setTitle(getString(R.string.handle_received_file, file.getName()))
+                .setMessage(getString(R.string.move_to_downloads_description))
+                .setPositiveButton(R.string.move_to_downloads, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+                        intent.addCategory(Intent.CATEGORY_OPENABLE);
+                        intent.setType("*/*");
+                        intent.putExtra(Intent.EXTRA_TITLE, file.getName());
+                        sourceFile = file;
+                        startActivityForResult(intent, SAVE_FILE_REQUEST_CODE);
+                    }
+                })
+                .setNeutralButton(R.string.cancel, null)
+                .setNegativeButton(R.string.delete, (dialog, which) -> {
+                    new AlertDialog.Builder(ManageFilesActivity.this)
+                            .setTitle(getString(R.string.confirm_delete, file.getName()))
+                            .setNeutralButton(R.string.no, null)
+                            .setPositiveButton(R.string.yes, (dialog1, which1) -> {
+                                if (!file.delete()) {
+                                    Toast.makeText(ManageFilesActivity.this, getString(R.string.couldnt_delete_file), Toast.LENGTH_SHORT).show();
+                                    return;
+                                }
+                                removeFromRecycler(file);
+                            })
+                            .show();
+                })
+                .create();
+        alertDialog.setOnShowListener(dialog -> alertDialog.getButton(DialogInterface.BUTTON_NEGATIVE)
+                .setTextColor(Color.RED));
+        alertDialog
+                .show();
+    }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
