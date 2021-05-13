@@ -5,6 +5,8 @@ import android.app.PendingIntent;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 import androidx.core.app.NotificationCompat;
@@ -108,6 +110,7 @@ public class FileReceivingJobService extends FileJobService {
                     return f;
                 });
                 completeNotification(file);
+                updateNotification();
                 Bundle bundle = new Bundle();
                 bundle.putString(FirebaseAnalytics.Param.METHOD, "RECEIVE");
                 bundle.putLong("size", file.length());

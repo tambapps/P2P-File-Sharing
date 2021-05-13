@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.PersistableBundle;
@@ -68,7 +69,13 @@ public class ReceiveActivity extends PermissionActivity implements MulticastRece
         setContentView(R.layout.activity_receive);
         analytics = FirebaseAnalytics.getInstance(this);
 
-        downloadPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getPath();
+        // if Android R or later, download files in app's private directory, since we can't get File
+        // instance of external files
+        // a screen manage received files will appear in
+        // TODO create manage received files screen (for android 30+ only)
+        downloadPath = Build.VERSION.SDK_INT < Build.VERSION_CODES.R ?
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getPath() :
+        getFilesDir().getPath();
         progressBar = findViewById(R.id.progress_bar);
         loadingText = findViewById(R.id.loading_text);
 
@@ -76,7 +83,7 @@ public class ReceiveActivity extends PermissionActivity implements MulticastRece
         initializeRecyclerView();
         initializeRefreshLayout();
         sniffPeersAsync();
-        if (!hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R && !hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
             requestPermissionDialog(R.string.ask_write_permission_title,
                 R.string.ask_write_permission_message, Manifest.permission.WRITE_EXTERNAL_STORAGE);
         }
@@ -335,15 +342,6 @@ public class ReceiveActivity extends PermissionActivity implements MulticastRece
                 fileSizeText = itemView.findViewById(R.id.element_peer_filesize);
                 deviceNameText = itemView.findViewById(R.id.element_peer_devicename);
             }
-        }
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_ALL_FILES_PERMISSION && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && !Environment.isExternalStorageManager()) {
-            Toast.makeText(getApplicationContext(), this.getString(R.string.permissions_not_granted), Toast.LENGTH_SHORT).show();
-            finish();
         }
     }
 }

@@ -6,11 +6,11 @@ def admobProperties = new Properties()
 admobProperties.load(new FileInputStream(rootProject.file("admob.properties")))
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 30
     defaultConfig {
         applicationId "com.tambapps.p2p.peer_transfer.android"
         minSdkVersion 21
-        targetSdkVersion 29
+        targetSdkVersion 30
         versionCode 14
         versionName "4.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -33,7 +33,7 @@ android {
         targetCompatibility = JavaVersion.VERSION_1_8
         sourceCompatibility = JavaVersion.VERSION_1_8
     }
-    buildToolsVersion = '28.0.3'
+    buildToolsVersion = '29.0.3'
 }
 
 dependencies {
