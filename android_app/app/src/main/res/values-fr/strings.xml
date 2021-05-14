@@ -60,7 +60,7 @@
     <string name="corrupted_file">Le fichier reçu est corrompu. Vous devriez le supprimer</string>
     <string name="managed_received_files">Gérer les fichiers reçus</string>
     <string name="delete">Supprimer</string>
-    <string name="move_to_downloads">Déplacer dans le storage accessible</string>
+    <string name="move_to_downloads">Déplacer dans le stockage accessible</string>
     <string name="handle_received_file">Gérer %s</string>
     <string name="move_to_downloads_description">Vous pouvez bouger ce fichier dans le stockage accessible de votre téléphone (par exemple votre dossier de téléchargements), ou supprimer ce fichier</string>
     <string name="confirm_delete">Voulez-vous vraiment supprimer %s?</string>
