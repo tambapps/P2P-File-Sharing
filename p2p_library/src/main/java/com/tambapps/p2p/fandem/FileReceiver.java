@@ -54,7 +54,7 @@ public class FileReceiver extends FileSharer {
       long totalBytes = data.getFileSize();
       String fileName = data.getFileName();
       if (listener != null) {
-        listener.onConnected(connection.getSelfPeer(), connection.getPeer(), fileName, totalBytes);
+        listener.onConnected(connection.getSelfPeer(), connection.getRemotePeer(), fileName, totalBytes);
       }
       Optional<String> optExpectedChecksum = data.getChecksum();
       File outputFile = fileProvider.newFile(fileName);
