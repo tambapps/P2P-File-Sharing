@@ -7,6 +7,7 @@
     android:background="@drawable/gradient_drawable"
     android:orientation="vertical"
     tools:showIn="@layout/activity_send"
+    android:id="@+id/parent"
     tools:context="com.tambapps.p2p.peer_transfer.android.SendActivity">
     <View
         android:layout_width="match_parent"

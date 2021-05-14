@@ -18,6 +18,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.util.Pair;
 import android.view.Gravity;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -100,7 +101,7 @@ public class SendActivity extends AppCompatActivity {
         final String hexKey = Fandem.toHexString(peer);
         TextView textView = findViewById(R.id.text_view);
         textView.setText((getString(R.string.started_send_service_message, hexKey)));
-        textView.setGravity(Gravity.CENTER_HORIZONTAL);
+        textView.setGravity(Gravity.CENTER);
         textView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
@@ -108,8 +109,12 @@ public class SendActivity extends AppCompatActivity {
                 return true;
             }
         });
-        FloatingActionButton fab = findViewById(R.id.fab);
-        fab.hide();
+        LinearLayout linearLayout = findViewById(R.id.parent);
+        for (int i = linearLayout.getChildCount() - 1; i >= 0; i--) {
+            if (linearLayout.getChildAt(i) != textView) {
+                linearLayout.removeViewAt(i);
+            }
+        }
     }
 
     private void copyToClipboard(String key) {
