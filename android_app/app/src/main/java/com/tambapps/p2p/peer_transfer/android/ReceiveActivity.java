@@ -123,6 +123,7 @@ public class ReceiveActivity extends PermissionActivity implements MulticastRece
                 return;
             }
             progressBar.setVisibility(View.VISIBLE);
+            senderPeersReceiverService.stop();
             sniffPeersAsync();
         });
     }
