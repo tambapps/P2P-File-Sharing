@@ -313,9 +313,13 @@ public class ReceiveActivity extends PermissionActivity implements MulticastRece
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    String message = getString(R.string.alert_receive_file_message, discoveredPeer.getFileName(), discoveredPeer.getDeviceName());
+                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+                        message += "\n" + getString(R.string.in_download_folder);
+                    }
                     new AlertDialog.Builder(ReceiveActivity.this)
                             .setTitle(getString(R.string.alert_receive_file, discoveredPeer.getFileName()))
-                            .setMessage(getString(R.string.alert_receive_file_message, discoveredPeer.getFileName(), discoveredPeer.getDeviceName()))
+                            .setMessage(message)
                             .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {

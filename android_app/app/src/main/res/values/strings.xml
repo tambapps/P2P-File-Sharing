@@ -76,4 +76,5 @@
     <string name="successfully_moved">%s was successfully moved</string>
     <string name="warning_couldnt_delete">Warning: source file couldn\'t be deleted</string>
     <string name="manage">manage</string>
+    <string name="in_download_folder">File will be downloaded in your \'Download\' folder</string>
 </resources>
