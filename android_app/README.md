@@ -1,4 +1,4 @@
-# Peer Transfer
+# Fandem Android
 
 This is the source code of the android app Peer Transfer.
  

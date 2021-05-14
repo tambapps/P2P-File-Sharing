@@ -1,7 +1,6 @@
-# Command Line File Sharing Tool
+# Fandem command line
 
-This project can be used to transfer files from one computer to another if they are connected on the same wifi.
-
+This command line tool allows to send/receive files to/from other fandem peers.
 
 ## Getting Started
 
@@ -9,32 +8,34 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
+- You must have installed [speer](https://github.com/tambapps/speer) and the [p2p_library](https://github.com/tambapps/P2P-File-Sharing/blob/master/p2p_library/README.md)
+- The two devices used for the file transfer must be connected to the same network (same WI-FI).
+
 The two components used for the file transfer must be connected to the same wifi. Public WIFIs don't work for these transfers.
 
-
 ### Installing
-You can run this app from your IDE or generate the jar file by running
+You can run this app from your IDE or generate the jar file by running (from `command_line/`)
 ```
 mvn install
 ```
-You may need to run the same command in the ../p2p_library/ folder before installing this project.
-Add the '-DskipTests' option if you want to skip tests.
 
 ### Running
 
-To receive a file:
+#### Receive a file
 ```
-java -jar file-sharing-command-line-jar-with-dependencies.jar receive -downloadPath=/path/to/file -peer=0.0.0.0:8081
+java -jar target/file-sharing-command-line-jar-with-dependencies.jar receive -d=/path/to/file -p=0.0.0.0:8081
 ```
-To send a file:
+
+If you don't want to specify the peer, and let the app find it itself, just omit the last argument 
 ```
-java -jar file-sharing-command-line-jar-with-dependencies.jar send /path/to/file
+java -jar target/file-sharing-command-line-jar-with-dependencies.jar receive -d=/path/to/file
+```
+The app will propose you sender peers it finds.
+
+#### Send a file
+
+```
+java -jar target/file-sharing-command-line-jar-with-dependencies.jar send /path/to/file
 ```
 
 You can specify the ip and the port used to send with the -ip and -port options.
-
-## Built With
-
-* [Maven](https://maven.apache.org/)
-* [Jcommander](http://jcommander.org/)
-
