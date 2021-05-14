@@ -1,6 +1,7 @@
 package com.tambapps.p2p.fandem;
 
 import com.tambapps.p2p.fandem.handshake.FandemSenderHandshake;
+import com.tambapps.p2p.fandem.handshake.SenderHandshakeData;
 import com.tambapps.p2p.fandem.util.TransferListener;
 import com.tambapps.p2p.speer.Peer;
 import com.tambapps.p2p.speer.PeerConnection;
@@ -46,7 +47,7 @@ public class FileSender extends FileSharer {
   public void send(InputStream inputStream, String fileName, long fileSize,
       Callable<String> checksumSupplier) throws IOException {
     try (ServerPeer server = serverPeer(
-        new FandemSenderHandshake(fileName, fileSize, checksumSupplier));
+        new FandemSenderHandshake(new SenderHandshakeData(fileName, fileSize), checksumSupplier));
         PeerConnection connection = server.accept()) {
       if (listener != null) {
         listener.onConnected(connection.getSelfPeer(), connection.getPeer(), fileName, fileSize);

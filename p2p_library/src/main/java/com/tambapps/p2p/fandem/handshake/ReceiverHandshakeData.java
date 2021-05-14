@@ -1,16 +1,14 @@
 package com.tambapps.p2p.fandem.handshake;
 
-import lombok.Value;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import java.util.Map;
-
-@Value
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class ReceiverHandshakeData {
 
-  boolean sendChecksum;
+  Boolean sendChecksum;
 
-  public static ReceiverHandshakeData from(Map<String, Object> properties) {
-    return new ReceiverHandshakeData(
-        (boolean) properties.get(FandemReceiverHandshake.SEND_CHECKSUM_KEY));
-  }
 }

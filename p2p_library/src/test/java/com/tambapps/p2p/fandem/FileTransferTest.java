@@ -2,6 +2,8 @@ package com.tambapps.p2p.fandem;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.google.gson.Gson;
+import com.tambapps.p2p.fandem.handshake.ReceiverHandshakeData;
 import com.tambapps.p2p.speer.Peer;
 import org.junit.jupiter.api.Test;
 
@@ -50,7 +52,7 @@ public class FileTransferTest {
     });
 
     for (int i = 0; i < 2; i++) {
-      assertTrue(completionService.poll(2, TimeUnit.SECONDS).get());
+      assertTrue(completionService.poll(10, TimeUnit.SECONDS).get());
     }
     assertTrue(contentEquals(ORIGIN_FILE, FILE));
   }

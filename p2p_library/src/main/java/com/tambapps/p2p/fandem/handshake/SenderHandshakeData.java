@@ -1,21 +1,27 @@
 package com.tambapps.p2p.fandem.handshake;
 
-import lombok.Value;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import java.util.Map;
 import java.util.Optional;
 
-@Value
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class SenderHandshakeData {
 
   String fileName;
-  long fileSize;
+  Long fileSize;
   // nullable
-  Optional<String> checksum;
+  String checksum;
 
-  public static SenderHandshakeData from(Map<String, Object> properties) {
-    return new SenderHandshakeData((String) properties.get(FandemSenderHandshake.FILE_NAME_KEY),
-        (long) properties.get(FandemSenderHandshake.FILE_SIZE_KEY),
-        Optional.ofNullable((String) properties.get(FandemSenderHandshake.CHECKSUM_KEY)));
+  public SenderHandshakeData(String fileName, Long fileSize) {
+    this.fileName = fileName;
+    this.fileSize = fileSize;
+  }
+
+  public Optional<String> getChecksum() {
+    return Optional.ofNullable(checksum);
   }
 }

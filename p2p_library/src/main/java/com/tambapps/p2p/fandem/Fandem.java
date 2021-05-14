@@ -2,18 +2,23 @@ package com.tambapps.p2p.fandem;
 
 import static com.tambapps.p2p.fandem.SenderPeer.DEFAULT_PORT;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonIOException;
+import com.google.gson.JsonSyntaxException;
+import com.google.gson.reflect.TypeToken;
 import com.tambapps.p2p.speer.Peer;
 import com.tambapps.p2p.speer.datagram.DatagramSupplier;
 import com.tambapps.p2p.speer.datagram.MulticastDatagramPeer;
 import com.tambapps.p2p.speer.datagram.service.MulticastReceiverService;
 import com.tambapps.p2p.speer.datagram.service.PeriodicMulticastService;
-import com.tambapps.p2p.speer.util.Deserializer;
+import com.tambapps.p2p.speer.io.Deserializer;
+import com.tambapps.p2p.speer.io.Serializer;
 import com.tambapps.p2p.speer.util.PeerUtils;
-import com.tambapps.p2p.speer.util.Serializer;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.lang.reflect.Type;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,11 +32,36 @@ public final class Fandem {
 
   public static final InetAddress PEER_DISCOVERY_MULTICAST_ADDRESS = PeerUtils.getAddress("230.0.8.8");
   public static final int PEER_DISCOVERY_PORT = 50000;
+  private static final Gson GSON = new Gson();
 
+  private static final Serializer<?> SERIALIZER = (object, outputStream) -> {
+    try {
+      OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
+      GSON.toJson(object, outputStreamWriter);
+      outputStreamWriter.flush();
+    } catch (JsonIOException e) {
+      throw new IOException(e);
+    }
+  };
   public static final String VERSION = "2.0";
 
   private Fandem() {
   }
+
+  public static  <T> Deserializer<T> deserializer(Class<T> clazz) {
+    return inputStream -> {
+      try {
+        return GSON.fromJson(GSON.newJsonReader(new InputStreamReader(inputStream)), clazz);
+      } catch (JsonIOException| JsonSyntaxException e) {
+        throw new IOException(e);
+      }
+    };
+  }
+
+  public static <T> Serializer<T> serializer() {
+    return (Serializer<T>) SERIALIZER;
+  }
+
 
   public static PeriodicMulticastService<List<SenderPeer>> multicastService(
       ScheduledExecutorService executor) {
@@ -49,34 +79,12 @@ public final class Fandem {
   }
 
   public static Serializer<List<SenderPeer>> senderPeersSerializer() {
-    return (peers, os) -> {
-      try (DataOutputStream outputStream = new DataOutputStream(os)) {
-        outputStream.writeInt(peers.size());
-        for (SenderPeer peer : peers) {
-          outputStream.writeUTF(peer.peerString());
-          outputStream.writeUTF(peer.getDeviceName());
-          outputStream.writeUTF(peer.getFileName());
-          outputStream.writeLong(peer.getFileSize());
-        }
-      }
-    };
+    return serializer();
   }
+
   public static Deserializer<List<SenderPeer>> senderPeersDeserializer() {
-    return is -> {
-      try (DataInputStream inputStream = new DataInputStream(is)){
-        int count = inputStream.readInt();
-        List<SenderPeer> senderPeers = new ArrayList<>();
-        for (int i = 0; i < count; i++) {
-          Peer peer = Peer.parse(inputStream.readUTF());
-          String deviceName = inputStream.readUTF();
-          String fileName = inputStream.readUTF();
-          long fileSize = inputStream.readLong();
-          senderPeers
-              .add(new SenderPeer(peer.getAddress(), peer.getPort(), deviceName, fileName, fileSize));
-        }
-        return senderPeers;
-      }
-    };
+    final Type type = new TypeToken<List<SenderPeer>>(){}.getType();
+    return is -> GSON.fromJson(GSON.newJsonReader(new InputStreamReader(is)), type);
   }
 
   public static MulticastReceiverService<List<SenderPeer>> senderPeersReceiverService(

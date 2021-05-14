@@ -1,6 +1,7 @@
 package com.tambapps.p2p.fandem;
 
 import com.tambapps.p2p.fandem.handshake.FandemReceiverHandshake;
+import com.tambapps.p2p.fandem.handshake.ReceiverHandshakeData;
 import com.tambapps.p2p.fandem.handshake.SenderHandshakeData;
 import com.tambapps.p2p.fandem.util.FileProvider;
 import com.tambapps.p2p.fandem.util.TransferListener;
@@ -38,7 +39,7 @@ public class FileReceiver extends FileSharer {
 
   public FileReceiver(boolean withChecksum, TransferListener listener, int bufferSize) {
     super(listener);
-    this.handshake = new FandemReceiverHandshake(withChecksum);
+    this.handshake = new FandemReceiverHandshake(new ReceiverHandshakeData(withChecksum));
     this.bufferSize = bufferSize;
   }
 

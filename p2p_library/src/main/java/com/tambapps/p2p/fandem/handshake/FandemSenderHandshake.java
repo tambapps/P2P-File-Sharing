@@ -1,38 +1,42 @@
 package com.tambapps.p2p.fandem.handshake;
 
+import com.tambapps.p2p.fandem.Fandem;
 import com.tambapps.p2p.speer.exception.HandshakeFailException;
+import com.tambapps.p2p.speer.handshake.SerializedHandshake;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.Map;
 import java.util.concurrent.Callable;
 
-public class FandemSenderHandshake extends FandemHandshake {
-
-  public static final String FILE_NAME_KEY = "file_name";
-  public static final String FILE_SIZE_KEY = "file_size";
-  public static final String CHECKSUM_KEY = "checksum";
+public class FandemSenderHandshake extends SerializedHandshake<SenderHandshakeData, ReceiverHandshakeData> {
 
   private final Callable<String> checksumSupplier;
 
-  public FandemSenderHandshake(String fileName, long fileSize,
-      Callable<String> checksumSupplier) {
-    super(newMap(FILE_NAME_KEY, fileName, FILE_SIZE_KEY, fileSize));
+  public FandemSenderHandshake(SenderHandshakeData data, Callable<String> checksumSupplier) {
+    super(Fandem.serializer(), Fandem.deserializer(ReceiverHandshakeData.class), data);
     this.checksumSupplier = checksumSupplier;
   }
 
   @Override
   public ReceiverHandshakeData apply(DataOutputStream outputStream, DataInputStream inputStream)
       throws IOException {
-    Map<String, Object> attributes = readAttributes(inputStream);
-    validate(attributes);
-    ReceiverHandshakeData data = ReceiverHandshakeData.from(attributes);
-    if (data.isSendChecksum()) {
-      properties.put(CHECKSUM_KEY, getChecksum());
+    outputStream.writeUTF("FANDEM");
+    outputStream.writeUTF(Fandem.VERSION);
+    if (!inputStream.readUTF().equals("FANDEM")) {
+      throw new HandshakeFailException("Remote peer is not a fandem peer");
     }
-    writeAttributes(properties, outputStream);
-    return data;
+    String version = inputStream.readUTF();
+    // TODO check version incompatibility
+
+    ReceiverHandshakeData receiverData = deserializer.deserialize(inputStream);
+    validate(receiverData);
+
+    if (receiverData.getSendChecksum()) {
+      data.setChecksum(getChecksum());
+    }
+    serializer.serialize(data, outputStream);
+    return receiverData;
   }
 
   private String getChecksum() throws IOException {
@@ -44,10 +48,9 @@ public class FandemSenderHandshake extends FandemHandshake {
   }
 
   @Override
-  protected void validate(Map<String, Object> properties) throws HandshakeFailException {
-    super.validate(properties);
-    if (!(properties.get(FandemReceiverHandshake.SEND_CHECKSUM_KEY) instanceof Boolean)) {
-      throw new HandshakeFailException("Sender should send checksum (boolean)");
+  protected void validate(ReceiverHandshakeData receiverHandshakeData) throws HandshakeFailException {
+    if (receiverHandshakeData.getSendChecksum() == null) {
+      throw new HandshakeFailException("Sender should have sent send_checksum");
     }
   }
 
