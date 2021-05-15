@@ -2,6 +2,7 @@ package com.tambapps.p2p.fandem.fandemdesktop.service;
 
 import com.tambapps.p2p.fandem.FileReceiver;
 import com.tambapps.p2p.fandem.FileSharer;
+import com.tambapps.p2p.fandem.util.FileProvider;
 import com.tambapps.p2p.fandem.util.FileUtils;
 import com.tambapps.p2p.speer.Peer;
 import com.tambapps.p2p.fandem.fandemdesktop.controller.TaskViewController;
@@ -30,7 +31,7 @@ public class FileReceiverService {
 
     Future<?> future = executorService.submit(() -> {
       try {
-        fileReceiver.receiveFrom(peer, name -> {
+        fileReceiver.receiveFrom(peer, (FileProvider) name -> {
           File file = FileUtils.newAvailableFile(folder, name);
           task.file = file;
           return file;
