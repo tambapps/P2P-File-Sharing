@@ -334,6 +334,8 @@ public class ReceiveActivity extends PermissionActivity implements MulticastRece
                     String message = getString(R.string.alert_receive_file_message, discoveredPeer.getFileName(), discoveredPeer.getDeviceName());
                     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
                         message += "\n" + getString(R.string.in_download_folder);
+                    } else {
+                        message += "\n" + getString(R.string.select_file);
                     }
                     new AlertDialog.Builder(ReceiveActivity.this)
                             .setTitle(getString(R.string.alert_receive_file, discoveredPeer.getFileName()))
