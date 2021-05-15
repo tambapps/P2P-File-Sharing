@@ -117,8 +117,9 @@ public class FileReceivingJobService extends FileJobService {
 
             final Uri uri = Uri.parse(params[0]);
             fileReceiver = new FileReceiver(true, this);
-            // only for android 11+
-            boolean deleteUri = Build.VERSION.SDK_INT < Build.VERSION_CODES.R;
+            // only devices before Android 11 can delete things
+            // (I've tried contentResolver.delete(uri): IT DOESN'T WORK
+            boolean deleteFile = Build.VERSION.SDK_INT < Build.VERSION_CODES.R;
 
             getNotifBuilder().setContentTitle(getString(R.string.connecting))
                     .setContentText(getString(R.string.connecting_to, params[1]));
@@ -129,8 +130,7 @@ public class FileReceivingJobService extends FileJobService {
                                 new FileOutputStream(
                                         pfd.getFileDescriptor())
                         );
-
-                deleteUri = false;
+                deleteFile = false;
                 completeNotification(uri, fileName, fileLength);
                 updateNotification();
                 Bundle bundle = new Bundle();
@@ -169,8 +169,9 @@ public class FileReceivingJobService extends FileJobService {
                     getNotifBuilder().setStyle(notifStyle.bigText(getString(R.string.error_incomplete, e.getMessage())));
                 }
             }
-            if (deleteUri) {
-                contentResolver.delete(uri, null);
+            if (deleteFile && file != null && !file.delete()) {
+                System.out.println();
+                // let's just assume the file deletion will always work
             }
         }
 
@@ -211,9 +212,7 @@ public class FileReceivingJobService extends FileJobService {
         @Override
         public void cancel() {
             fileReceiver.cancel();
-            if (file != null && file.exists() && !file.delete()) {
-                // do nothing, let's assume the file deletion will always succeed
-            }
+            // the run() method will take care of the delete
         }
 
         @Override
