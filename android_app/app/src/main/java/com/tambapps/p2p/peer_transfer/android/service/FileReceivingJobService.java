@@ -1,5 +1,6 @@
 package com.tambapps.p2p.peer_transfer.android.service;
 
+import android.app.DownloadManager;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.ContentResolver;
@@ -62,11 +63,17 @@ public class FileReceivingJobService extends FileJobService {
                 new FileIntentProvider() {
                     @Override
                     public PendingIntent ofFile(File file) {
-                        Intent fileIntent = new Intent(Intent.ACTION_VIEW);
-                        fileIntent.setData(FileProvider.getUriForFile(FileReceivingJobService.this,
-                                getApplicationContext().getPackageName() + ".io", file));
-                        fileIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                        return PendingIntent.getActivity(FileReceivingJobService.this, notifId, fileIntent, PendingIntent.FLAG_UPDATE_CURRENT);                    }
+                        Intent intent;
+                        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+                            intent = new Intent(Intent.ACTION_VIEW);
+                            intent.setData(FileProvider.getUriForFile(FileReceivingJobService.this,
+                                    getApplicationContext().getPackageName() + ".io", file));
+                            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                        } else {
+                            intent = new Intent(DownloadManager.ACTION_VIEW_DOWNLOADS);
+                        }
+                        return PendingIntent.getActivity(FileReceivingJobService.this, notifId, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                    }
 
                 }, analytics)
                 .execute(bundle.getString("uri"), bundle.getString("peer"));
@@ -169,12 +176,9 @@ public class FileReceivingJobService extends FileJobService {
 
         private void completeNotification(Uri uri, String fileName, long fileLength) {
             NotificationCompat.Builder builder = finishNotification()
-                    .setContentTitle(getString(R.string.transfer_complete));
-
-            if (file != null && file.exists()) {
-                // the file conversion is REQUIRED, ESPECIALLY FOR THIS
-                builder.setContentIntent(fileIntentProvider.ofFile(file));
-            }
+                    .setContentTitle(getString(R.string.transfer_complete))
+                    // nullable file
+                    .setContentIntent(fileIntentProvider.ofFile(file));
 
             Bitmap image = null;
             if (file != null && isImage(file)) {
