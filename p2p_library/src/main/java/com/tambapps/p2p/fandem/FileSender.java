@@ -22,7 +22,7 @@ public class FileSender extends FileSharer {
   private final Peer peer;
   @Getter
   private final int socketTimeout;
-  private final AtomicReference<PeerServer> serverReference = new AtomicReference<>();
+  private final AtomicReference<PeerConnection> connectionReference = new AtomicReference<>();
 
   public FileSender(Peer peer) {
     this(peer, null);
@@ -49,30 +49,30 @@ public class FileSender extends FileSharer {
     try (PeerServer server = peerServer(
         new FandemSenderHandshake(new SenderHandshakeData(fileName, fileSize), checksumSupplier));
         PeerConnection connection = server.accept()) {
+        connectionReference.set(connection);
       if (listener != null) {
         listener.onConnected(connection.getSelfPeer(), connection.getRemotePeer(), fileName, fileSize);
       }
       share(inputStream, connection.getOutputStream(), DEFAULT_BUFFER_SIZE, fileSize);
     }
-    serverReference.set(null);
+    connectionReference.set(null);
   }
 
   public void cancel() {
-    PeerServer server = serverReference.get();
-    if (server != null) {
+    PeerConnection connection = connectionReference.get();
+    if (connection != null) {
       try {
-        server.close();
+        connection.close();
       } catch (IOException e) {
         // ignore
       }
-      serverReference.set(null);
+      connectionReference.set(null);
     }
   }
 
   private PeerServer peerServer(Handshake handshake) throws IOException {
     PeerServer server = new PeerServer(peer, handshake);
     server.setAcceptTimeout(socketTimeout);
-    serverReference.set(server);
     return server;
   }
 }
