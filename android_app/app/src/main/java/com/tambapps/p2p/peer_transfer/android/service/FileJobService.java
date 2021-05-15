@@ -19,6 +19,7 @@ import android.util.Log;
 import androidx.core.app.NotificationCompat;
 
 import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.tambapps.p2p.fandem.util.FileUtils;
 import com.tambapps.p2p.fandem.util.TransferListener;
 import com.tambapps.p2p.speer.Peer;
@@ -168,6 +169,7 @@ public abstract class FileJobService extends JobService implements TaskEventHand
                     eventHandler.onEnd();
                 } catch (Exception e) {
                     Log.e("Error", "An error occurred while sending file", e);
+                    FirebaseCrashlytics.getInstance().recordException(e);
                 }
                 dispose();
             });
