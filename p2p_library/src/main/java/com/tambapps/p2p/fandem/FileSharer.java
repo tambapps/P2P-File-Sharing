@@ -25,7 +25,7 @@ public abstract class FileSharer {
   protected final TransferListener listener;
 
   protected void share(InputStream inputStream, OutputStream outputStream, int bufferSize,
-      long totalBytes, String expectedChecksum, File file) throws IOException {
+      long totalBytes, String expectedChecksum) throws IOException {
     byte[] buffer = new byte[bufferSize];
     int lastProgress = 0;
     long bytesProcessed = 0;
@@ -48,7 +48,7 @@ public abstract class FileSharer {
       listener.onProgressUpdate(MAX_PROGRESS, totalBytes, totalBytes);
     }
     if (!bytesToHex(digest.digest()).equals(expectedChecksum)) {
-      throw new CorruptedFileException(file);
+      throw new CorruptedFileException();
     }
   }
   protected void share(InputStream inputStream, OutputStream outputStream, int bufferSize,
