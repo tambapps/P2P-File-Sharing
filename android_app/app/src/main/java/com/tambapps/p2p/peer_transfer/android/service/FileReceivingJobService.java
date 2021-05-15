@@ -170,7 +170,6 @@ public class FileReceivingJobService extends FileJobService {
                 }
             }
             if (deleteFile && file != null && !file.delete()) {
-                System.out.println();
                 // let's just assume the file deletion will always work
             }
         }
