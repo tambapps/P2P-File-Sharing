@@ -3,9 +3,7 @@ package com.tambapps.p2p.peer_transfer.android.service;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.ContentResolver;
-import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -16,7 +14,6 @@ import android.os.PersistableBundle;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.FileProvider;
 
-import android.provider.MediaStore;
 import android.util.Log;
 
 import com.google.firebase.analytics.FirebaseAnalytics;
@@ -25,10 +22,8 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.tambapps.p2p.fandem.FileReceiver;
 import com.tambapps.p2p.fandem.exception.CorruptedFileException;
 import com.tambapps.p2p.fandem.util.OutputStreamProvider;
-import com.tambapps.p2p.peer_transfer.android.ManageFilesActivity;
 import com.tambapps.p2p.speer.Peer;
 
-import com.tambapps.p2p.fandem.util.FileUtils;
 import com.tambapps.p2p.peer_transfer.android.R;
 import com.tambapps.p2p.peer_transfer.android.analytics.CrashlyticsValues;
 import com.tambapps.p2p.peer_transfer.android.service.event.TaskEventHandler;
@@ -36,15 +31,12 @@ import com.tambapps.p2p.speer.exception.HandshakeFailException;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.nio.channels.AsynchronousCloseException;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Created by fonkoua on 13/05/18.
@@ -52,7 +44,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class FileReceivingJobService extends FileJobService {
 
-    static public interface FileIntentProvider {
+    public interface FileIntentProvider {
         // only for Android before 11
         PendingIntent ofFile(File file);
     }
@@ -97,8 +89,6 @@ public class FileReceivingJobService extends FileJobService {
         // only for Android before 11
         private final File file;
         private FileIntentProvider fileIntentProvider;
-        // will be useful when file is partially written and an error occurred
-        private final AtomicReference<File> outputFileReference = new AtomicReference<>();
         private long startTime;
         private final ContentResolver contentResolver;
 
@@ -152,9 +142,7 @@ public class FileReceivingJobService extends FileJobService {
             } catch (SocketException e) {
                 NotificationCompat.Builder builder = finishNotification()
                         .setContentTitle(getString(R.string.transfer_canceled));
-                File file = outputFileReference.get();
-                // TODO handle errors. Only Android 11+ devices should get text 'delete it yourself'
-                if (file != null && file.exists() && !file.delete()) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                     builder.setStyle(notifStyle.bigText(getString(R.string.incomplete_transfer)));
                 }
             } catch (SocketTimeoutException e) {
@@ -170,9 +158,8 @@ public class FileReceivingJobService extends FileJobService {
                 finishNotification()
                         .setContentTitle(getString(R.string.transfer_aborted))
                         .setStyle(notifStyle.bigText(getString(R.string.error_occured, e.getMessage())));
-                File file = outputFileReference.get();
-                if (file != null && file.exists() && !file.delete()) {
-                    getNotifBuilder().setStyle(notifStyle.bigText(getString(R.string.error_incomplete)));
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    getNotifBuilder().setStyle(notifStyle.bigText(getString(R.string.error_incomplete, e.getMessage())));
                 }
             }
             if (deleteUri) {
@@ -202,7 +189,6 @@ public class FileReceivingJobService extends FileJobService {
             } else {
                 getNotifBuilder().setStyle(notifStyle.bigText(getString(R.string.success_received, fileName)));
             }
-            builder.setStyle(notifStyle.bigText(getString(R.string.success_received, fileName)));
         }
 
         private boolean isImage(File file) {
@@ -221,7 +207,6 @@ public class FileReceivingJobService extends FileJobService {
         @Override
         public void cancel() {
             fileReceiver.cancel();
-            File file = outputFileReference.get();
             if (file != null && file.exists() && !file.delete()) {
                 // do nothing, let's assume the file deletion will always succeed
             }
