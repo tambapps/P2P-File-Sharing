@@ -2,14 +2,21 @@ package com.tambapps.p2p.peer_transfer.android.service;
 
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.ParcelFileDescriptor;
 import android.os.PersistableBundle;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.FileProvider;
+
+import android.provider.MediaStore;
 import android.util.Log;
 
 import com.google.firebase.analytics.FirebaseAnalytics;
@@ -17,6 +24,7 @@ import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.tambapps.p2p.fandem.FileReceiver;
 import com.tambapps.p2p.fandem.exception.CorruptedFileException;
+import com.tambapps.p2p.fandem.util.OutputStreamProvider;
 import com.tambapps.p2p.peer_transfer.android.ManageFilesActivity;
 import com.tambapps.p2p.speer.Peer;
 
@@ -28,8 +36,11 @@ import com.tambapps.p2p.speer.exception.HandshakeFailException;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.nio.channels.AsynchronousCloseException;
@@ -42,8 +53,8 @@ import java.util.concurrent.atomic.AtomicReference;
 public class FileReceivingJobService extends FileJobService {
 
     static public interface FileIntentProvider {
+        // only for Android before 11
         PendingIntent ofFile(File file);
-        PendingIntent manageFile(File file);
     }
     @Override
     FileTask startTask(NotificationCompat.Builder notifBuilder,
@@ -51,7 +62,11 @@ public class FileReceivingJobService extends FileJobService {
                        final int notifId,
                        PersistableBundle bundle,
                        PendingIntent cancelIntent, FirebaseAnalytics analytics) {
-        return new ReceivingTask(this, notifBuilder, notificationManager, notifId, cancelIntent,
+        File file = null;
+        if (bundle.getString("file") != null) {
+            file = new File(bundle.getString("file"));
+        }
+        return new ReceivingTask(this, notifBuilder, notificationManager, notifId, cancelIntent, file,
                 new FileIntentProvider() {
                     @Override
                     public PendingIntent ofFile(File file) {
@@ -61,16 +76,8 @@ public class FileReceivingJobService extends FileJobService {
                         fileIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                         return PendingIntent.getActivity(FileReceivingJobService.this, notifId, fileIntent, PendingIntent.FLAG_UPDATE_CURRENT);                    }
 
-
-                    @Override
-                    public PendingIntent manageFile(File file) {
-                        Intent fileIntent = new Intent(FileReceivingJobService.this, ManageFilesActivity.class);
-                        fileIntent.putExtra("from_file", file);
-                        fileIntent.putExtra("notifId", notifId);
-                        return PendingIntent.getActivity(FileReceivingJobService.this, notifId, fileIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-                    }
                 }, analytics)
-                .execute(bundle.getString("downloadPath"), bundle.getString("peer"));
+                .execute(bundle.getString("uri"), bundle.getString("peer"));
     }
 
     @Override
@@ -87,18 +94,23 @@ public class FileReceivingJobService extends FileJobService {
 
         private FileReceiver fileReceiver;
         private String fileName;
+        // only for Android before 11
+        private final File file;
         private FileIntentProvider fileIntentProvider;
         // will be useful when file is partially written and an error occurred
         private final AtomicReference<File> outputFileReference = new AtomicReference<>();
         private long startTime;
+        private final ContentResolver contentResolver;
 
         ReceivingTask(TaskEventHandler taskEventHandler, NotificationCompat.Builder notifBuilder,
                       NotificationManager notificationManager,
                       int notifId,
                       PendingIntent cancelIntent,
-                      FileIntentProvider fileIntentProvider, FirebaseAnalytics analytics) {
+                      File file, FileIntentProvider fileIntentProvider, FirebaseAnalytics analytics) {
             super(taskEventHandler, notifBuilder, notificationManager, notifId, cancelIntent, analytics);
+            this.file = file;
             this.fileIntentProvider = fileIntentProvider;
+            this.contentResolver = notifBuilder.mContext.getContentResolver();
         }
 
         @Override
@@ -106,24 +118,27 @@ public class FileReceivingJobService extends FileJobService {
             FirebaseCrashlytics crashlytics = FirebaseCrashlytics.getInstance();
             crashlytics.setCustomKey(CrashlyticsValues.SHARING_ROLE, "RECEIVER");
 
-            final String dirPath = params[0];
+            final Uri uri = Uri.parse(params[0]);
             fileReceiver = new FileReceiver(true, this);
+            // only for android 11+
+            boolean deleteUri = Build.VERSION.SDK_INT < Build.VERSION_CODES.R;
 
             getNotifBuilder().setContentTitle(getString(R.string.connecting))
                     .setContentText(getString(R.string.connecting_to, params[1]));
             updateNotification();
 
-            try {
-                File file = fileReceiver.receiveFrom(Peer.parse(params[1]), (name) -> {
-                    File f = FileUtils.newAvailableFile(dirPath, name);
-                    outputFileReference.set(f);
-                    return f;
-                });
-                completeNotification(file);
+            try (ParcelFileDescriptor pfd = contentResolver.openFileDescriptor(uri, "w")) {
+                long fileLength = fileReceiver.receiveFrom(Peer.parse(params[1]), (OutputStreamProvider) (name) ->
+                                new FileOutputStream(
+                                        pfd.getFileDescriptor())
+                        );
+
+                deleteUri = false;
+                completeNotification(uri, fileName, fileLength);
                 updateNotification();
                 Bundle bundle = new Bundle();
                 bundle.putString(FirebaseAnalytics.Param.METHOD, "RECEIVE");
-                bundle.putLong("size", file.length());
+                bundle.putLong("size", fileLength);
                 bundle.putLong("duration", System.currentTimeMillis() - startTime);
                 getAnalytics().logEvent(FirebaseAnalytics.Event.SHARE, bundle);
             } catch (HandshakeFailException e) {
@@ -138,6 +153,7 @@ public class FileReceivingJobService extends FileJobService {
                 NotificationCompat.Builder builder = finishNotification()
                         .setContentTitle(getString(R.string.transfer_canceled));
                 File file = outputFileReference.get();
+                // TODO handle errors. Only Android 11+ devices should get text 'delete it yourself'
                 if (file != null && file.exists() && !file.delete()) {
                     builder.setStyle(notifStyle.bigText(getString(R.string.incomplete_transfer)));
                 }
@@ -159,18 +175,22 @@ public class FileReceivingJobService extends FileJobService {
                     getNotifBuilder().setStyle(notifStyle.bigText(getString(R.string.error_incomplete)));
                 }
             }
+            if (deleteUri) {
+                contentResolver.delete(uri, null);
+            }
         }
 
-        private void completeNotification(File file) {
+        private void completeNotification(Uri uri, String fileName, long fileLength) {
             NotificationCompat.Builder builder = finishNotification()
-                    .setContentTitle(getString(R.string.transfer_complete))
-                    .setContentIntent(fileIntentProvider.ofFile(file));
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                builder.addAction(android.R.drawable.ic_menu_view, builder.mContext.getString(R.string.manage), fileIntentProvider.manageFile(file));
+                    .setContentTitle(getString(R.string.transfer_complete));
+
+            if (file != null && file.exists()) {
+                // the file conversion is REQUIRED, ESPECIALLY FOR THIS
+                builder.setContentIntent(fileIntentProvider.ofFile(file));
             }
 
             Bitmap image = null;
-            if (isImage(file)) {
+            if (file != null && isImage(file)) {
                 try (InputStream inputStream = new FileInputStream(file)) {
                     image = BitmapFactory.decodeStream(inputStream);
                 } catch (IOException e) {
@@ -182,6 +202,7 @@ public class FileReceivingJobService extends FileJobService {
             } else {
                 getNotifBuilder().setStyle(notifStyle.bigText(getString(R.string.success_received, fileName)));
             }
+            builder.setStyle(notifStyle.bigText(getString(R.string.success_received, fileName)));
         }
 
         private boolean isImage(File file) {

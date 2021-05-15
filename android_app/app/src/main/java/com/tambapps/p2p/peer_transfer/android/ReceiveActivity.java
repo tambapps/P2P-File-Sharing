@@ -8,13 +8,14 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.AsyncTask;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.PersistableBundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -28,6 +29,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -48,10 +50,13 @@ import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class ReceiveActivity extends PermissionActivity implements MulticastReceiverService.DiscoveryListener<List<SenderPeer>> {
+
+    private static final int CREATE_FILE_REQUEST_CODE = 777;
 
     public static File getReceivedFilesDirectory(Context context) {
         File file = new File(context.getFilesDir(), "received_files");
@@ -65,12 +70,13 @@ public class ReceiveActivity extends PermissionActivity implements MulticastRece
     private ProgressBar progressBar;
 
     private FirebaseAnalytics analytics;
-    private String downloadPath;
 
     private List<SenderPeer> peers = Collections.synchronizedList(new ArrayList<>());
     private RecyclerView.Adapter recyclerAdapter;
     private MulticastReceiverService<List<SenderPeer>> senderPeersReceiverService;
     private TextView loadingText;
+    // for android 11
+    private Peer senderPeer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,10 +87,6 @@ public class ReceiveActivity extends PermissionActivity implements MulticastRece
         // if Android R or later, download files in app's private directory, since we can't get File
         // instance of external files
         // a screen manage received files will appear in
-        // TODO create manage received files screen (for android 30+ only)
-        downloadPath = Build.VERSION.SDK_INT < Build.VERSION_CODES.R ?
-                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getPath() :
-        getReceivedFilesDirectory(this).getPath();
         progressBar = findViewById(R.id.progress_bar);
         loadingText = findViewById(R.id.loading_text);
 
@@ -139,6 +141,19 @@ public class ReceiveActivity extends PermissionActivity implements MulticastRece
     }
 
     public void startReceiving(Peer peer) {
+        // TODO migrate
+    }
+
+    public void startReceiving(Peer peer, File file) {
+        startReceiving(peer, Uri.fromFile(file), Optional.of(file));
+    }
+
+    public void startReceiving(Peer peer, Uri uri) {
+        startReceiving(peer, uri, Optional.empty());
+    }
+
+    // optFile for Android before 11
+    private void startReceiving(Peer peer, Uri uri, Optional<File> optFile) {
         // analytics
         Bundle analyticsBundle = new Bundle();
         analyticsBundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "sought peer");
@@ -152,7 +167,9 @@ public class ReceiveActivity extends PermissionActivity implements MulticastRece
 
         PersistableBundle bundle = new PersistableBundle();
 
-        bundle.putString("downloadPath", downloadPath);
+        bundle.putString("uri", uri.toString());
+        optFile.ifPresent(file -> bundle.putString("file", file.getPath()));
+        bundle.putString("fileName", "fileName");
         bundle.putString("peer", peer.toString());
 
         JobInfo.Builder jobInfoBuilder = new JobInfo.Builder(1,
@@ -324,7 +341,23 @@ public class ReceiveActivity extends PermissionActivity implements MulticastRece
                             .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                    startReceiving(discoveredPeer);
+
+                                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+                                        try {
+                                            File f = FileUtils.newAvailableFile(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), discoveredPeer.getFileName());
+                                            startReceiving(discoveredPeer, f);
+                                        } catch (IOException e) {
+                                            Toast.makeText(ReceiveActivity.this, "Couldn't get a new file: " + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                                        }
+                                    } else {
+                                        // since android 11+ only the user can create the file
+                                        senderPeer = discoveredPeer;
+                                        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+                                        intent.addCategory(Intent.CATEGORY_OPENABLE);
+                                        intent.setType("*/*");
+                                        intent.putExtra(Intent.EXTRA_TITLE, discoveredPeer.getFileName());
+                                        startActivityForResult(intent, CREATE_FILE_REQUEST_CODE);
+                                    }
                                 }
                             })
                             .setNeutralButton(R.string.no, null)
@@ -356,6 +389,15 @@ public class ReceiveActivity extends PermissionActivity implements MulticastRece
                 fileSizeText = itemView.findViewById(R.id.element_peer_filesize);
                 deviceNameText = itemView.findViewById(R.id.element_peer_devicename);
             }
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        // will only be called for Android 11+
+        if (requestCode == CREATE_FILE_REQUEST_CODE && resultCode == RESULT_OK && data != null && data.getData() != null && senderPeer != null) {
+            startReceiving(senderPeer, data.getData());
         }
     }
 }

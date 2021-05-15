@@ -14,6 +14,8 @@ import android.content.IntentFilter;
 import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.PersistableBundle;
+import android.util.Log;
+
 import androidx.core.app.NotificationCompat;
 
 import com.google.firebase.analytics.FirebaseAnalytics;
@@ -160,9 +162,13 @@ public abstract class FileJobService extends JobService implements TaskEventHand
 
         FileTask execute(final String... params) {
             executor.submit(() -> {
-                FileTask.this.run(params);
-                updateNotification();
-                eventHandler.onEnd();
+                try {
+                    FileTask.this.run(params);
+                    updateNotification();
+                    eventHandler.onEnd();
+                } catch (Exception e) {
+                    Log.e("Error", "An error occurred while sending file", e);
+                }
                 dispose();
             });
             return this;
