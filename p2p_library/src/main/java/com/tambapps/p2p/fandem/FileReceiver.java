@@ -36,7 +36,7 @@ public class FileReceiver extends FileSharer {
   }
 
   public FileReceiver(boolean withChecksum, TransferListener listener) {
-    this(withChecksum, listener, 1024);
+    this(withChecksum, listener, DEFAULT_BUFFER_SIZE);
   }
 
   public FileReceiver(boolean withChecksum, TransferListener listener, int bufferSize) {
