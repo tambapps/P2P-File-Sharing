@@ -60,7 +60,7 @@ public class FileSendingJobService extends FileJobService implements SendingEven
         try {
             senderPeersMulticastService.start(1000L);
         } catch (IOException e) {
-            Toast.makeText(this, "Couldn't communicate sender key. The receiver will have to enter it manually", Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), "Couldn't communicate sender key. The receiver will have to enter it manually", Toast.LENGTH_LONG).show();
         }
         return new SendingTask(this, notifBuilder, notificationManager, notifId, getContentResolver(), cancelIntent, analytics, senderPeersMulticastService)
                 .execute(peerString,
