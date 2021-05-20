@@ -48,6 +48,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -56,15 +57,9 @@ import java.util.concurrent.Executors;
 
 public class ReceiveActivity extends PermissionActivity implements MulticastReceiverService.DiscoveryListener<List<SenderPeer>> {
 
-    private static final int CREATE_FILE_REQUEST_CODE = 777;
+    private static final List<Character> ILLEGAL_CHARACTERS = Arrays.asList('/', '\n', '\r', '\t', '\0', '\f', '`', '?', '*', '\\', '<', '>', '|', '\"', ':');
 
-    public static File getReceivedFilesDirectory(Context context) {
-        File file = new File(context.getFilesDir(), "received_files");
-        if (!file.exists()) {
-            file.mkdirs();
-        }
-        return file;
-    }
+    private static final int CREATE_FILE_REQUEST_CODE = 777;
 
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private ProgressBar progressBar;
@@ -140,8 +135,23 @@ public class ReceiveActivity extends PermissionActivity implements MulticastRece
         }
     }
 
-    public void startReceiving(Peer peer) {
-        // TODO migrate
+    public void startReceiving(Peer peer, String fileName) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            File f = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), fileName);
+            startReceiving(peer, f);
+        } else {
+            new AlertDialog.Builder(ReceiveActivity.this)
+                    .setTitle(R.string.receive_file)
+                    .setMessage(R.string.select_file)
+                    .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            pickFileThenStartReceiving(peer, fileName);
+                        }
+                    })
+                    .setNeutralButton(R.string.no, null)
+                    .show();
+        }
     }
 
     public void startReceiving(Peer peer, File file) {
@@ -260,13 +270,15 @@ public class ReceiveActivity extends PermissionActivity implements MulticastRece
 
     }
     public void receiveManually(View view) {
-        final TextInputLayout layout = new TextInputLayout(this);
-        final TextInputEditText editText = new TextInputEditText(this);
-        layout.addView(editText);
-        editText.setHint("Peer key");
+        View layout = LayoutInflater.from(this).inflate(R.layout.manual_receive_dialog, null);
+        final TextInputLayout peerKeyLayout = layout.findViewById(R.id.peerkey_layout);
+        final TextInputEditText peerKeyEditText = layout.findViewById(R.id.peerkey_edittext);
+        final TextInputLayout fileNameLayout = layout.findViewById(R.id.filename_layout);
+        final TextInputEditText fileNameEditText = layout.findViewById(R.id.filename_edittext);
+
         String keyPrefix = getPeerKeyPrefix();
         if (keyPrefix != null) {
-            editText.setText(keyPrefix);
+            peerKeyEditText.setText(keyPrefix);
         }
 
         final AlertDialog dialog = new AlertDialog.Builder(this)
@@ -276,7 +288,7 @@ public class ReceiveActivity extends PermissionActivity implements MulticastRece
                 .setNeutralButton(R.string.cancel, null)
                 .create();
 
-        editText.addTextChangedListener(new TextWatcher() {
+        peerKeyEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
 
@@ -285,8 +297,26 @@ public class ReceiveActivity extends PermissionActivity implements MulticastRece
 
             @Override
             public void afterTextChanged(Editable s) {
-                if (layout.getError() != null && Fandem.isCorrectPeerKey(s.toString())) {
-                    layout.setError(null);
+                if (peerKeyLayout.getError() != null && Fandem.isCorrectPeerKey(s.toString())) {
+                    peerKeyLayout.setError(null);
+                }
+            }
+        });
+        fileNameEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (fileNameLayout.getError() != null && isValidFileName(s.toString())) {
+                    fileNameLayout.setError(null);
                 }
             }
         });
@@ -298,11 +328,13 @@ public class ReceiveActivity extends PermissionActivity implements MulticastRece
 
                     @Override
                     public void onClick(View view) {
-                        String hexCode = editText.getText() == null ? "" : editText.getText().toString();
-                        layout.setError(Fandem.isCorrectPeerKey(hexCode) ? null : getString(R.string.peer_key_malformed));
-                        if (layout.getError() == null) {
+                        String hexCode = peerKeyEditText.getText() == null ? "" : peerKeyEditText.getText().toString();
+                        String fileName = fileNameEditText.getText() == null ? "" : fileNameEditText.getText().toString();
+                        peerKeyLayout.setError(Fandem.isCorrectPeerKey(hexCode) ? null : getString(R.string.peer_key_malformed));
+                        fileNameLayout.setError(isValidFileName(fileName) ? null : getString(R.string.filename_invalid));
+                        if (peerKeyLayout.getError() == null && fileNameLayout.getError() == null) {
                             dialog.dismiss();
-                            startReceiving(Fandem.parsePeerFromHexString(hexCode));
+                            startReceiving(Fandem.parsePeerFromHexString(hexCode), fileName);
                         }
                     }
                 });
@@ -352,13 +384,7 @@ public class ReceiveActivity extends PermissionActivity implements MulticastRece
                                             Toast.makeText(ReceiveActivity.this, "Couldn't get a new file: " + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
                                         }
                                     } else {
-                                        // since android 11+ only the user can create the file
-                                        senderPeer = discoveredPeer;
-                                        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
-                                        intent.addCategory(Intent.CATEGORY_OPENABLE);
-                                        intent.setType("*/*");
-                                        intent.putExtra(Intent.EXTRA_TITLE, discoveredPeer.getFileName());
-                                        startActivityForResult(intent, CREATE_FILE_REQUEST_CODE);
+                                        pickFileThenStartReceiving(discoveredPeer, discoveredPeer.getFileName());
                                     }
                                 }
                             })
@@ -394,6 +420,17 @@ public class ReceiveActivity extends PermissionActivity implements MulticastRece
         }
     }
 
+    // forandroid 11+ only
+    private void pickFileThenStartReceiving(Peer peer, String fileName) {
+        // since android 11+ only the user can create the file
+        senderPeer = peer;
+        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("*/*");
+        intent.putExtra(Intent.EXTRA_TITLE, fileName);
+        startActivityForResult(intent, CREATE_FILE_REQUEST_CODE);
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -401,5 +438,18 @@ public class ReceiveActivity extends PermissionActivity implements MulticastRece
         if (requestCode == CREATE_FILE_REQUEST_CODE && resultCode == RESULT_OK && data != null && data.getData() != null && senderPeer != null) {
             startReceiving(senderPeer, data.getData());
         }
+    }
+
+    private boolean isValidFileName(String s) {
+        if (s.isEmpty()) {
+            return false;
+        }
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            if (ILLEGAL_CHARACTERS.contains(c)) {
+                return false;
+            }
+        }
+        return true;
     }
 }

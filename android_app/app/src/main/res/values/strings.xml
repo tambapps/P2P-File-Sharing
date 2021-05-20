@@ -78,4 +78,5 @@
     <string name="manage">manage</string>
     <string name="in_download_folder">File will be downloaded in your \'Download\' folder</string>
     <string name="select_file">You will have to select the location where to save the file</string>
+    <string name="filename_invalid">the file name is invalid</string>
 </resources>
