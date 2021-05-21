@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
+import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -38,6 +39,7 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.tambapps.p2p.fandem.Fandem;
 import com.tambapps.p2p.fandem.SenderPeer;
 import com.tambapps.p2p.fandem.util.FileUtils;
+import com.tambapps.p2p.peer_transfer.android.service.AndroidSenderPeersReceiverService;
 import com.tambapps.p2p.speer.Peer;
 import com.tambapps.p2p.peer_transfer.android.analytics.AnalyticsValues;
 import com.tambapps.p2p.peer_transfer.android.service.FileReceivingJobService;
@@ -85,7 +87,8 @@ public class ReceiveActivity extends PermissionActivity implements MulticastRece
         progressBar = findViewById(R.id.progress_bar);
         loadingText = findViewById(R.id.loading_text);
 
-        senderPeersReceiverService = Fandem.senderPeersReceiverService(executorService, this);
+        WifiManager wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+        senderPeersReceiverService = new AndroidSenderPeersReceiverService(wifiManager, executorService, this);
         initializeRecyclerView();
         initializeRefreshLayout();
         sniffPeersAsync();

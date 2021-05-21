@@ -17,16 +17,19 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.tambapps.p2p.fandem.Fandem;
 import com.tambapps.p2p.fandem.FileSender;
 import com.tambapps.p2p.fandem.SenderPeer;
+import com.tambapps.p2p.peer_transfer.android.util.NetworkUtils;
 import com.tambapps.p2p.speer.Peer;
 
 import com.tambapps.p2p.peer_transfer.android.R;
 import com.tambapps.p2p.peer_transfer.android.analytics.CrashlyticsValues;
 import com.tambapps.p2p.peer_transfer.android.service.event.SendingEventHandler;
+import com.tambapps.p2p.speer.datagram.MulticastDatagramPeer;
 import com.tambapps.p2p.speer.datagram.service.PeriodicMulticastService;
 import com.tambapps.p2p.speer.exception.HandshakeFailException;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.Collections;
@@ -58,7 +61,14 @@ public class FileSendingJobService extends FileJobService implements SendingEven
         List<SenderPeer> senderPeers = Collections.singletonList(new SenderPeer(peer.getAddress(), peer.getPort(), deviceName, fileName, fileSize));
         senderPeersMulticastService.setData(senderPeers);
         try {
-            senderPeersMulticastService.start(1000L);
+            // the senderPeersMulticastService will close this peer when stopping
+            MulticastDatagramPeer datagramPeer = new MulticastDatagramPeer(senderPeersMulticastService.getPort());
+            NetworkInterface wifiNetworkInterface = NetworkUtils.findWifiNetworkInterface();
+            if (wifiNetworkInterface != null) {
+                // this is needed for multicast to work on hotspot (AKA mobile data sharing)
+                datagramPeer.getSocket().setNetworkInterface(wifiNetworkInterface);
+            }
+            senderPeersMulticastService.start(datagramPeer, 1000L);
         } catch (IOException e) {
             Toast.makeText(getApplicationContext(), "Couldn't communicate sender key. The receiver will have to enter it manually", Toast.LENGTH_LONG).show();
         }
