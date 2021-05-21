@@ -30,7 +30,9 @@ import java.util.stream.Collectors;
 
 public final class Fandem {
 
-  public static final InetAddress PEER_DISCOVERY_MULTICAST_ADDRESS = PeerUtils.getAddress("230.0.8.8");
+  // using IPv6 because android multicast packet receiving doesn't work for IPv4 multicast addresses
+  // (well at least I couldn't make it work) but it does work with an IPv6 multicast address
+  public static final InetAddress PEER_DISCOVERY_MULTICAST_ADDRESS = PeerUtils.getAddress("ff02::1");
   public static final int PEER_DISCOVERY_PORT = 50000;
   private static final Gson GSON = new Gson();
 
