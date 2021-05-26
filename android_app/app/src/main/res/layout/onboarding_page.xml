@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_margin="16dp"
+    android:background="@android:color/transparent"
+    >
+
+    <ImageView
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:scaleType="fitCenter"
+        android:translationY="-32dp"
+        android:id="@+id/imageview"
+        android:layout_centerInParent="true"
+        android:src="@drawable/appicon"
+        />
+
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/welcome_to_fandem"
+        android:textColor="#fff"
+        android:textStyle="bold"
+        android:textSize="26sp"
+        android:id="@+id/title"
+        android:layout_marginBottom="32dp"
+        android:layout_above="@id/description"
+        />
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/welcome_des"
+        android:textColor="#fff"
+        android:layout_marginBottom="32dp"
+        android:id="@+id/description"
+        android:textSize="18sp"
+        android:layout_alignParentBottom="true"
+        />
+</RelativeLayout>

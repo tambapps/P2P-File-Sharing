@@ -40,6 +40,9 @@ public class MainActivity extends AppCompatActivity implements OnInitializationC
 
         MobileAds.initialize(this, this);
         loadInterstitiel();
+        if (true) {
+            startActivity(new Intent(this, OnBoardingActivity.class));
+        }
     }
 
     private void loadInterstitiel() {
