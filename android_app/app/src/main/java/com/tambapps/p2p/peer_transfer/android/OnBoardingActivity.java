@@ -9,10 +9,17 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import me.relex.circleindicator.CircleIndicator3;
+
 public class OnBoardingActivity extends AppCompatActivity {
+
+    private final int[] imageRes = new int[] {R.drawable.appicon, R.drawable.wifi, R.drawable.appicon, R.drawable.appicon};
+    private final int[] titleRes = new int[] {R.string.welcome_to_fandem, R.string.same_wifi, R.string.hotspot, R.string.lets_get_started};
+    private final int[] messageRes = new int[] {R.string.welcome_des, R.string.same_wifi_des, R.string.hotspot_des, R.string.lets_get_started_des};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,13 +28,21 @@ public class OnBoardingActivity extends AppCompatActivity {
         ViewPager2 viewPager = findViewById(R.id.viewpager);
         OnBoardingAdapter adapter = new OnBoardingAdapter();
         viewPager.setAdapter(adapter);
+        CircleIndicator3 indicator = findViewById(R.id.indicator);
+        indicator.setViewPager(viewPager);
+        Button button = findViewById(R.id.nextButton);
+        button.setOnClickListener(v -> {
+            if (viewPager.getCurrentItem() < viewPager.getAdapter().getItemCount() - 1) {
+                viewPager.setCurrentItem(viewPager.getCurrentItem() + 1);
+            } else {
+                finish();
+            }
+        });
+        viewPager.registerOnPageChangeCallback(new OnPageChangeListener(button));
     }
 
     private class OnBoardingAdapter extends RecyclerView.Adapter<OnBoardingViewHolder> {
 
-        private final int[] imageRes = new int[] {R.drawable.appicon, R.drawable.wifi, R.drawable.appicon, R.drawable.appicon};
-        private final int[] titleRes = new int[] {R.string.welcome_to_fandem, R.string.same_wifi, R.string.hotspot, R.string.lets_get_started};
-        private final int[] messageRes = new int[] {R.string.welcome_des, R.string.same_wifi_des, R.string.hotspot_des, R.string.lets_get_started_des};
         @NonNull
         @Override
         public OnBoardingViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -59,6 +74,25 @@ public class OnBoardingActivity extends AppCompatActivity {
             imageView = itemView.findViewById(R.id.imageview);
             titleView = itemView.findViewById(R.id.title);
             descriptionView = itemView.findViewById(R.id.description);
+        }
+    }
+
+
+    private class OnPageChangeListener extends ViewPager2.OnPageChangeCallback {
+
+        private final Button button;
+
+        private OnPageChangeListener(Button button) {
+            this.button = button;
+        }
+
+        @Override
+        public void onPageSelected(int position) {
+            if (position == imageRes.length - 1) {
+                button.setText(R.string.onboarding_end);
+            } else {
+                button.setText(R.string.next);
+            }
         }
     }
 }

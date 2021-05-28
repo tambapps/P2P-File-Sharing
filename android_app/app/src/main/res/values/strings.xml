@@ -87,5 +87,7 @@
     <string name="hotspot_des">One device can share its data (hotspot), and have the other device connect to the hotspot with Wi-Fi. You don\'t even need to have a SIM card for this to work</string>
     <string name="lets_get_started">Let\'s get started!</string>
     <string name="lets_get_started_des">Send, receive files as you wish!</string>
+    <string name="next">Next</string>
+    <string name="onboarding_end">Ok</string>
 
 </resources>
