@@ -3,15 +3,20 @@ package com.tambapps.p2p.peer_transfer.android;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.vectordrawable.graphics.drawable.ArgbEvaluator;
 import androidx.viewpager2.widget.ViewPager2;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import java.util.function.Consumer;
 
 import me.relex.circleindicator.CircleIndicator3;
 
@@ -38,7 +43,14 @@ public class OnBoardingActivity extends AppCompatActivity {
                 finish();
             }
         });
-        viewPager.registerOnPageChangeCallback(new OnPageChangeListener(button));
+        Window window = getWindow();
+        View root = findViewById(R.id.root);
+
+        viewPager.registerOnPageChangeCallback(new OnPageChangeListener(
+                color -> {
+                    window.setNavigationBarColor(color);
+                    root.setBackgroundColor(color);
+                }, adapter.getItemCount(), button));
     }
 
     private class OnBoardingAdapter extends RecyclerView.Adapter<OnBoardingViewHolder> {
@@ -80,10 +92,22 @@ public class OnBoardingActivity extends AppCompatActivity {
 
     private class OnPageChangeListener extends ViewPager2.OnPageChangeCallback {
 
-        private final Button button;
 
-        private OnPageChangeListener(Button button) {
+        private final ArgbEvaluator argbEvaluator = new ArgbEvaluator();
+
+        private final Consumer<Integer> backgroundColorUpdater;
+        private final int transitionCount;
+        private final Button button;
+        private final int startColor;
+        private final int endColor;
+
+        private OnPageChangeListener(Consumer<Integer> backgroundColorUpdater, int itemCount, Button button) {
+            this.backgroundColorUpdater = backgroundColorUpdater;
+            this.transitionCount = itemCount - 1; // YES, this is normal. THINK!
             this.button = button;
+            Context context = button.getContext();
+            this.startColor = context.getColor(R.color.colorPrimaryDark);
+            this.endColor = context.getColor(R.color.gradientDown);
         }
 
         @Override
@@ -93,6 +117,17 @@ public class OnBoardingActivity extends AppCompatActivity {
             } else {
                 button.setText(R.string.next);
             }
+        }
+
+        @Override
+        public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+            backgroundColorUpdater.accept((Integer) argbEvaluator.evaluate(
+                    (positionOffset + toFloat(position)) / toFloat(transitionCount) ,
+                    startColor, endColor));
+        }
+
+        private float toFloat(int i) {
+            return (float) i;
         }
     }
 }

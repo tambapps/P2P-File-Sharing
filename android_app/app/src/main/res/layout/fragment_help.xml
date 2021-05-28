@@ -31,6 +31,11 @@
             android:text="@string/help_description"
             android:textColor="#fff" />
 
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Re"
+            />
     </LinearLayout>
 
 </ScrollView>
