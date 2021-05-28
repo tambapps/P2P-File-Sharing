@@ -8,6 +8,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.Build;
@@ -18,6 +19,8 @@ import android.os.PersistableBundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -57,8 +60,10 @@ import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class ReceiveActivity extends PermissionActivity implements MulticastReceiverService.DiscoveryListener<List<SenderPeer>> {
+// TODO listen to  network changes to restart sniffing process
+public class ReceiveActivity extends TransferActivity implements MulticastReceiverService.DiscoveryListener<List<SenderPeer>> {
 
+    private static final int PERMISSION_REQUEST_CODE = 8;
     private static final List<Character> ILLEGAL_CHARACTERS = Arrays.asList('/', '\n', '\r', '\t', '\0', '\f', '`', '?', '*', '\\', '<', '>', '|', '\"', ':');
 
     private static final int CREATE_FILE_REQUEST_CODE = 777;
@@ -91,7 +96,9 @@ public class ReceiveActivity extends PermissionActivity implements MulticastRece
         senderPeersReceiverService = new AndroidSenderPeersReceiverService(wifiManager, executorService, this);
         initializeRecyclerView();
         initializeRefreshLayout();
-        sniffPeersAsync();
+        if (isNetworkConfigured()) {
+            sniffPeersAsync();
+        }
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R && !hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
             requestPermissionDialog(R.string.ask_write_permission_title,
                 R.string.ask_write_permission_message, Manifest.permission.WRITE_EXTERNAL_STORAGE);
@@ -135,6 +142,14 @@ public class ReceiveActivity extends PermissionActivity implements MulticastRece
         } catch (IOException e) {
             progressBar.setVisibility(View.INVISIBLE);
             loadingText.setText(R.string.no_internet);
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (isNetworkConfigured() && !senderPeersReceiverService.isRunning()) {
+            sniffPeersAsync();
         }
     }
 
@@ -443,6 +458,48 @@ public class ReceiveActivity extends PermissionActivity implements MulticastRece
         }
     }
 
+    public boolean hasPermission(String permission) {
+        return ContextCompat.checkSelfPermission(this, permission)
+                == PackageManager.PERMISSION_GRANTED;
+    }
+    public void requestWritePermission(String permission) {
+        ActivityCompat.requestPermissions(this,
+                new String[]{permission},
+                PERMISSION_REQUEST_CODE);
+    }
+
+    public void requestPermissionDialog(int title, int message, final String permission) {
+        new AlertDialog.Builder(this)
+                .setTitle(title)
+                .setMessage(message)
+                .setNeutralButton(this.getString(R.string.no), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Toast.makeText(getApplicationContext(), getString(R.string.permissions_not_granted), Toast.LENGTH_SHORT).show();
+                        finish();
+                    }
+                })
+                .setPositiveButton("ok", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        requestWritePermission(permission);
+                    }
+                })
+                .create()
+                .show();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0
+                    && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(getApplicationContext(), this.getString(R.string.permissions_not_granted), Toast.LENGTH_SHORT).show();
+                finish();
+            }
+        }
+    }
     private boolean isValidFileName(String s) {
         if (s.isEmpty()) {
             return false;

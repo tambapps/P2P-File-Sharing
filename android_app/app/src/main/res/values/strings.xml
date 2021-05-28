@@ -89,5 +89,6 @@
     <string name="lets_get_started_des">Send, receive files as you wish!</string>
     <string name="next">Next</string>
     <string name="onboarding_end">Ok</string>
+    <string name="couldnt_scan_wifi">Couldn\'t scan Wi-Fis</string>
 
 </resources>

@@ -34,7 +34,7 @@ import com.tambapps.p2p.peer_transfer.android.service.SendingEventBroadcastRecei
 import java.io.File;
 import java.io.IOException;
 
-public class SendActivity extends AppCompatActivity {
+public class SendActivity extends TransferActivity {
 
     private final static int PICK_FILE = 1;
     private final IntentFilter intentFilter = new IntentFilter();
