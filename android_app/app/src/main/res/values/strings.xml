@@ -90,5 +90,9 @@
     <string name="next">Next</string>
     <string name="onboarding_end">Ok</string>
     <string name="couldnt_scan_wifi">Couldn\'t scan Wi-Fis</string>
+    <string name="nar">Network action required</string>
+    <string name="nar_description">In order to transfer files, both devices needs to be connected on the same Wi-Fi, or one device should share its data (hotspot) and have the other connect to that hotspot</string>
+    <string name="connect_to_wifi">Connect to Wi-Fi</string>
+    <string name="start_hotspot">Start hotspot</string>
 
 </resources>

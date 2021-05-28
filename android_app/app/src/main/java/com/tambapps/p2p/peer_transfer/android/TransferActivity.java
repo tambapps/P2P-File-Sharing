@@ -24,12 +24,12 @@ public class TransferActivity extends AppCompatActivity {
     public void checkCanShare() {
         if (!isNetworkConfigured()) {
             dialog = new AlertDialog.Builder(this)
-                    .setTitle("Network configuration required")
-                    .setMessage("In order to transfer files, both devices needs to be connected on the same Wi-Fi, or one device should share its data (hotspot) and have the other connect to that hotspot")
-                    .setNeutralButton("cancel", (dialog, which) -> finish())
-                    .setPositiveButton("Connect to Wi-Fi",
+                    .setTitle(getString(R.string.nar))
+                    .setMessage(getString(R.string.nar_description))
+                    .setNeutralButton(R.string.cancel, (dialog, which) -> finish())
+                    .setPositiveButton(getString(R.string.connect_to_wifi),
                             (dialog, which) -> startActivity(new Intent(Settings.ACTION_WIRELESS_SETTINGS)))
-                    .setNeutralButton("Start hotspot", (dialog, which) -> turnOnHotspot())
+                    .setNeutralButton(getString(R.string.start_hotspot), (dialog, which) -> turnOnHotspot())
                     .setCancelable(false)
                     .create();
             dialog.show();
