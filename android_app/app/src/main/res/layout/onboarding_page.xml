@@ -34,6 +34,7 @@
         android:layout_height="wrap_content"
         android:text="@string/welcome_des"
         android:textColor="#fff"
+        android:justificationMode="inter_word"
         android:layout_marginBottom="32dp"
         android:id="@+id/description"
         android:textSize="18sp"
