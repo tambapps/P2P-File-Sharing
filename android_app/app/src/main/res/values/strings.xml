@@ -85,7 +85,7 @@
     <string name="p2p_des">The transfer is made in Peer to Peer (P2P), meaning that the data goes from one device, directly to the other. There is no intermediate server in between, allowing you to keep your data private.</string>
     <string name="same_wifi">Using Wi-Fi</string>
     <string name="same_wifi_des">Both devices should be connected to the same Wi-Fi. Then they will be able to communicate between them</string>
-    <string name="hotspot">Using hotspot (mobile data sharing)</string>
+    <string name="hotspot">Or using hotspot (mobile data sharing)</string>
     <string name="hotspot_des">One device can turn on Wi-Fi hotspot, and have the other device connect to the hotspot. You don\'t need to have a internet or even have SIM card for this to work</string>
     <string name="lets_get_started_des" />
     <string name="next">Next</string>
