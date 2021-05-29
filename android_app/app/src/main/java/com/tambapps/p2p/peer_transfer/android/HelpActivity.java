@@ -7,7 +7,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.tambapps.p2p.peer_transfer.android.help.HelpSectionsPagerAdapter;
 
-// TODO delete help activity
 public class HelpActivity extends AppCompatActivity {
 
     @Override

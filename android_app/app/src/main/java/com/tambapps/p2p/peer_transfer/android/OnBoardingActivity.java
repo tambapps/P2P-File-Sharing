@@ -22,9 +22,9 @@ import me.relex.circleindicator.CircleIndicator3;
 
 public class OnBoardingActivity extends AppCompatActivity {
 
-    private final int[] imageRes = new int[] {R.drawable.appicon, R.drawable.wifi, R.drawable.appicon, R.drawable.appicon};
-    private final int[] titleRes = new int[] {R.string.welcome_to_fandem, R.string.same_wifi, R.string.hotspot, R.string.lets_get_started};
-    private final int[] messageRes = new int[] {R.string.welcome_des, R.string.same_wifi_des, R.string.hotspot_des, R.string.lets_get_started_des};
+    private final int[] imageRes = new int[] {R.drawable.appicon, R.drawable.wifi, R.drawable.wifi, R.drawable.appicon, R.drawable.appicon};
+    private final int[] titleRes = new int[] {R.string.welcome_to_fandem, R.string.p2p, R.string.same_wifi, R.string.hotspot, R.string.lets_get_started};
+    private final int[] messageRes = new int[] {R.string.welcome_des, R.string.p2p_des, R.string.same_wifi_des, R.string.hotspot_des, R.string.lets_get_started_des};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -1,12 +1,16 @@
 package com.tambapps.p2p.peer_transfer.android.help;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import com.tambapps.p2p.peer_transfer.android.OnBoardingActivity;
 import com.tambapps.p2p.peer_transfer.android.R;
 
 public class PlaceholderFragment extends Fragment {
@@ -49,6 +53,11 @@ public class PlaceholderFragment extends Fragment {
                 layoutId = R.layout.fragment_receive;
                 break;
         }
-        return inflater.inflate(layoutId, container, false);
+        View v = inflater.inflate(layoutId, container, false);
+        if (index == 0) {
+            Button button = v.findViewById(R.id.introButton);
+            button.setOnClickListener((__) -> requireActivity().startActivity(new Intent(getActivity(), OnBoardingActivity.class)));
+        }
+        return v;
     }
 }

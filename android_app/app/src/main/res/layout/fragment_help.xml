@@ -34,7 +34,13 @@
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Re"
+            android:id="@+id/introButton"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="64dp"
+            android:backgroundTint="@color/colorSmallIcon"
+            android:foreground="?attr/selectableItemBackground"
+            android:textColor="@color/colorAccent"
+            android:text="Re-watch intro"
             />
     </LinearLayout>
 
