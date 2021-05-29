@@ -30,7 +30,7 @@ public class TransferActivity extends AppCompatActivity {
                     .setPositiveButton(getString(R.string.connect_to_wifi),
                             (dialog, which) -> startActivity(new Intent(Settings.ACTION_WIRELESS_SETTINGS)))
                     .setNegativeButton(getString(R.string.start_hotspot), (dialog, which) -> turnOnHotspot())
-                    .setNeutralButton(R.string.cancel, (dialog, which) -> finish())
+                    .setNeutralButton("ok", null)
                     .setCancelable(false)
                     .create();
             dialog.show();

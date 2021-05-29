@@ -38,7 +38,6 @@ import android.widget.Toast;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.analytics.FirebaseAnalytics;
-import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.tambapps.p2p.fandem.Fandem;
 import com.tambapps.p2p.fandem.SenderPeer;
 import com.tambapps.p2p.fandem.util.FileUtils;
@@ -60,7 +59,6 @@ import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-// TODO listen to  network changes to restart sniffing process
 public class ReceiveActivity extends TransferActivity implements MulticastReceiverService.DiscoveryListener<List<SenderPeer>> {
 
     private static final int PERMISSION_REQUEST_CODE = 8;
@@ -98,6 +96,9 @@ public class ReceiveActivity extends TransferActivity implements MulticastReceiv
         initializeRefreshLayout();
         if (isNetworkConfigured()) {
             sniffPeersAsync();
+        } else {
+            progressBar.setVisibility(View.GONE);
+            loadingText.setText(R.string.no_internet);
         }
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R && !hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
             requestPermissionDialog(R.string.ask_write_permission_title,
@@ -125,10 +126,6 @@ public class ReceiveActivity extends TransferActivity implements MulticastReceiv
             refreshLayout.setRefreshing(false);
             peers.clear();
             recyclerAdapter.notifyDataSetChanged();
-
-            if (progressBar.getVisibility() == View.VISIBLE) { // if seeking job still running
-                return;
-            }
             progressBar.setVisibility(View.VISIBLE);
             senderPeersReceiverService.stop();
             sniffPeersAsync();
@@ -161,12 +158,7 @@ public class ReceiveActivity extends TransferActivity implements MulticastReceiv
             new AlertDialog.Builder(ReceiveActivity.this)
                     .setTitle(R.string.receive_file)
                     .setMessage(R.string.select_file)
-                    .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            pickFileThenStartReceiving(peer, fileName);
-                        }
-                    })
+                    .setPositiveButton(R.string.yes, (dialog, which) -> pickFileThenStartReceiving(peer, fileName))
                     .setNeutralButton(R.string.no, null)
                     .show();
         }
@@ -273,7 +265,10 @@ public class ReceiveActivity extends TransferActivity implements MulticastReceiv
 
     @Override
     public void onError(IOException e) {
-        FirebaseCrashlytics.getInstance().recordException(e);
+        runOnUiThread(() -> {
+            progressBar.setVisibility(View.INVISIBLE);
+            loadingText.setText(R.string.no_internet);
+        });
     }
 
     private String getPeerKeyPrefix() {
