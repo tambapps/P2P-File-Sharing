@@ -80,21 +80,20 @@
     <string name="select_file">You will have to select the location where to save the file</string>
     <string name="filename_invalid">the file name is invalid</string>
     <string name="welcome_to_fandem">Welcome to Fandem</string>
-    <string name="welcome_des">This app allows you to transfer files to another smartphone with Fandem. It is way more faster than bluetooth</string>
+    <string name="welcome_des">This app allows you to transfer files to another smartphone. It is way more faster than bluetooth</string>
     <string name="p2p">Peer to Peer transfer</string>
     <string name="p2p_des">The transfer is made in Peer to Peer (P2P), meaning that the data goes from one device, directly to the other. There is no intermediate server in between, allowing you to keep your data private.</string>
     <string name="same_wifi">Using Wi-Fi</string>
     <string name="same_wifi_des">Both devices should be connected to the same Wi-Fi. Then they will be able to communicate between them</string>
     <string name="hotspot">Using hotspot (mobile data sharing)</string>
     <string name="hotspot_des">One device can turn on Wi-Fi hotspot, and have the other device connect to the hotspot. You don\'t need to have a internet or even have SIM card for this to work</string>
-    <string name="lets_get_started">Let\'s get started!</string>
     <string name="lets_get_started_des" />
     <string name="next">Next</string>
     <string name="onboarding_end">Ok</string>
-    <string name="couldnt_scan_wifi">Couldn\'t scan Wi-Fis</string>
     <string name="nar">Network action required</string>
     <string name="nar_description">In order to transfer files, both devices needs to be connected on the same Wi-Fi, or one device should share its data (hotspot) and have the other connect to that hotspot</string>
     <string name="connect_to_wifi">Connect to Wi-Fi</string>
     <string name="start_hotspot">Start hotspot</string>
+    <string name="lets_get_started">Let\'s get started!</string>
 
 </resources>
