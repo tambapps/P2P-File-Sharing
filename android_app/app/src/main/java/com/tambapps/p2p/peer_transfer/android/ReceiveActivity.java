@@ -143,11 +143,23 @@ public class ReceiveActivity extends TransferActivity implements MulticastReceiv
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+        senderPeersReceiverService.stop();
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
         if (isNetworkConfigured() && !senderPeersReceiverService.isRunning()) {
             sniffPeersAsync();
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        executorService.shutdownNow();
     }
 
     public void startReceiving(Peer peer, String fileName) {
@@ -254,13 +266,6 @@ public class ReceiveActivity extends TransferActivity implements MulticastReceiv
                         .start();
             }
         });
-    }
-
-    @Override
-    protected void onStop() {
-        senderPeersReceiverService.stop();
-        executorService.shutdownNow();
-        super.onStop();
     }
 
     @Override
