@@ -11,8 +11,8 @@ android {
         applicationId "com.tambapps.p2p.peer_transfer.android"
         minSdkVersion 24
         targetSdkVersion 30
-        versionCode 17
-        versionName "4.0"
+        versionCode 18
+        versionName "4.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         manifestPlaceholders = [admobApplicationId: admobProperties['admob.application.id']]
