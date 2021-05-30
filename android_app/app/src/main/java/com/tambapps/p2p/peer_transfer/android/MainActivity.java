@@ -1,6 +1,7 @@
 package com.tambapps.p2p.peer_transfer.android;
 
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
@@ -40,8 +41,19 @@ public class MainActivity extends AppCompatActivity implements OnInitializationC
 
         MobileAds.initialize(this, this);
         loadInterstitiel();
+        setVersionText();
         if (true) {
             startActivity(new Intent(this, OnBoardingActivity.class));
+        }
+    }
+
+    private void setVersionText() {
+        TextView versionText = findViewById(R.id.versionText);
+        try {
+            String versionName = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+            versionText.setText(("Fandem " + versionName));
+        } catch (PackageManager.NameNotFoundException e) {
+            versionText.setVisibility(View.GONE);
         }
     }
 
