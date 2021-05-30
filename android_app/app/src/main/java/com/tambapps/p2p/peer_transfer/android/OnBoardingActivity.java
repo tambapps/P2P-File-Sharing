@@ -89,6 +89,10 @@ public class OnBoardingActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        // prevent user from quiting this activity
+    }
 
     private class OnPageChangeListener extends ViewPager2.OnPageChangeCallback {
 
