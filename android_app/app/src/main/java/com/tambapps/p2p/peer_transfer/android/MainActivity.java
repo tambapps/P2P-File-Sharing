@@ -1,6 +1,7 @@
 package com.tambapps.p2p.peer_transfer.android;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Build;
@@ -42,8 +43,12 @@ public class MainActivity extends AppCompatActivity implements OnInitializationC
         MobileAds.initialize(this, this);
         loadInterstitiel();
         setVersionText();
-        if (true) {
+        SharedPreferences preferences = getPreferences(MODE_PRIVATE);
+        if (!preferences.contains("first_time")) {
             startActivity(new Intent(this, OnBoardingActivity.class));
+            SharedPreferences.Editor edit = preferences.edit();
+            edit.putInt("first_time", 1);
+            edit.apply();
         }
     }
 
