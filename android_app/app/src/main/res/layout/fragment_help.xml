@@ -9,7 +9,7 @@
     android:paddingTop="8dp"
     android:paddingStart="12dp"
     android:paddingEnd="12dp"
-    tools:context=".help.PlaceholderFragment">
+    tools:context=".help.HelpFragment">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -28,6 +28,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             style="@style/helpText"
+            android:id="@+id/helpText"
             android:text="@string/help_description"
             android:textColor="#fff" />
 
@@ -39,7 +40,7 @@
             android:layout_marginTop="64dp"
             android:backgroundTint="@color/colorSmallIcon"
             android:foreground="?attr/selectableItemBackground"
-            android:textColor="@color/colorAccent"
+            android:textColor="#fff"
             android:text="Re-watch intro"
             />
     </LinearLayout>

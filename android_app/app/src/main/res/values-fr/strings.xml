@@ -3,7 +3,7 @@
     <string name="tab_text_2">Envoyer un fichier</string>
     <string name="tab_text_3">Recevoir un fichier</string>
     <string name="help_title">Bienvenue sur Fandem</string>
-    <string name="help_description">\t\t\t\tCette application permet d\'envoyer/recevoir des fichiers en Peer to Peer (P2P) avec le partage de données (point d\'accès). P2P signifie que les données sont transférées directement d\'un appareil à l\'autre, aucune donnée n\'est envoyée à un serveur intermédiaire.\n\nPour transférer des fichiers, les deux appareils doivent être dans le même réseau local.\nPartagez la connexion 3/4G d\'un des smartphones avec l\'autre, et connecter ce dernier sur le WI-FI crée par le partage de connexion.\n\nAfin que le transfert se déroule sans problème, assurez vous que les 2 appareils<b> aient la dernière version de l\'application</b></string>
+    <string name="help_description">\t\t\t\tCette application permet d\'envoyer/recevoir des fichiers en Peer to Peer (P2P) avec le partage de données (point d\'accès). P2P signifie que les données sont transférées directement d\'un appareil à l\'autre, aucune donnée n\'est envoyée à un serveur intermédiaire.\n\nPour transférer des fichiers, les deux appareils doivent être connecté au même Wi-Fi, ou un appareil doit partager ses données (point d\'accès) avec l\'autre.\n\nAfin que le transfert se déroule sans problème, assurez vous que les 2 appareils<b> aient la dernière version de l\'application</b>\n\nFandem est un projet open-source. Vous pouvez consulter le code source<a href="https://github.com/tambapps/P2P-File-Sharing">ici</a></string>
     <string name="pick_a_file_to_send">Choisissez un fichier à envoyer</string>
     <string name="port">port</string>
     <string name="receive_file">Recevoir un fichier</string>
@@ -71,7 +71,7 @@
     <string name="no_received_files">Aucun fichier reçu n\'a été trouvé</string>
     <string name="couldnt_move_file">Impossible de déplacer le fichier</string>
     <string name="error_occured_retry">Une erreur est survenue. Veuillez réessayer</string>
-    <string name="moving_file">Déplacement du fichier...</string>
+    <string name="moving_file">Déplacement du fichier…</string>
     <string name="successfully_moved">%s a été déplacé avec succès</string>
     <string name="warning_couldnt_delete">Attention: le fichier source n\'a pas pu être supprimé</string>
     <string name="manage">gérer</string>

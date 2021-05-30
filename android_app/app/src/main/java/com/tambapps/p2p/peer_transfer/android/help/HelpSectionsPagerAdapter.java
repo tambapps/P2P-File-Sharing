@@ -22,7 +22,7 @@ public class HelpSectionsPagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
-        return PlaceholderFragment.newInstance(position);
+        return HelpFragment.newInstance(position);
     }
 
     @Nullable
