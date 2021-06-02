@@ -1,4 +1,4 @@
-package com.tambapps.p2p.fandem.fandemdesktop;
+package com.tambapps.p2p.fandem.desktop;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

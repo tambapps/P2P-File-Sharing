@@ -1,4 +1,4 @@
-package com.tambapps.p2p.fandem.fandemdesktop.model;
+package com.tambapps.p2p.fandem.desktop.model;
 
 import java.io.File;
 

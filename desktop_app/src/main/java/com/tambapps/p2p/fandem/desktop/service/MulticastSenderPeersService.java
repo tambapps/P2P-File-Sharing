@@ -1,4 +1,4 @@
-package com.tambapps.p2p.fandem.fandemdesktop.service;
+package com.tambapps.p2p.fandem.desktop.service;
 
 import com.tambapps.p2p.fandem.SenderPeer;
 import com.tambapps.p2p.speer.datagram.service.PeriodicMulticastService;

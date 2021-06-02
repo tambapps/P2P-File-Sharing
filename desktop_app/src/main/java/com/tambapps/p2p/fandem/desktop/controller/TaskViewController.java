@@ -1,12 +1,12 @@
-package com.tambapps.p2p.fandem.fandemdesktop.controller;
+package com.tambapps.p2p.fandem.desktop.controller;
 
 import com.tambapps.p2p.fandem.Fandem;
-import com.tambapps.p2p.fandem.fandemdesktop.service.FileSenderService;
-import com.tambapps.p2p.fandem.fandemdesktop.util.SharingErrorListener;
+import com.tambapps.p2p.fandem.desktop.service.FileSenderService;
+import com.tambapps.p2p.fandem.desktop.util.SharingErrorListener;
 import com.tambapps.p2p.fandem.util.TransferListener;
 import com.tambapps.p2p.speer.Peer;
-import com.tambapps.p2p.fandem.fandemdesktop.model.SharingTask;
-import com.tambapps.p2p.fandem.fandemdesktop.service.FileReceiverService;
+import com.tambapps.p2p.fandem.desktop.model.SharingTask;
+import com.tambapps.p2p.fandem.desktop.service.FileReceiverService;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;

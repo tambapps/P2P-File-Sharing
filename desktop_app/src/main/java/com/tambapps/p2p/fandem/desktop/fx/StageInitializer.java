@@ -1,6 +1,6 @@
-package com.tambapps.p2p.fandem.fandemdesktop.fx;
+package com.tambapps.p2p.fandem.desktop.fx;
 
-import com.tambapps.p2p.fandem.fandemdesktop.util.RegionLoader;
+import com.tambapps.p2p.fandem.desktop.util.RegionLoader;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.layout.HBox;

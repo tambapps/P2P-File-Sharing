@@ -1,14 +1,12 @@
-package com.tambapps.p2p.fandem.fandemdesktop.service;
+package com.tambapps.p2p.fandem.desktop.service;
 
 import com.tambapps.p2p.fandem.FileReceiver;
-import com.tambapps.p2p.fandem.FileSharer;
 import com.tambapps.p2p.fandem.util.FileProvider;
 import com.tambapps.p2p.fandem.util.FileUtils;
 import com.tambapps.p2p.speer.Peer;
-import com.tambapps.p2p.fandem.fandemdesktop.controller.TaskViewController;
-import com.tambapps.p2p.fandem.fandemdesktop.model.SharingTask;
+import com.tambapps.p2p.fandem.desktop.controller.TaskViewController;
+import com.tambapps.p2p.fandem.desktop.model.SharingTask;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.File;

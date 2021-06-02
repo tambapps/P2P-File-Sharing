@@ -1,8 +1,8 @@
-package com.tambapps.p2p.fandem.fandemdesktop.controller;
+package com.tambapps.p2p.fandem.desktop.controller;
 
 import com.tambapps.p2p.speer.Peer;
-import com.tambapps.p2p.fandem.fandemdesktop.model.SharingTask;
-import com.tambapps.p2p.fandem.fandemdesktop.util.RegionLoader;
+import com.tambapps.p2p.fandem.desktop.model.SharingTask;
+import com.tambapps.p2p.fandem.desktop.util.RegionLoader;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;

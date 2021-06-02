@@ -1,10 +1,10 @@
-package com.tambapps.p2p.fandem.fandemdesktop.configuration;
+package com.tambapps.p2p.fandem.desktop.configuration;
 
 import com.tambapps.p2p.fandem.Fandem;
 import com.tambapps.p2p.fandem.SenderPeer;
 import com.tambapps.p2p.speer.Peer;
-import com.tambapps.p2p.fandem.fandemdesktop.controller.AppController;
-import com.tambapps.p2p.fandem.fandemdesktop.model.SharingTask;
+import com.tambapps.p2p.fandem.desktop.controller.AppController;
+import com.tambapps.p2p.fandem.desktop.model.SharingTask;
 import com.tambapps.p2p.speer.datagram.DatagramPeer;
 import com.tambapps.p2p.speer.datagram.DatagramSupplier;
 import com.tambapps.p2p.speer.datagram.service.PeriodicMulticastService;

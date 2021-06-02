@@ -1,6 +1,6 @@
-package com.tambapps.p2p.fandem.fandemdesktop;
+package com.tambapps.p2p.fandem.desktop;
 
-import com.tambapps.p2p.fandem.fandemdesktop.fx.FandemDesktopFXApplication;
+import com.tambapps.p2p.fandem.desktop.fx.FandemDesktopFXApplication;
 import javafx.application.Application;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 

@@ -1,6 +1,6 @@
-package com.tambapps.p2p.fandem.fandemdesktop.controller;
+package com.tambapps.p2p.fandem.desktop.controller;
 
-import com.tambapps.p2p.fandem.fandemdesktop.util.PropertyUtils;
+import com.tambapps.p2p.fandem.desktop.util.PropertyUtils;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXML;

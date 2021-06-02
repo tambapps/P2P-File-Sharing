@@ -1,10 +1,10 @@
-package com.tambapps.p2p.fandem.fandemdesktop.controller;
+package com.tambapps.p2p.fandem.desktop.controller;
 
 import com.tambapps.p2p.fandem.Fandem;
 import com.tambapps.p2p.fandem.SenderPeer;
 import com.tambapps.p2p.fandem.util.FileUtils;
 import com.tambapps.p2p.speer.Peer;
-import com.tambapps.p2p.fandem.fandemdesktop.util.PropertyUtils;
+import com.tambapps.p2p.fandem.desktop.util.PropertyUtils;
 import com.tambapps.p2p.speer.datagram.DatagramSupplier;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;

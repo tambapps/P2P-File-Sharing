@@ -1,6 +1,6 @@
-package com.tambapps.p2p.fandem.fandemdesktop.fx;
+package com.tambapps.p2p.fandem.desktop.fx;
 
-import com.tambapps.p2p.fandem.fandemdesktop.FandemDesktopApplication;
+import com.tambapps.p2p.fandem.desktop.FandemDesktopApplication;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.stage.Stage;

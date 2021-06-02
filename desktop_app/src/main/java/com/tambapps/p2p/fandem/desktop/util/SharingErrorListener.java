@@ -1,4 +1,4 @@
-package com.tambapps.p2p.fandem.fandemdesktop.util;
+package com.tambapps.p2p.fandem.desktop.util;
 
 import java.io.IOException;
 
