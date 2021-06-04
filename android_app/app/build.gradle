@@ -2,8 +2,15 @@ apply plugin: 'com.android.application'
 
 apply plugin: 'com.google.gms.google-services'
 
-def admobProperties = new Properties()
-admobProperties.load(new FileInputStream(rootProject.file("admob.properties")))
+def admobProperties
+if (rootProject.file("admob.properties").exists()) {
+    admobProperties = new Properties()
+    admobProperties.load(new FileInputStream(rootProject.file("admob.properties")))
+} else {
+    // test ids
+    admobProperties = ['admob.application.id':'ca-app-pub-3940256099942544~3347511713',
+    'admob.interstitiel.id': 'ca-app-pub-3940256099942544/1033173712']
+}
 
 android {
     compileSdkVersion 30
