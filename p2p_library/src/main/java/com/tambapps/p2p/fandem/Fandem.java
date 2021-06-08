@@ -15,9 +15,9 @@ import com.tambapps.p2p.speer.io.Deserializer;
 import com.tambapps.p2p.speer.io.Serializer;
 import com.tambapps.p2p.speer.util.PeerUtils;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.lang.reflect.Type;
 import java.net.InetAddress;
 import java.util.ArrayList;
@@ -38,9 +38,9 @@ public final class Fandem {
 
   private static final Serializer<?> SERIALIZER = (object, outputStream) -> {
     try {
-      OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
-      GSON.toJson(object, outputStreamWriter);
-      outputStreamWriter.flush();
+      DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
+      dataOutputStream.writeUTF(GSON.toJson(object));
+      dataOutputStream.flush();
     } catch (JsonIOException e) {
       throw new IOException(e);
     }
@@ -53,7 +53,7 @@ public final class Fandem {
   public static  <T> Deserializer<T> deserializer(Class<T> clazz) {
     return inputStream -> {
       try {
-        return GSON.fromJson(GSON.newJsonReader(new InputStreamReader(inputStream)), clazz);
+        return GSON.fromJson(new DataInputStream(inputStream).readUTF(), clazz);
       } catch (JsonIOException| JsonSyntaxException e) {
         throw new IOException(e);
       }
@@ -86,7 +86,7 @@ public final class Fandem {
 
   public static Deserializer<List<SenderPeer>> senderPeersDeserializer() {
     final Type type = new TypeToken<List<SenderPeer>>(){}.getType();
-    return is -> GSON.fromJson(GSON.newJsonReader(new InputStreamReader(is)), type);
+    return is -> GSON.fromJson(new DataInputStream(is).readUTF(), type);
   }
 
   public static MulticastReceiverService<List<SenderPeer>> senderPeersReceiverService(
