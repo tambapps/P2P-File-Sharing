@@ -27,7 +27,7 @@ mvnw.cmd
 /dist/
 /nbdist/
 /.nb-gradle/
-build/
+*.deb
 
 ### VS Code ###
 .vscode/
