@@ -1,6 +1,8 @@
 # Fandem desktop
 
 The desktop app with UI, built with JavaFX and Spring Boot.
+The App was written in Java 16, in order to benefit of `jpackage`, a wonderful tool to build 
+platform-specific executable files
 
 ## Getting Started
 
