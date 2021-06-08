@@ -138,7 +138,7 @@ public class Main implements TransferListener {
 
 	// for testing overriding
 	InetAddress getIpAddress() throws IOException {
-		return PeerUtils.getIpAddress();
+		return PeerUtils.getPrivateNetworkIpAddress();
 	}
 
 	private Peer seekSendingPeer() {

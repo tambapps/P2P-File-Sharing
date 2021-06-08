@@ -6,14 +6,14 @@
 
   <groupId>com.tambapps.p2p.fandem</groupId>
   <artifactId>fandem</artifactId>
-  <version>2.0</version>
+  <version>2.1-SNAPSHOT</version>
   <name>File Sharing Library</name>
 
   <dependencies>
     <dependency>
       <groupId>com.tambapps.p2p.speer</groupId>
       <artifactId>speer</artifactId>
-      <version>0.1</version>
+      <version>1.1-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>com.google.code.gson</groupId>

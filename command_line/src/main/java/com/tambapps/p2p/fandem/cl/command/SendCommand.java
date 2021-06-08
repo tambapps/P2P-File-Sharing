@@ -34,7 +34,7 @@ public class SendCommand {
     }
 
     public Optional<InetAddress> getIp() {
-        return Optional.ofNullable(ip != null ? ip : PeerUtils.getIpAddressOrNull());
+        return Optional.ofNullable(ip != null ? ip : PeerUtils.getPrivateNetworkIpAddressOrNull());
     }
 
     public Optional<Integer> getPort() {

@@ -227,7 +227,7 @@ public class ReceiveActivity extends TransferActivity implements MulticastReceiv
     @Override
     public void onDiscovery(List<SenderPeer> peers) {
         boolean newPeers = false;
-        InetAddress ownAddress = PeerUtils.getIpAddressOrNull();
+        InetAddress ownAddress = PeerUtils.getPrivateNetworkIpAddressOrNull();
         for (SenderPeer peer : peers) {
             // filter own peers
             if (!peer.getAddress().equals(ownAddress) && !this.peers.contains(peer)) {
@@ -279,7 +279,7 @@ public class ReceiveActivity extends TransferActivity implements MulticastReceiv
     private String getPeerKeyPrefix() {
         String key;
         try {
-            key = Fandem.toHexString(PeerUtils.getIpAddress());
+            key = Fandem.toHexString(PeerUtils.getPrivateNetworkIpAddress());
         } catch (IOException e) {
             return null;
         }
