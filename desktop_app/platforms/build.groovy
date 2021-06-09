@@ -91,10 +91,8 @@ void execute(File jarFile , File directory, String platform, String jpackage) {
       ])
   }
 
-  if (DEBUG) {
-    debugPrint 'Will run jpackage'
-    debugPrint command.join(' ')
-  }
+  debugPrint 'Will run jpackage'
+  debugPrint command.join(' ')
   Process proc  = command.execute()
   def sout = new StringBuilder()
   proc.waitForProcessOutput(sout, sout)
