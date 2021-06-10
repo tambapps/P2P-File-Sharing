@@ -58,7 +58,7 @@ try {
 }
 
 void execute(File jarFile , File directory, String platform, String jpackage) {
-  File jmodsDirectory = new File('./javafx-jmods-16')
+  File jmodsDirectory = new File('javafx-jmods-16')
   if (!jmodsDirectory.isDirectory()) {
     debugPrint 'javaFX jmods not found'
     downloadJavaFxJmods(jmodsDirectory, platform)
@@ -76,9 +76,9 @@ void execute(File jarFile , File directory, String platform, String jpackage) {
       '--name', 'Fandem Desktop',
       '--app-version' , '2.1',
       // will be downloaded if not present
-      '--module-path', './javafx-jmods-16',
+      '--module-path', 'javafx-jmods-16',
       "--description", "Fandem desktop allows you to share files between two devices, it also works with then Fandem Android app",
-      "--icon", "$platform/icon.png"
+      "--icon", "$platform${File.separator}icon.png"
   ]
 
   switch (platform) {
