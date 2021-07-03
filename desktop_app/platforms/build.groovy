@@ -32,7 +32,9 @@ if (!jarFile.exists()) {
   return
 }
 
-File directory = new File('temp')
+File directory = new File(".${File.separator}temp")
+// will delete temp ONLY IF it didn't exist before
+boolean deleteTemp = !directory.exists()
 if (!directory.exists() && !directory.mkdir()) {
   println "Couldn't create temp directory"
   return
@@ -42,8 +44,6 @@ if (osName.contains('linux')) {
   platform = 'linux'
 } else if (osName.contains('windows')) {
   platform = 'windows'
-  println 'Windows not handled (yet)'
-  return
 }else if (osName.contains('mac')) {
   platform = 'mac'
   println 'I would be happy to handle Mac OS, if you buy me one of those'
@@ -52,13 +52,15 @@ if (osName.contains('linux')) {
 
 DEBUG = options.d
 try {
-  execute(jarFile, directory, osName, options.jpackage ?: 'jpackage')
+  execute(jarFile, directory, platform, options.jpackage ?: 'jpackage')
 } finally {
-  directory.deleteDir()
+  if (deleteTemp) {
+    directory.deleteDir()
+  }
 }
 
 void execute(File jarFile , File directory, String platform, String jpackage) {
-  File jmodsDirectory = new File('javafx-jmods-16')
+  File jmodsDirectory = new File(".${File.separator}javafx-jmods-16")
   if (!jmodsDirectory.isDirectory()) {
     debugPrint 'javaFX jmods not found'
     downloadJavaFxJmods(jmodsDirectory, platform)
@@ -69,16 +71,15 @@ void execute(File jarFile , File directory, String platform, String jpackage) {
 
   List<String> command = [
       jpackage,
-      '--input' , directory.name,
+      '--input' , directory.path,
       // Yep, jar built with spring boot plugin uses this as main class
       '--main-class' , 'org.springframework.boot.loader.JarLauncher',
-      "--main-jar", "${jarFile.name}",
+      "--main-jar", "${jarFile.path}",
       '--name', 'Fandem Desktop',
       '--app-version' , '2.1',
       // will be downloaded if not present
-      '--module-path', 'javafx-jmods-16',
+      '--module-path', ".${File.separator}javafx-jmods-16",
       "--description", "Fandem desktop allows you to share files between two devices, it also works with then Fandem Android app",
-      "--icon", "$platform${File.separator}icon.png"
   ]
 
   switch (platform) {
@@ -87,7 +88,17 @@ void execute(File jarFile , File directory, String platform, String jpackage) {
       command.addAll([
           '--type', 'deb',
           '--linux-deb-maintainer', 'tambapps@gmail.com',
-          '--linux-package-name', 'tambapps-fandem-desktop'
+          '--linux-package-name', 'tambapps-fandem-desktop',
+          '--icon', ".${File.separator}$platform${File.separator}icon.png"
+      ])
+      break
+    case 'windows':
+      println 'Platform: Windows\nWill build exe file'
+      command.addAll([
+              '--type', 'exe',
+              '--win-menu',
+              '--win-shortcut',
+              "--icon", ".${File.separator}$platform${File.separator}icon.ico"
       ])
   }
 
