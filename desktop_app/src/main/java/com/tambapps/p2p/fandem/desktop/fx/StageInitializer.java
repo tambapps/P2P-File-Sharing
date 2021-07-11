@@ -59,6 +59,6 @@ public class StageInitializer implements ApplicationListener<FandemDesktopFXAppl
     Region sendPane = regionLoader.load(sendPaneResource);
     Region receivePane = regionLoader.load(receivePaneResource);
 
-    panesContainer.getChildren().addAll(sendPane, receivePane);
+    panesContainer.getChildren().addAll(receivePane, sendPane);
   }
 }

@@ -43,14 +43,6 @@ public class ReceivePaneController {
   private Label pathLabel;
   @FXML
   private TextField hexCodeField;
-  @FXML
-  private Button searchPeerButton;
-  @FXML
-  private ProgressBar progressBar;
-  @FXML
-  private Label sniffText;
-  @FXML
-  private Button cancelSniffButton;
 
   private DatagramSupplier<List<SenderPeer>> sniffSupplier;
   private final Callable<DatagramSupplier<List<SenderPeer>>> sniffSupplierSupplier;
@@ -72,10 +64,6 @@ public class ReceivePaneController {
   private void initialize() {
     PropertyUtils
       .bindMapNullableToStringProperty(folderProperty, File::getPath, pathLabel.textProperty());
-    progressBar.setProgress(ProgressIndicator.INDETERMINATE_PROGRESS);
-    progressBar.setVisible(false);
-    sniffText.setVisible(false);
-    cancelSniffButton.setVisible(false);
   }
 
   @FXML
@@ -95,16 +83,8 @@ public class ReceivePaneController {
     return Fandem.parsePeerFromHexString(hexCode);
   }
 
-  @FXML
-  private void searchSender() {
-    searchPeerButton.setVisible(false);
-    progressBar.setVisible(true);
-    sniffText.setVisible(true);
-    cancelSniffButton.setVisible(true);
-    executorService.submit(this::sniffSenderPeer);
-
-  }
-
+  // TODO add a radio button to activate/desactivate sniffing
+  /*
   private void sniffSenderPeer() {
     try {
       sniffSupplier = sniffSupplierSupplier.call();
@@ -154,15 +134,6 @@ public class ReceivePaneController {
     return false;
   }
 
-  @FXML
-  private void cancelSniff() {
-    sniffSupplier.close();
-    progressBar.setVisible(false);
-    sniffText.setVisible(false);
-    cancelSniffButton.setVisible(false);
-    searchPeerButton.setVisible(true);
-  }
-
   private void errorDialog(IOException e) {
     Alert alert = new Alert(Alert.AlertType.ERROR);
     alert.setTitle("An error occurred");
@@ -170,6 +141,7 @@ public class ReceivePaneController {
     alert.setContentText(e.getMessage());
     alert.showAndWait();
   }
+   */
 
   @FXML
   private void receiveFile() {
@@ -198,7 +170,6 @@ public class ReceivePaneController {
     receiveTaskLauncher.accept(file, peer);
     folderProperty.set(null);
     hexCodeField.setText("");
-    searchPeerButton.setDisable(false);
   }
 
 }

@@ -2,6 +2,7 @@ package com.tambapps.p2p.fandem.desktop.configuration;
 
 import com.tambapps.p2p.fandem.Fandem;
 import com.tambapps.p2p.fandem.SenderPeer;
+import com.tambapps.p2p.fandem.desktop.FandemDesktopApplication;
 import com.tambapps.p2p.speer.Peer;
 import com.tambapps.p2p.fandem.desktop.controller.AppController;
 import com.tambapps.p2p.fandem.desktop.model.SharingTask;
@@ -31,6 +32,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import java.util.prefs.Preferences;
 
 @Configuration
 public class AppConfiguration {
