@@ -3,7 +3,7 @@ package com.tambapps.p2p.fandem.desktop.fx;
 import com.tambapps.p2p.fandem.desktop.util.RegionLoader;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
-import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -45,7 +45,7 @@ public class StageInitializer implements ApplicationListener<FandemDesktopFXAppl
       stage.setTitle(applicationTitle);
       stage.getIcons().add(new Image(iconResource.getInputStream()));
 
-      HBox panesContainer = (HBox) root.getChildren().get(0);
+      Pane panesContainer = (Pane) root.getChildren().get(0);
       initializePanes(panesContainer);
 
       stage.setScene(new Scene(root));
@@ -55,7 +55,7 @@ public class StageInitializer implements ApplicationListener<FandemDesktopFXAppl
     }
   }
 
-  private void initializePanes(HBox panesContainer) throws IOException {
+  private void initializePanes(Pane panesContainer) throws IOException {
     Region sendPane = regionLoader.load(sendPaneResource);
     Region receivePane = regionLoader.load(receivePaneResource);
 
