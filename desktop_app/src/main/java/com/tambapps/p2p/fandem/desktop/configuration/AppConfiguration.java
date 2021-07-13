@@ -132,11 +132,11 @@ public class AppConfiguration {
       }
     }
     property.addListener((observableValue, oldValue, newValue) -> {
-      preferences.put(RECEIVE_FOLDER, newValue.getAbsolutePath());
-      try {
-        preferences.flush();
-      } catch (BackingStoreException e) {
-        System.err.println(e);
+      if (newValue != null) {
+        preferences.put(RECEIVE_FOLDER, newValue.getAbsolutePath());
+        try {
+          preferences.flush();
+        } catch (BackingStoreException e) { }
       }
     });
     return property;
