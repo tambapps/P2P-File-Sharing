@@ -4,6 +4,7 @@ import com.tambapps.p2p.fandem.FileSender;
 import com.tambapps.p2p.fandem.SenderPeer;
 import com.tambapps.p2p.fandem.desktop.controller.TaskViewController;
 import com.tambapps.p2p.fandem.desktop.model.SharingTask;
+import com.tambapps.p2p.fandem.util.TransferListener;
 import com.tambapps.p2p.speer.Peer;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -45,7 +46,6 @@ public class FileSenderService {
       } catch (IOException e) {
         controller.onError(e);
       }
-      multicastSenderPeersService.removeSenderPeer(senderPeer);
     });
 
     sendingTask.setCanceler(() -> {
@@ -69,6 +69,32 @@ public class FileSenderService {
     }
     catch (UnknownHostException ex) {
       return System.getProperty("user.name") + " Desktop";
+    }
+  }
+
+  /**
+   * Listener that will stop multicast sender peer once the transfer has started
+   */
+  private class CustomTransferListener implements TransferListener {
+
+    private final TransferListener baseListener;
+    private final SenderPeer senderPeer;
+
+    private CustomTransferListener(TransferListener baseListener,
+        SenderPeer senderPeer) {
+      this.baseListener = baseListener;
+      this.senderPeer = senderPeer;
+    }
+
+    @Override
+    public void onConnected(Peer selfPeer, Peer remotePeer, String fileName, long fileSize) {
+      multicastSenderPeersService.removeSenderPeer(senderPeer);
+      baseListener.onConnected(selfPeer, remotePeer, fileName, fileSize);
+    }
+
+    @Override
+    public void onProgressUpdate(int progress, long bytesProcessed, long totalBytes) {
+      baseListener.onProgressUpdate(progress, bytesProcessed, totalBytes);
     }
   }
 }

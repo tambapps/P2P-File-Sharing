@@ -23,7 +23,7 @@ public class SendPaneController {
 
   @FXML
   private Label pathLabel;
-  private ObjectProperty<File> fileProperty = new SimpleObjectProperty<>();
+  private final ObjectProperty<File> fileProperty = new SimpleObjectProperty<>();
 
   public SendPaneController(@Qualifier("fileChooser") Supplier<File> fileChooser,
                             Supplier<Boolean> canAddTaskSupplier,
