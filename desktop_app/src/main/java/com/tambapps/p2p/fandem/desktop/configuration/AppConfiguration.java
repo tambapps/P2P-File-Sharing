@@ -2,18 +2,21 @@ package com.tambapps.p2p.fandem.desktop.configuration;
 
 import com.tambapps.p2p.fandem.Fandem;
 import com.tambapps.p2p.fandem.SenderPeer;
-import com.tambapps.p2p.fandem.desktop.FandemDesktopApplication;
 import com.tambapps.p2p.speer.Peer;
 import com.tambapps.p2p.fandem.desktop.controller.AppController;
 import com.tambapps.p2p.fandem.desktop.model.SharingTask;
 import com.tambapps.p2p.speer.datagram.DatagramPeer;
 import com.tambapps.p2p.speer.datagram.DatagramSupplier;
+import com.tambapps.p2p.speer.datagram.service.MulticastReceiverService;
 import com.tambapps.p2p.speer.datagram.service.PeriodicMulticastService;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,7 +27,6 @@ import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -32,7 +34,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-import java.util.prefs.Preferences;
 
 @Configuration
 public class AppConfiguration {
@@ -61,8 +62,9 @@ public class AppConfiguration {
   }
 
   @Bean
-  public Callable<DatagramSupplier<List<SenderPeer>>> senderPeersSupplier() throws IOException {
-    return Fandem::senderPeersSupplier;
+  public MulticastReceiverService<List<SenderPeer>> senderPeersSupplier(
+      @Qualifier("multicastExecutor") ExecutorService executorService) {
+    return Fandem.senderPeersReceiverService(executorService, null);
   }
 
   @Bean
@@ -70,14 +72,14 @@ public class AppConfiguration {
     return appController::sendTask;
   }
 
-  @Bean("executorService")
+  @Bean
   public ExecutorService executorService() {
     return Executors.newFixedThreadPool(maxSharingTasks);
   }
 
-  @Bean("sniffExecutorService")
-  public ExecutorService sniffExecutorService(@Value("${sniff.threads}") int sniffingThreads) {
-    return Executors.newFixedThreadPool(sniffingThreads);
+  @Bean
+  public ExecutorService multicastExecutor() {
+    return Executors.newSingleThreadExecutor();
   }
 
   @Bean
@@ -106,7 +108,14 @@ public class AppConfiguration {
   }
 
   @Bean
-  public PeriodicMulticastService<List<SenderPeer>> multicastService(ScheduledExecutorService executorService) {
-    return Fandem.multicastService(executorService);
+  public PeriodicMulticastService<List<SenderPeer>> multicastService(
+      ScheduledExecutorService scheduledExecutorService) {
+    return Fandem.multicastService(scheduledExecutorService);
+  }
+
+  @Bean
+  public ObjectProperty<File> folderProperty() {
+    // TODO initialize it with preference
+    return new SimpleObjectProperty<>();
   }
 }

@@ -5,6 +5,7 @@ import com.tambapps.p2p.fandem.SenderPeer;
 import com.tambapps.p2p.fandem.desktop.controller.TaskViewController;
 import com.tambapps.p2p.fandem.desktop.model.SharingTask;
 import com.tambapps.p2p.speer.Peer;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -25,7 +26,7 @@ public class FileSenderService {
   @Value("${socket.timeout.seconds}")
   private int socketTimeoutSeconds;
 
-  public FileSenderService(ExecutorService executorService,
+  public FileSenderService(@Qualifier("executorService") ExecutorService executorService,
       MulticastSenderPeersService multicastSenderPeersService) {
     this.executorService = executorService;
     this.multicastSenderPeersService = multicastSenderPeersService;

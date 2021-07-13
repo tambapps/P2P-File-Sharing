@@ -8,6 +8,7 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ConfigurableApplicationContext;
 
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 
 public class FandemDesktopFXApplication extends Application {
@@ -26,10 +27,9 @@ public class FandemDesktopFXApplication extends Application {
 
   @Override
   public void stop() {
-    ExecutorService executor = (ExecutorService) context.getBean("executorService");
-    executor.shutdownNow(); // TODO open dialog if a task isn't finished to comfirm close (but not here)
-    executor = (ExecutorService) context.getBean("sniffExecutorService");
-    executor.shutdownNow();
+    Map<String, ExecutorService> executors = context.getBeansOfType(ExecutorService.class);
+    executors.values().forEach(ExecutorService::shutdownNow);
+    // TODO app doesn't close
     context.stop();
     Platform.exit();
   }

@@ -4,4 +4,3 @@ spring:
 
 sharing.tasks.max: 4
 socket.timeout.seconds: 60
-sniff.threads: 4
