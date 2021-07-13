@@ -1,7 +1,10 @@
 package com.tambapps.p2p.fandem.desktop.configuration;
 
+import static com.tambapps.p2p.fandem.desktop.util.PrefKeys.RECEIVE_FOLDER;
+
 import com.tambapps.p2p.fandem.Fandem;
 import com.tambapps.p2p.fandem.SenderPeer;
+import com.tambapps.p2p.fandem.desktop.FandemDesktopApplication;
 import com.tambapps.p2p.speer.Peer;
 import com.tambapps.p2p.fandem.desktop.controller.AppController;
 import com.tambapps.p2p.fandem.desktop.model.SharingTask;
@@ -11,6 +14,8 @@ import com.tambapps.p2p.speer.datagram.service.MulticastReceiverService;
 import com.tambapps.p2p.speer.datagram.service.PeriodicMulticastService;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.stage.DirectoryChooser;
@@ -34,6 +39,9 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import java.util.prefs.BackingStoreException;
+import java.util.prefs.Preferences;
+
 
 @Configuration
 public class AppConfiguration {
@@ -114,8 +122,26 @@ public class AppConfiguration {
   }
 
   @Bean
-  public ObjectProperty<File> folderProperty() {
-    // TODO initialize it with preference
+  public ObjectProperty<File> folderProperty(Preferences preferences) {
+    SimpleObjectProperty<File> property = new SimpleObjectProperty<>();
+    String receiveFolderPath = preferences.get(RECEIVE_FOLDER, null);
+    if (receiveFolderPath != null) {
+      File receiveFolder = new File(receiveFolderPath);
+      if (receiveFolder.isDirectory()) {
+        property.set(receiveFolder);
+      }
+    }
+    property.addListener((observableValue, oldValue, newValue) -> {
+      preferences.put(RECEIVE_FOLDER, newValue.getAbsolutePath());
+      try {
+        preferences.flush();
+      } catch (BackingStoreException e) { }
+    });
     return new SimpleObjectProperty<>();
+  }
+
+  @Bean
+  public Preferences preferences() {
+    return Preferences.userNodeForPackage(FandemDesktopApplication.class);
   }
 }
