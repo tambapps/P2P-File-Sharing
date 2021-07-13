@@ -48,6 +48,9 @@ public class ReceivePaneController {
 
   @FXML
   private void initialize() {
+    if (folderProperty.get() != null) {
+      pathLabel.setText(folderProperty.get().getPath());
+    }
     PropertyUtils
       .bindMapNullableToStringProperty(folderProperty, File::getPath, pathLabel.textProperty());
     sniffingService.start(sniffToggleButton);

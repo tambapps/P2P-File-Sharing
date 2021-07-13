@@ -135,9 +135,11 @@ public class AppConfiguration {
       preferences.put(RECEIVE_FOLDER, newValue.getAbsolutePath());
       try {
         preferences.flush();
-      } catch (BackingStoreException e) { }
+      } catch (BackingStoreException e) {
+        System.err.println(e);
+      }
     });
-    return new SimpleObjectProperty<>();
+    return property;
   }
 
   @Bean
