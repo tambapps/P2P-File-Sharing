@@ -5,6 +5,7 @@ import com.tambapps.p2p.fandem.SenderPeer;
 import com.tambapps.p2p.fandem.util.FileUtils;
 import com.tambapps.p2p.speer.Peer;
 import com.tambapps.p2p.speer.datagram.service.MulticastReceiverService;
+import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
@@ -14,8 +15,11 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
 
 @Service
@@ -25,6 +29,8 @@ public class PeerSniffingService implements MulticastReceiverService.DiscoveryLi
   private final MulticastReceiverService<List<SenderPeer>> receiverService;
   private final ObjectProperty<File> folderProperty;
   private ToggleButton toggleButton;
+  private final AtomicBoolean isProposingPeer = new AtomicBoolean(false);
+  private Set<SenderPeer> blacklist = new HashSet<>();
 
   public PeerSniffingService(BiConsumer<File, Peer> receiveTaskLauncher,
       MulticastReceiverService<List<SenderPeer>> receiverService,
@@ -48,8 +54,8 @@ public class PeerSniffingService implements MulticastReceiverService.DiscoveryLi
     Alert alert = new Alert(Alert.AlertType.CONFIRMATION,
         String.format("%s wants to send %s (%s)", senderPeer.getDeviceName(), senderPeer.getFileName(),
             FileUtils.toFileSize(senderPeer.getFileSize())),
-        new ButtonType("Choose this Peer", ButtonBar.ButtonData.YES),
-        new ButtonType("Continue research", ButtonBar.ButtonData.NO));
+        new ButtonType("Receive file", ButtonBar.ButtonData.YES),
+        new ButtonType("Ignore", ButtonBar.ButtonData.NO));
     alert.setTitle("Sender found");
     alert.setHeaderText(String.format("Sender: %s\nPeer key: %s",
         senderPeer.getDeviceName(), Fandem.toHexString(senderPeer)));
@@ -59,6 +65,7 @@ public class PeerSniffingService implements MulticastReceiverService.DiscoveryLi
       case YES:
         return true;
       case NO:
+        blacklist.add(senderPeer);
         break;
     }
     return false;
@@ -74,16 +81,22 @@ public class PeerSniffingService implements MulticastReceiverService.DiscoveryLi
 
   @Override
   public void onDiscovery(List<SenderPeer> senderPeers) {
-    if (folderProperty.get() == null) {
+    if (folderProperty.get() == null || isProposingPeer.get()) {
       // user hasn't picked a directory, let's not propose the peer
+      // or we're already proposing a peer to the user
       return;
     }
-    for (SenderPeer senderPeer : senderPeers) {
-      if (proposePeer(senderPeer)) {
-        receiveTaskLauncher.accept(folderProperty.get(), senderPeer);
-        break;
+    isProposingPeer.set(true);
+    // need to be on UI thread
+    Platform.runLater(() -> {
+      for (SenderPeer senderPeer : senderPeers) {
+        if (!blacklist.contains(senderPeer) && proposePeer(senderPeer)) {
+          receiveTaskLauncher.accept(folderProperty.get(), senderPeer);
+          break;
+        }
       }
-    }
+      isProposingPeer.set(false);
+    });
   }
 
   @Override
