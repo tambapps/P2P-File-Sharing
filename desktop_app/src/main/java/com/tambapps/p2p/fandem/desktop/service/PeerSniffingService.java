@@ -30,7 +30,7 @@ public class PeerSniffingService implements MulticastReceiverService.DiscoveryLi
   private final MulticastReceiverService<List<SenderPeer>> receiverService;
   private final ObjectProperty<File> folderProperty;
   private final AtomicBoolean isProposingPeer = new AtomicBoolean(false);
-  private Set<SenderPeer> blacklist = new HashSet<>();
+  private final Set<SenderPeer> blacklist = new HashSet<>();
 
   public PeerSniffingService(BiConsumer<File, Peer> receiveTaskLauncher,
       MulticastReceiverService<List<SenderPeer>> receiverService,
@@ -48,6 +48,10 @@ public class PeerSniffingService implements MulticastReceiverService.DiscoveryLi
     } catch (IOException e) {
       onError(e);
     }
+  }
+
+  public void stop() {
+    receiverService.stop();
   }
 
   private boolean proposePeer(SenderPeer senderPeer) {
@@ -72,11 +76,19 @@ public class PeerSniffingService implements MulticastReceiverService.DiscoveryLi
   }
 
   private void errorDialog(IOException e) {
-    Alert alert = new Alert(Alert.AlertType.ERROR);
-    alert.setTitle("An error occurred");
-    alert.setHeaderText("an error occurred while searching for sender");
-    alert.setContentText(e.getMessage());
-    alert.showAndWait();
+    Alert alert = new Alert(Alert.AlertType.ERROR, e.getMessage(),
+        new ButtonType("Retry", ButtonBar.ButtonData.YES),
+        new ButtonType("Ok", ButtonBar.ButtonData.NO));
+    alert.setTitle("Couldn't search for senders");
+    alert.setHeaderText("An error occurred while searching for senders");
+    Optional<ButtonBar.ButtonData> optButton = alert.showAndWait().map(ButtonType::getButtonData);
+    switch (optButton.orElse(ButtonBar.ButtonData.OTHER)) {
+      case YES:
+        stop();
+        start();
+      case NO:
+        break;
+    }
   }
 
   @Override
@@ -101,7 +113,7 @@ public class PeerSniffingService implements MulticastReceiverService.DiscoveryLi
 
   @Override
   public void onError(IOException e) {
-    errorDialog(e);
+    Platform.runLater(() -> errorDialog(e));
   }
 
 }

@@ -1,6 +1,7 @@
 package com.tambapps.p2p.fandem.desktop.fx;
 
 import com.tambapps.p2p.fandem.desktop.FandemDesktopApplication;
+import com.tambapps.p2p.fandem.desktop.service.PeerSniffingService;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.stage.Stage;
@@ -28,6 +29,8 @@ public class FandemDesktopFXApplication extends Application {
   @Override
   public void stop() {
     Map<String, ExecutorService> executors = context.getBeansOfType(ExecutorService.class);
+    PeerSniffingService sniffService = context.getBean(PeerSniffingService.class);
+    sniffService.stop();
     executors.values().forEach(ExecutorService::shutdownNow);
     // TODO app doesn't close
     context.stop();
