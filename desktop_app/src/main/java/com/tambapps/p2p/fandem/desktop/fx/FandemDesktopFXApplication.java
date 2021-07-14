@@ -31,8 +31,7 @@ public class FandemDesktopFXApplication extends Application {
     Map<String, ExecutorService> executors = context.getBeansOfType(ExecutorService.class);
     PeerSniffingService sniffService = context.getBean(PeerSniffingService.class);
     sniffService.stop();
-    executors.values().forEach(ExecutorService::shutdownNow);
-    // TODO app doesn't close
+    executors.values().forEach(ExecutorService::shutdown);
     context.stop();
     Platform.exit();
   }

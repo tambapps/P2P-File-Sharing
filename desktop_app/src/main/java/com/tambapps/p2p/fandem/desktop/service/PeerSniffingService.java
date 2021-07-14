@@ -10,10 +10,8 @@ import javafx.beans.property.ObjectProperty;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
-import javafx.scene.control.ToggleButton;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
@@ -40,7 +38,6 @@ public class PeerSniffingService implements MulticastReceiverService.DiscoveryLi
     this.folderProperty = folderProperty;
   }
 
-  @PostConstruct
   public void start() {
     receiverService.setListener(this);
     try {
