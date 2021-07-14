@@ -4,6 +4,7 @@ import com.tambapps.p2p.fandem.Fandem;
 import com.tambapps.p2p.fandem.desktop.service.PeerSniffingService;
 import com.tambapps.p2p.speer.Peer;
 import com.tambapps.p2p.fandem.desktop.util.PropertyUtils;
+import com.tambapps.p2p.speer.util.PeerUtils;
 import javafx.beans.property.ObjectProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -15,6 +16,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
+import java.net.InetAddress;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
@@ -52,6 +54,12 @@ public class ReceivePaneController {
     PropertyUtils
       .bindMapNullableToStringProperty(folderProperty, File::getPath, pathLabel.textProperty());
     sniffingService.start();
+
+    // set key prefix if connected to a network
+    String keyPrefix = getKeyPrefix();
+    if (keyPrefix != null) {
+      hexCodeField.setText(keyPrefix);
+    }
   }
 
   @FXML
@@ -70,66 +78,6 @@ public class ReceivePaneController {
     }
     return Fandem.parsePeerFromHexString(hexCode);
   }
-
-  // TODO add a radio button to activate/desactivate sniffing
-  /*
-  private void sniffSenderPeer() {
-    try {
-      sniffSupplier = sniffSupplierSupplier.call();
-    } catch (Exception e) {
-      Platform.runLater(() -> errorDialog((IOException) e));
-      return;
-    }
-    List<SenderPeer> senderPeers;
-    try {
-      senderPeers = sniffSupplier.get();
-      if (senderPeers.isEmpty()) {
-        return;
-      }
-      Platform.runLater(() -> {
-        int i = 0;
-        while (i < senderPeers.size() && !proposePeer(senderPeers.get(i))) {
-          i++;
-        }
-      });
-    }  catch (IOException e) {
-      if (!(e instanceof SocketException)) {
-        Platform.runLater(() -> errorDialog(e));
-      }
-    }
-  }
-
-  private boolean proposePeer(SenderPeer senderPeer) {
-    Alert alert = new Alert(Alert.AlertType.CONFIRMATION,
-        String.format("%s wants to send %s (%s)", senderPeer.getDeviceName(), senderPeer.getFileName(),
-            FileUtils.toFileSize(senderPeer.getFileSize())),
-      new ButtonType("Choose this Peer", ButtonBar.ButtonData.YES),
-      new ButtonType("Continue research", ButtonBar.ButtonData.NO));
-    alert.setTitle("Sender found");
-    alert.setHeaderText(String.format("Sender: %s\nPeer key: %s",
-      senderPeer.getDeviceName(), Fandem.toHexString(senderPeer)));
-
-    Optional<ButtonBar.ButtonData> optButton = alert.showAndWait().map(ButtonType::getButtonData);
-    switch (optButton.orElse(ButtonBar.ButtonData.OTHER)) {
-      case YES:
-        cancelSniff();
-        hexCodeField.setText(Fandem.toHexString(senderPeer));
-        return true;
-      case NO:
-        executorService.submit(this::sniffSenderPeer);
-        break;
-    }
-    return false;
-  }
-
-  private void errorDialog(IOException e) {
-    Alert alert = new Alert(Alert.AlertType.ERROR);
-    alert.setTitle("An error occurred");
-    alert.setHeaderText("an error occurred while searching for sender");
-    alert.setContentText(e.getMessage());
-    alert.showAndWait();
-  }
-   */
 
   @FXML
   private void receiveFile() {
@@ -160,4 +108,14 @@ public class ReceivePaneController {
     hexCodeField.setText("");
   }
 
+  // returns key prefix if connected
+  private String getKeyPrefix() {
+    InetAddress address = PeerUtils.getPrivateNetworkIpAddressOrNull();
+    if (address == null) {
+      return null;
+    }
+    String key = Fandem.toHexString(PeerUtils.getPrivateNetworkIpAddressOrNull());
+    // subtract the last octet
+    return key.substring(0, key.length() - 2);
+  }
 }
