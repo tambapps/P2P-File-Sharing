@@ -27,7 +27,7 @@ public class FandemSenderHandshake extends SerializedHandshake<SenderHandshakeDa
       throw new HandshakeFailException("Remote peer is not a fandem peer");
     }
     String version = inputStream.readUTF();
-    // TODO check version incompatibility
+    Fandem.checkVersionCompatibility(version);
 
     ReceiverHandshakeData receiverData = deserializer.deserialize(inputStream);
     validate(receiverData);

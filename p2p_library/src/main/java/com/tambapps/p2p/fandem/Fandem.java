@@ -6,6 +6,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
+import com.tambapps.p2p.fandem.exception.IncompatibleVersionException;
 import com.tambapps.p2p.speer.Peer;
 import com.tambapps.p2p.speer.datagram.DatagramSupplier;
 import com.tambapps.p2p.speer.datagram.MulticastDatagramPeer;
@@ -45,7 +46,10 @@ public final class Fandem {
       throw new IOException(e);
     }
   };
-  public static final String VERSION = "2.0";
+  public static final String VERSION = "2.2";
+  public static final int[] VERSION_FIELDS = Arrays.stream(VERSION.split("\\."))
+      .mapToInt(Integer::parseInt)
+      .toArray();
 
   private Fandem() {
   }
@@ -168,5 +172,23 @@ public final class Fandem {
   public static String toHexString(int i) {
     String n = Integer.toHexString(i).toUpperCase(Locale.US);
     return n.length() > 1 ? n : "0" + n;
+  }
+
+  public static void checkVersionCompatibility(String version) throws IncompatibleVersionException {
+    String[] fieldsString = version.split("\\.");
+    if (fieldsString.length != 2) {
+      throw new IncompatibleVersionException();
+    }
+    int[] fields = new int[2];
+    for (int i = 0; i < fields.length; i++) {
+      try {
+        fields[i] = Integer.parseInt(fieldsString[i]);
+      } catch (NumberFormatException e) {
+        throw new IncompatibleVersionException();
+      }
+    }
+    if (VERSION_FIELDS[0] != fields[0] || fields[1] < 1) {
+      throw new IncompatibleVersionException();
+    }
   }
 }
