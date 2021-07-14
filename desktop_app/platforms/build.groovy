@@ -14,6 +14,7 @@ cli.jar(type: File, 'The Fandem Desktop jar path (relative or absolute)')
 cli.help('Print help')
 cli.jpackage(type: String, "The jpackage binary path (Defaults to 'jpackage')")
 cli.d('debug option')
+cli.v(type: String, 'app version')
 
 options = cli.parse(args)
 
@@ -23,6 +24,10 @@ if (options.help) {
 }
 if (!options.jar) {
   println 'Arguments jar and ... are required'
+  return
+}
+if (!options.v) {
+  println 'You must provide the jar version'
   return
 }
 
@@ -40,6 +45,7 @@ if (!directory.exists() && !directory.mkdir()) {
   return
 }
 String osName = System.getProperty('os.name').toLowerCase()
+String platform
 if (osName.contains('linux')) {
   platform = 'linux'
 } else if (osName.contains('windows')) {
@@ -52,14 +58,14 @@ if (osName.contains('linux')) {
 
 DEBUG = options.d
 try {
-  execute(jarFile, directory, platform, options.jpackage ?: 'jpackage')
+  execute(jarFile, directory, platform, options.jpackage ?: 'jpackage', options.v)
 } finally {
   if (deleteTemp) {
     directory.deleteDir()
   }
 }
 
-void execute(File jarFile , File directory, String platform, String jpackage) {
+void execute(File jarFile , File directory, String platform, String jpackage, String version) {
   File jmodsDirectory = new File(".${File.separator}javafx-jmods-16")
   if (!jmodsDirectory.isDirectory()) {
     debugPrint 'javaFX jmods not found'
@@ -74,32 +80,36 @@ void execute(File jarFile , File directory, String platform, String jpackage) {
       '--input' , directory.path,
       // Yep, jar built with spring boot plugin uses this as main class
       '--main-class' , 'org.springframework.boot.loader.JarLauncher',
-      "--main-jar", "${jarFile.path}",
+      // this path is relative to the input directory
+      "--main-jar", ".${File.separator}${jarFile.name}",
       '--name', 'Fandem Desktop',
-      '--app-version' , '2.1',
+      '--app-version' , version,
       // will be downloaded if not present
       '--module-path', ".${File.separator}javafx-jmods-16",
       "--description", "Fandem desktop allows you to share files between two devices, it also works with then Fandem Android app",
   ]
 
+  String binarySuffix = ''
   switch (platform) {
     case 'linux':
-      println 'Platform: Linux\nWill build deb file'
+      println 'Platform: Linux'
       command.addAll([
           '--type', 'deb',
           '--linux-deb-maintainer', 'tambapps@gmail.com',
           '--linux-package-name', 'tambapps-fandem-desktop',
           '--icon', ".${File.separator}$platform${File.separator}icon.png"
       ])
+      binarySuffix = '.deb'
       break
     case 'windows':
-      println 'Platform: Windows\nWill build exe file'
+      println 'Platform: Windows'
       command.addAll([
               '--type', 'exe',
               '--win-menu',
               '--win-shortcut',
               "--icon", ".${File.separator}$platform${File.separator}icon.ico"
       ])
+      binarySuffix = '.exe'
   }
 
   debugPrint 'Will run jpackage'
@@ -108,6 +118,12 @@ void execute(File jarFile , File directory, String platform, String jpackage) {
   def sout = new StringBuilder()
   proc.waitForProcessOutput(sout, sout)
   println sout
+
+  def binaryFile = new File(".${File.separator}").listFiles()
+      .find {it.name.endsWith(binarySuffix) }
+  if (binaryFile) {
+    println "Built file " + binaryFile.toPath().normalize()
+  }
 }
 
 
