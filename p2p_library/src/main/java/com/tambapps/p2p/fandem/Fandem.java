@@ -86,7 +86,14 @@ public final class Fandem {
 
   public static Deserializer<List<SenderPeer>> senderPeersDeserializer() {
     final Type type = new TypeToken<List<SenderPeer>>(){}.getType();
-    return is -> GSON.fromJson(new DataInputStream(is).readUTF(), type);
+    return is -> {
+      List<SenderPeer> senderPeers = GSON.fromJson(new DataInputStream(is).readUTF(), type);
+      // filter own sender peers (if multicasting any)
+      InetAddress address = PeerUtils.getPrivateNetworkIpAddressOrNull();
+      return senderPeers.stream()
+          .filter(p -> !p.getAddress().equals(address))
+          .collect(Collectors.toList());
+    };
   }
 
   public static MulticastReceiverService<List<SenderPeer>> senderPeersReceiverService(

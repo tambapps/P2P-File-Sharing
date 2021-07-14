@@ -229,8 +229,7 @@ public class ReceiveActivity extends TransferActivity implements MulticastReceiv
         boolean newPeers = false;
         InetAddress ownAddress = PeerUtils.getPrivateNetworkIpAddressOrNull();
         for (SenderPeer peer : peers) {
-            // filter own peers
-            if (!peer.getAddress().equals(ownAddress) && !this.peers.contains(peer)) {
+            if (!this.peers.contains(peer)) {
                 newPeers = true;
                 this.peers.add(peer);
             }
