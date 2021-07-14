@@ -146,7 +146,7 @@ public class TaskViewController implements TransferListener, SharingErrorListene
   public void receiveTask(File folder, Peer peer) {
     task = fileReceiverService.receiveFile(folder, peer, this);
     sharingTasks.add(task);
-    centerLabel.setText("Connecting to " + peer + " ...");
+    centerLabel.setText("Connecting to " + Fandem.toHexString(peer) + " ...");
   }
 
 }
