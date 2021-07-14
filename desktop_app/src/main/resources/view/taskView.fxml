@@ -6,13 +6,13 @@
 <?import javafx.scene.control.ProgressBar?>
 <?import javafx.scene.layout.Pane?>
 
-<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="50.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.tambapps.p2p.fandem.desktop.controller.TaskViewController">
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="50.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.tambapps.p2p.fandem.desktop.controller.TaskViewController">
    <stylesheets>
       <URL value="@../style/style.css" />
    </stylesheets>
    <children>
       <ProgressBar fx:id="progressBar" layoutX="358.0" layoutY="15.0" prefHeight="20.0" prefWidth="306.0" progress="0.0" />
-      <Label fx:id="centerLabel" alignment="CENTER" layoutX="217.0" layoutY="11.0" prefHeight="29.0" prefWidth="589.0" textAlignment="CENTER" />
+      <Label fx:id="centerLabel" alignment="CENTER" layoutX="133.0" layoutY="11.0" prefHeight="29.0" prefWidth="734.0" textAlignment="CENTER" />
       <Button fx:id="cancelButton" layoutX="901.0" layoutY="12.0" mnemonicParsing="false" onAction="#cancel" text="Cancel" />
       <Label fx:id="leftLabel" layoutX="14.0" layoutY="11.0" prefHeight="29.0" prefWidth="324.0" />
       <Button fx:id="removeButton" layoutX="901.0" layoutY="12.0" mnemonicParsing="false" onAction="#remove" text="Clear" />
