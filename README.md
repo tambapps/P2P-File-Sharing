@@ -21,7 +21,7 @@ This is the Android app that performs P2P file sharing
 
 ## Desktop app
 
-The desktop app was developed with JavaFX and Spring Boot (for dependency injection). It was developed in Java 11.
+The desktop app was developed with JavaFX and Spring Boot (for dependency injection). It was developed in Java 16.
 
 ![alt text](https://raw.githubusercontent.com/tambapps/P2P-File-Sharing/master/screenshots/desktop.png)
 
