@@ -61,12 +61,13 @@ public class PeerSniffingService implements MulticastReceiverService.DiscoveryLi
     alert.setHeaderText(String.format("Sender: %s\nPeer key: %s",
         senderPeer.getDeviceName(), Fandem.toHexString(senderPeer)));
 
+    // so that we don't propose it more than once
+    blacklist.add(senderPeer);
     Optional<ButtonBar.ButtonData> optButton = alert.showAndWait().map(ButtonType::getButtonData);
     switch (optButton.orElse(ButtonBar.ButtonData.OTHER)) {
       case YES:
         return true;
       case NO:
-        blacklist.add(senderPeer);
         break;
     }
     return false;
