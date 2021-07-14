@@ -1,13 +1,13 @@
 .button {
-    -fx-font-size: 1.1em;
+    -fx-font-size: 1.5em;
 }
 
 .label {
-    -fx-font-size: 1.1em;
+    -fx-font-size: 1.3em;
     -fx-text-fill: white;
 }
 .separator {
-    -fx-font-size: 1.1em;
+    -fx-font-size: 1.3em;
     -fx-text-fill: white;
     -fx-font-weight: bold;
 }

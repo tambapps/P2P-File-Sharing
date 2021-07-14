@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import java.net.URL?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
 <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="1000.0" style="-fx-background-color: linear-gradient(to top, #43cea2, #3F51B5)" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.tambapps.p2p.fandem.desktop.controller.AppController">
@@ -8,7 +9,7 @@
       <URL value="@../style/style.css" />
    </stylesheets>
    <children>
-      <VBox prefHeight="500.0" prefWidth="1000.0" />
-      <VBox fx:id="tasksVBox" prefHeight="200.0" prefWidth="1000.0" />
+      <HBox prefHeight="350.0" prefWidth="1000.0" />
+      <VBox fx:id="tasksVBox" prefHeight="350.0" prefWidth="1000.0" />
    </children>
 </VBox>

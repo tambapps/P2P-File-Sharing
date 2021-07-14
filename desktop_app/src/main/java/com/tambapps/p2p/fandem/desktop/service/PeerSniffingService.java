@@ -13,6 +13,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.ToggleButton;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
@@ -28,7 +29,6 @@ public class PeerSniffingService implements MulticastReceiverService.DiscoveryLi
   private final BiConsumer<File, Peer> receiveTaskLauncher;
   private final MulticastReceiverService<List<SenderPeer>> receiverService;
   private final ObjectProperty<File> folderProperty;
-  private ToggleButton toggleButton;
   private final AtomicBoolean isProposingPeer = new AtomicBoolean(false);
   private Set<SenderPeer> blacklist = new HashSet<>();
 
@@ -40,8 +40,8 @@ public class PeerSniffingService implements MulticastReceiverService.DiscoveryLi
     this.folderProperty = folderProperty;
   }
 
-  public void start(ToggleButton toggleButton) {
-    this.toggleButton = toggleButton;
+  @PostConstruct
+  public void start() {
     receiverService.setListener(this);
     try {
       receiverService.start();
@@ -102,7 +102,6 @@ public class PeerSniffingService implements MulticastReceiverService.DiscoveryLi
   @Override
   public void onError(IOException e) {
     errorDialog(e);
-    toggleButton.setSelected(false);
   }
 
 }

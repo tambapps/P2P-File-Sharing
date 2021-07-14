@@ -1,6 +1,6 @@
 spring:
-  application.title: Fandem Desktop
+  application.title: Fandem Desktop 2.2
   main.web-application-type: none
 
-sharing.tasks.max: 4
+sharing.tasks.max: 6
 socket.timeout.seconds: 60

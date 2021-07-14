@@ -31,8 +31,6 @@ public class ReceivePaneController {
   private Label pathLabel;
   @FXML
   private TextField hexCodeField;
-  @FXML
-  private ToggleButton sniffToggleButton;
 
   public ReceivePaneController(@Qualifier("directoryChooser") Supplier<File> directoryChooser,
       Supplier<Boolean> canAddTaskSupplier,
@@ -53,7 +51,7 @@ public class ReceivePaneController {
     }
     PropertyUtils
       .bindMapNullableToStringProperty(folderProperty, File::getPath, pathLabel.textProperty());
-    sniffingService.start(sniffToggleButton);
+    sniffingService.start();
   }
 
   @FXML
