@@ -133,23 +133,30 @@ public abstract class FileJobService extends JobService implements TaskEventHand
         private FirebaseAnalytics analytics;
         protected TaskEventHandler eventHandler;
         private long lastNotificationUpdate = 0L;
+        protected final String fileNames;
 
         FileTask(TaskEventHandler eventHandler, NotificationCompat.Builder notifBuilder,
                  NotificationManager notificationManager,
                  int notifId,
-                 PendingIntent cancelIntent, FirebaseAnalytics analytics) {
+                 PendingIntent cancelIntent, FirebaseAnalytics analytics, String fileNames) {
             this.notifBuilder = notifBuilder;
             this.notificationManager = notificationManager;
             this.notifId = notifId;
             this.eventHandler = eventHandler;
             this.analytics = analytics;
+            this.fileNames = fileNames;
             notifStyle = new NotificationCompat.BigTextStyle();
 
             notifBuilder.addAction(android.R.drawable.ic_delete, "cancel", cancelIntent);
         }
 
         @Override
-        public void onProgressUpdate(int progress, long bytesProcessed, long totalBytes) {
+        public void onTransferStarted(String s, long l) {
+
+        }
+
+        @Override
+        public void onProgressUpdate(String fileName, int progress, long bytesProcessed, long totalBytes) {
             if (progress < 100) {
                 notifBuilder.setProgress(100, progress, false);
                 notifStyle.bigText(FileUtils.toFileSize(bytesProcessed) + "/ " + FileUtils.toFileSize(totalBytes));
@@ -177,20 +184,20 @@ public abstract class FileJobService extends JobService implements TaskEventHand
         }
 
         @Override
-        public final void onConnected(Peer selfPeer, Peer remotePeer, String fileName, long fileSize) {
+        public final void onConnected(Peer selfPeer, Peer remotePeer) {
             String remotePeer1 = remotePeer.toString();
             getNotifBuilder()
                     .setOngoing(true)
                     .setProgress(100, 0, false)
                     .setContentText("")
-                    .setContentTitle(onConnected(remotePeer1, fileName, fileSize))
+                    .setContentTitle(onConnected(remotePeer1, fileNames))
                     .setStyle(notifStyle.bigText(""));
             updateNotification();
         }
 
         abstract void run(String... params);
         abstract void cancel();
-        abstract String onConnected(String remotePeer, String fileName, long fileSize); //return the title of the notification
+        abstract String onConnected(String remotePeer, String fileNames); //return the title of the notification
 
         NotificationCompat.Builder getNotifBuilder() {
             return notifBuilder;

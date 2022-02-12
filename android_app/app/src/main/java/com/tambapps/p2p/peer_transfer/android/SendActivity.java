@@ -136,6 +136,7 @@ public class SendActivity extends TransferActivity {
 
         if (fileInfos.first != null) {
             bundle.putString("fileName", fileInfos.first);
+            bundle.putString("filenames", fileInfos.first);
         } else {
             Toast.makeText(this, this.getString(R.string.couldn_get_name_file), Toast.LENGTH_SHORT).show();
             return false;

@@ -40,6 +40,7 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.tambapps.p2p.fandem.Fandem;
 import com.tambapps.p2p.fandem.SenderPeer;
+import com.tambapps.p2p.fandem.model.FileData;
 import com.tambapps.p2p.fandem.util.FileUtils;
 import com.tambapps.p2p.peer_transfer.android.service.AndroidSenderPeersReceiverService;
 import com.tambapps.p2p.speer.Peer;
@@ -58,13 +59,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 public class ReceiveActivity extends TransferActivity implements MulticastReceiverService.DiscoveryListener<List<SenderPeer>> {
 
     private static final int PERMISSION_REQUEST_CODE = 8;
     private static final List<Character> ILLEGAL_CHARACTERS = Arrays.asList('/', '\n', '\r', '\t', '\0', '\f', '`', '?', '*', '\\', '<', '>', '|', '\"', ':');
-
-    private static final int CREATE_FILE_REQUEST_CODE = 777;
 
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private ProgressBar progressBar;
@@ -75,8 +75,6 @@ public class ReceiveActivity extends TransferActivity implements MulticastReceiv
     private RecyclerView.Adapter recyclerAdapter;
     private MulticastReceiverService<List<SenderPeer>> senderPeersReceiverService;
     private TextView loadingText;
-    // for android 11
-    private Peer senderPeer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -162,36 +160,11 @@ public class ReceiveActivity extends TransferActivity implements MulticastReceiv
         executorService.shutdownNow();
     }
 
-    public void startReceiving(Peer peer, String fileName) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
-            File f = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), fileName);
-            startReceiving(peer, f);
-        } else {
-            new AlertDialog.Builder(ReceiveActivity.this)
-                    .setTitle(R.string.receive_file)
-                    .setMessage(R.string.select_file)
-                    .setPositiveButton(R.string.yes, (dialog, which) -> pickFileThenStartReceiving(peer, fileName))
-                    .setNeutralButton(R.string.no, null)
-                    .show();
-        }
-    }
-
-    public void startReceiving(Peer peer, File file) {
-        startReceiving(peer, Uri.fromFile(file), Optional.of(file));
-    }
-
-    public void startReceiving(Peer peer, Uri uri) {
-        startReceiving(peer, uri, Optional.empty());
-    }
-
     // optFile for Android before 11
-    private void startReceiving(Peer peer, Uri uri, Optional<File> optFile) {
+    private void startReceiving(Peer peer) {
         // analytics
         Bundle analyticsBundle = new Bundle();
         analyticsBundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "sought peer");
-        if (peer instanceof SenderPeer) {
-            analyticsBundle.putLong("size", ((SenderPeer) peer).getFileSize());
-        }
         analytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, analyticsBundle);
 
         JobScheduler jobScheduler =
@@ -199,10 +172,9 @@ public class ReceiveActivity extends TransferActivity implements MulticastReceiv
 
         PersistableBundle bundle = new PersistableBundle();
 
-        bundle.putString("uri", uri.toString());
-        optFile.ifPresent(file -> bundle.putString("file", file.getPath()));
-        bundle.putString("fileName", "fileName");
         bundle.putString("peer", peer.toString());
+        bundle.putString("filenames", peer instanceof  SenderPeer ?
+            ((SenderPeer)peer).getFiles().stream().map(FileData::getFileName).collect(Collectors.joining(", ")) : "files");
 
         JobInfo.Builder jobInfoBuilder = new JobInfo.Builder(1,
                 new ComponentName(this, FileReceivingJobService.class))
@@ -346,13 +318,9 @@ public class ReceiveActivity extends TransferActivity implements MulticastReceiv
                     @Override
                     public void onClick(View view) {
                         String hexCode = peerKeyEditText.getText() == null ? "" : peerKeyEditText.getText().toString();
-                        String fileName = fileNameEditText.getText() == null ? "" : fileNameEditText.getText().toString();
+                        // TODO delete fileNameEditText and fileNameLayout
                         peerKeyLayout.setError(Fandem.isCorrectPeerKey(hexCode) ? null : getString(R.string.peer_key_malformed));
-                        fileNameLayout.setError(isValidFileName(fileName) ? null : getString(R.string.filename_invalid));
-                        if (peerKeyLayout.getError() == null && fileNameLayout.getError() == null) {
-                            dialog.dismiss();
-                            startReceiving(Fandem.parsePeerFromHexString(hexCode), fileName);
-                        }
+                        startReceiving(Fandem.parsePeerFromHexString(hexCode));
                     }
                 });
             }
@@ -373,36 +341,28 @@ public class ReceiveActivity extends TransferActivity implements MulticastReceiv
         @Override
         public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
             final SenderPeer discoveredPeer = peers.get(position);
-            holder.position = position;
-            holder.fileNameText.setText(discoveredPeer.getFileName());
-            holder.fileSizeText.setText(FileUtils.toFileSize(discoveredPeer.getFileSize()));
+            String fileNames = discoveredPeer.getFiles().stream().map(FileData::getFileName).collect(Collectors.joining(", "));
+
+            holder.fileNameText.setText(fileNames);
+            holder.fileSizeText.setText(FileUtils.toFileSize(discoveredPeer.getFiles().stream().mapToLong(FileData::getFileSize).sum()));
             holder.deviceNameText.setText(discoveredPeer.getDeviceName());
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    String message = getString(R.string.alert_receive_file_message, discoveredPeer.getFileName(), discoveredPeer.getDeviceName());
+                    String message = getString(R.string.alert_receive_file_message, discoveredPeer.getFiles().stream().map(FileData::getFileName).collect(Collectors.joining(", ")), discoveredPeer.getDeviceName());
                     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
                         message += "\n" + getString(R.string.in_download_folder);
                     } else {
                         message += "\n" + getString(R.string.select_file);
                     }
                     new AlertDialog.Builder(ReceiveActivity.this)
-                            .setTitle(getString(R.string.alert_receive_file, discoveredPeer.getFileName()))
+                            .setTitle(getString(R.string.alert_receive_file, fileNames))
                             .setMessage(message)
                             .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-
-                                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
-                                        try {
-                                            File f = FileUtils.newAvailableFile(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), discoveredPeer.getFileName());
-                                            startReceiving(discoveredPeer, f);
-                                        } catch (IOException e) {
-                                            Toast.makeText(ReceiveActivity.this, "Couldn't get a new file: " + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-                                        }
-                                    } else {
-                                        pickFileThenStartReceiving(discoveredPeer, discoveredPeer.getFileName());
-                                    }
+                                    // receive in Download folder
+                                    startReceiving(discoveredPeer);
                                 }
                             })
                             .setNeutralButton(R.string.no, null)
@@ -426,7 +386,6 @@ public class ReceiveActivity extends TransferActivity implements MulticastReceiv
             private final TextView fileNameText;
             private final TextView fileSizeText;
             private final TextView deviceNameText;
-            int position;
 
             public MyViewHolder(@NonNull View itemView) {
                 super(itemView);
@@ -434,26 +393,6 @@ public class ReceiveActivity extends TransferActivity implements MulticastReceiv
                 fileSizeText = itemView.findViewById(R.id.element_peer_filesize);
                 deviceNameText = itemView.findViewById(R.id.element_peer_devicename);
             }
-        }
-    }
-
-    // forandroid 11+ only
-    private void pickFileThenStartReceiving(Peer peer, String fileName) {
-        // since android 11+ only the user can create the file
-        senderPeer = peer;
-        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
-        intent.setType("*/*");
-        intent.putExtra(Intent.EXTRA_TITLE, fileName);
-        startActivityForResult(intent, CREATE_FILE_REQUEST_CODE);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        // will only be called for Android 11+
-        if (requestCode == CREATE_FILE_REQUEST_CODE && resultCode == RESULT_OK && data != null && data.getData() != null && senderPeer != null) {
-            startReceiving(senderPeer, data.getData());
         }
     }
 

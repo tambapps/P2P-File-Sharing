@@ -9,7 +9,7 @@ if (rootProject.file("admob.properties").exists()) {
 } else {
     // test ids
     admobProperties = ['admob.application.id':'ca-app-pub-3940256099942544~3347511713',
-    'admob.interstitiel.id': 'ca-app-pub-3940256099942544/1033173712']
+                       'admob.interstitiel.id': 'ca-app-pub-3940256099942544/1033173712']
 }
 
 android {
