@@ -2,9 +2,7 @@ package com.tambapps.p2p.peer_transfer.android;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.os.Build;
 import android.os.Bundle;
 
 import com.google.android.gms.ads.AdError;
@@ -26,6 +24,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.google.firebase.analytics.FirebaseAnalytics;
+import com.tambapps.p2p.fandem.Fandem;
 
 public class MainActivity extends AppCompatActivity implements OnInitializationCompleteListener {
     public static final String RETURN_TEXT_KEY = "rtk";
@@ -54,12 +53,7 @@ public class MainActivity extends AppCompatActivity implements OnInitializationC
 
     private void setVersionText() {
         TextView versionText = findViewById(R.id.versionText);
-        try {
-            String versionName = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
-            versionText.setText(("Fandem " + versionName));
-        } catch (PackageManager.NameNotFoundException e) {
-            versionText.setVisibility(View.GONE);
-        }
+        versionText.setText(("Fandem " + Fandem.VERSION));
     }
 
     private void loadInterstitiel() {
