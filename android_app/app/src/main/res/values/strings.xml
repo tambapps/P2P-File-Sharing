@@ -95,5 +95,6 @@
     <string name="connect_to_wifi">Connect to Wi-Fi</string>
     <string name="start_hotspot">Start hotspot</string>
     <string name="lets_get_started">Let\'s get started!</string>
+    <string name="no_more_than_n_files">You cannot send more than 10 files at once</string>
 
 </resources>

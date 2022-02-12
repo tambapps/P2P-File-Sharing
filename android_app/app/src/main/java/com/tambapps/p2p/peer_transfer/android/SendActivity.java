@@ -299,6 +299,10 @@ public class SendActivity extends TransferActivity {
             Toast.makeText(this, this.getString(R.string.couldnt_get_file), Toast.LENGTH_SHORT).show();
             return null;
         }
+        if (uris.size() > 10) {
+            Toast.makeText(this, R.string.no_more_than_n_files, Toast.LENGTH_SHORT).show();
+            return null;
+        }
         return uris;
     }
 }

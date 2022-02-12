@@ -94,4 +94,6 @@
     <string name="nar">Action réseau requise</string>
     <string name="lets_get_started_des">" "</string>
     <string name="nar_description">Pour transférer des fichiers, les 2 appareils doivent être connectés au même Wi-Fi, on un appareil doit partager ses données avec l\'autre.</string>
+    <string name="no_more_than_n_files">Vous ne pouvez pas envoyer plus de 10 fichiers en une fois</string>
+
 </resources>
