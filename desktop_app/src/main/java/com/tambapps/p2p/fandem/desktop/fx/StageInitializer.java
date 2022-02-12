@@ -1,5 +1,6 @@
 package com.tambapps.p2p.fandem.desktop.fx;
 
+import com.tambapps.p2p.fandem.Fandem;
 import com.tambapps.p2p.fandem.desktop.util.RegionLoader;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
@@ -26,8 +27,6 @@ public class StageInitializer implements ApplicationListener<FandemDesktopFXAppl
   private Resource receivePaneResource;
   @Value("classpath:/icon.png")
   private Resource iconResource;
-  @Value("${spring.application.title}")
-  private String applicationTitle;
   private final RegionLoader regionLoader;
   private final AtomicReference<Stage> stageReference;
 
@@ -42,7 +41,7 @@ public class StageInitializer implements ApplicationListener<FandemDesktopFXAppl
       VBox root = regionLoader.load(chartResource);
       Stage stage = stageReadyEvent.getStage();
       stageReference.set(stage);
-      stage.setTitle(applicationTitle);
+      stage.setTitle("Fandem Desktop " + Fandem.VERSION);
       stage.getIcons().add(new Image(iconResource.getInputStream()));
 
       Pane panesContainer = (Pane) root.getChildren().get(0);

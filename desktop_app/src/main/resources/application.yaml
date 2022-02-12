@@ -1,5 +1,4 @@
 spring:
-  application.title: Fandem Desktop 2.2
   main.web-application-type: none
 
 sharing.tasks.max: 6
