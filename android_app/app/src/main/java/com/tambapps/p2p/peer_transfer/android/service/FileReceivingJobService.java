@@ -205,7 +205,7 @@ public class FileReceivingJobService extends FileJobService {
                 getNotifBuilder().setStyle(new NotificationCompat.BigPictureStyle().bigPicture(image));
             } else {
                 getNotifBuilder().setStyle(notifStyle.bigText(getString(R.string.success_received,
-                    fileNames.stream().collect(Collectors.joining("- ", "- ", "")))));
+                    fileNames.stream().collect(Collectors.joining("\n- ", "- ", "")))));
             }
         }
 
@@ -238,7 +238,7 @@ public class FileReceivingJobService extends FileJobService {
         public String onConnected(String remoteAddress) {
             this.startTime = System.currentTimeMillis();
             return getString(R.string.receveiving_connected,
-                fileNames.stream().collect(Collectors.joining("- ", "- ", "")));
+                fileNames.stream().collect(Collectors.joining("\n- ", "- ", "")));
         }
     }
 }

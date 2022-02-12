@@ -65,7 +65,8 @@ public class SendActivity extends TransferActivity {
             public void onClick(View view) {
                 Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
                 intent.setType("*/*");
-                startActivityForResult(intent, PICK_FILE);
+                intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+                startActivityForResult(Intent.createChooser(intent, "Pick files"), PICK_FILE);
             }
         });
 
@@ -87,17 +88,8 @@ public class SendActivity extends TransferActivity {
                 sendContent(peer);
             }
         } else if (Intent.ACTION_SEND_MULTIPLE.equals(receivedAction)) {
-            ClipData clipData = intent.getClipData();
-            if (clipData == null) {
-                Toast.makeText(this, this.getString(R.string.couldnt_get_file), Toast.LENGTH_SHORT).show();
-                return;
-            }
-            List<Uri> uris = new ArrayList<>();
-            for (int i = 0; i < clipData.getItemCount(); i++) {
-                uris.add(clipData.getItemAt(i).getUri());
-            }
-            if (uris.isEmpty()) {
-                Toast.makeText(this, this.getString(R.string.couldnt_get_file), Toast.LENGTH_SHORT).show();
+            List<Uri> uris = getIntentUris(intent);
+            if (uris == null) {
                 return;
             }
             Peer peer = getPeer();
@@ -108,7 +100,6 @@ public class SendActivity extends TransferActivity {
                 sendContent(peer);
             }
         }
-
     }
 
     @Override
@@ -207,14 +198,15 @@ public class SendActivity extends TransferActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == PICK_FILE) {
             if (resultCode == RESULT_OK) {
-
-                final Peer peer = getPeer();
-                if (peer == null) {
-                    Toast.makeText(this, this.getString(R.string.network_error), Toast.LENGTH_SHORT).show();
+                List<Uri> uris = getIntentUris(data);
+                if (uris == null) {
                     return;
                 }
-
-                if (sendFile(Collections.singletonList(data.getData()), peer)) {
+                Peer peer = getPeer();
+                if (peer == null) {
+                    return;
+                }
+                if (sendFile(uris, peer)) {
                     sendContent(peer);
                 }
             } else {
@@ -288,5 +280,25 @@ public class SendActivity extends TransferActivity {
 
     public void onSendingCanceled() {
         onSendingEvent(R.string.send_service_canceled);
+    }
+
+    private List<Uri> getIntentUris(Intent intent) {
+        if (intent.getData() != null) {
+            return Collections.singletonList(intent.getData());
+        }
+        ClipData clipData = intent.getClipData();
+        if (clipData == null) {
+            Toast.makeText(this, this.getString(R.string.couldnt_get_file), Toast.LENGTH_SHORT).show();
+            return null;
+        }
+        List<Uri> uris = new ArrayList<>();
+        for (int i = 0; i < clipData.getItemCount(); i++) {
+            uris.add(clipData.getItemAt(i).getUri());
+        }
+        if (uris.isEmpty()) {
+            Toast.makeText(this, this.getString(R.string.couldnt_get_file), Toast.LENGTH_SHORT).show();
+            return null;
+        }
+        return uris;
     }
 }

@@ -342,7 +342,7 @@ public class ReceiveActivity extends TransferActivity implements MulticastReceiv
         @Override
         public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
             final SenderPeer discoveredPeer = peers.get(position);
-            String fileNames = discoveredPeer.getFiles().stream().map(FileData::getFileName).collect(Collectors.joining(", "));
+            String fileNames = discoveredPeer.getFiles().stream().map(FileData::getFileName).collect(Collectors.joining("\n- ", "- ", ""));
 
             holder.fileNameText.setText(fileNames);
             holder.fileSizeText.setText(FileUtils.toFileSize(discoveredPeer.getFiles().stream().mapToLong(FileData::getFileSize).sum()));

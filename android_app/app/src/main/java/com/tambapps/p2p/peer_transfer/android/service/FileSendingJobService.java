@@ -144,7 +144,7 @@ public class FileSendingJobService extends FileJobService implements SendingEven
 
                 finishNotification().setContentTitle(getString(R.string.transfer_complete))
                         .setStyle(notifStyle.bigText(getString(R.string.success_send,
-                            fileNames.stream().collect(Collectors.joining("- ", "- ", "")))));
+                            fileNames.stream().collect(Collectors.joining("\n- ", "- ", "")))));
 
                 Bundle bundle = new Bundle();
                 bundle.putString(FirebaseAnalytics.Param.METHOD, "SEND");
@@ -194,7 +194,7 @@ public class FileSendingJobService extends FileJobService implements SendingEven
             ((SendingEventHandler)eventHandler).onServiceStarted();
             senderPeersMulticastService.stop(true);
             return getString(R.string.sending_connected,
-                fileNames.stream().collect(Collectors.joining("- ", "- ", "")));
+                fileNames.stream().collect(Collectors.joining("\n- ", "- ", "")));
         }
 
         @Override
