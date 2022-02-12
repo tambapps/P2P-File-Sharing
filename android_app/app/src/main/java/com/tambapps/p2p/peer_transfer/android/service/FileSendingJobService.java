@@ -15,12 +15,14 @@ import androidx.core.app.NotificationCompat;
 
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
+import com.google.gson.Gson;
 import com.tambapps.p2p.fandem.Fandem;
 import com.tambapps.p2p.fandem.FileSender;
 import com.tambapps.p2p.fandem.SenderPeer;
 import com.tambapps.p2p.fandem.model.FileData;
 import com.tambapps.p2p.fandem.model.SendingFileData;
 import com.tambapps.p2p.fandem.util.FileUtils;
+import com.tambapps.p2p.peer_transfer.android.model.AndroidFileData;
 import com.tambapps.p2p.peer_transfer.android.util.NetworkUtils;
 import com.tambapps.p2p.speer.Peer;
 
@@ -41,6 +43,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.stream.Collectors;
 
 /**
  * Created by fonkoua on 05/05/18.
@@ -60,15 +63,21 @@ public class FileSendingJobService extends FileJobService implements SendingEven
 
         String peerString = bundle.getString("peer");
         Peer peer = Peer.parse(peerString);
-        String fileName = bundle.getString("fileName");
+
         String deviceName = Build.MANUFACTURER + " " + Build.MODEL;
-        long fileSize = bundle.getLong("fileSize");
-        String checksum = null;
-        try {
-            Uri uri = Uri.parse(bundle.getString("fileUri"));
-            checksum = FileUtils.computeChecksum(notifBuilder.mContext.getContentResolver().openInputStream(uri));
-        } catch (IOException e) { }
-        List<SenderPeer> senderPeers = Collections.singletonList(new SenderPeer(peer.getAddress(), peer.getPort(), deviceName, Collections.singletonList(new FileData(fileName, fileSize, checksum))));
+        Gson gson = new Gson();
+        List<AndroidFileData> files = Arrays.stream(bundle.getStringArray("files"))
+            .map(json -> gson.fromJson(json, AndroidFileData.class))
+            .collect(Collectors.toList());
+        // now try to set checksum for all files
+        for (AndroidFileData f : files) {
+            try {
+                String checksum = FileUtils.computeChecksum(notifBuilder.mContext.getContentResolver().openInputStream(f.getUri()));
+                f.setChecksum(checksum);
+            } catch (IOException e) { }
+        }
+
+        List<SenderPeer> senderPeers = Collections.singletonList(new SenderPeer(peer.getAddress(), peer.getPort(), deviceName, files));
         senderPeersMulticastService.setData(senderPeers);
         try {
             // the senderPeersMulticastService will close this peer when stopping
@@ -83,12 +92,8 @@ public class FileSendingJobService extends FileJobService implements SendingEven
             Toast.makeText(getApplicationContext(), "Couldn't communicate sender key. The receiver will have to enter it manually", Toast.LENGTH_LONG).show();
         }
         return new SendingTask(this, notifBuilder, notificationManager, notifId, getContentResolver(), cancelIntent, analytics, senderPeersMulticastService,
-            bundle.getString("filenames"))
-                .execute(peerString,
-                        bundle.getString("fileUri"),
-                        fileName,
-                        String.valueOf(bundle.getLong("fileSize")),
-                    checksum);
+            files)
+                .execute(peerString);
     }
 
     @Override
@@ -107,43 +112,43 @@ public class FileSendingJobService extends FileJobService implements SendingEven
         private FileSender fileSender;
         private ContentResolver contentResolver;
         private long startTime;
+        private final List<AndroidFileData> files;
 
         SendingTask(SendingEventHandler eventHandler, NotificationCompat.Builder notifBuilder,
                     NotificationManager notificationManager,
                     int notifId,
                     ContentResolver contentResolver,
                     PendingIntent cancelIntent, FirebaseAnalytics analytics, PeriodicMulticastService<List<SenderPeer>> senderPeersMulticastService,
-                    String fileNames) {
-            super(eventHandler, notifBuilder, notificationManager, notifId, cancelIntent, analytics, fileNames);
+                    List<AndroidFileData> files) {
+            super(eventHandler, notifBuilder, notificationManager, notifId, cancelIntent, analytics, files.stream().map(FileData::getFileName).collect(Collectors.joining(", ")));
             this.contentResolver = contentResolver;
             this.senderPeersMulticastService = senderPeersMulticastService;
+            this.files = files;
         }
 
         void run(String... params) {
             FirebaseCrashlytics crashlytics = FirebaseCrashlytics.getInstance();
             crashlytics.setCustomKey(CrashlyticsValues.SHARING_ROLE, "SENDER");
 
-            fileSender = new FileSender(Peer.parse(params[0]), this,
+            Peer peer = Peer.parse(params[0]);
+            fileSender = new FileSender(peer, this,
                     SOCKET_TIMEOUT);
-            Uri fileUri = Uri.parse(params[1]);
-            String fileName = params[2];
-            long fileSize = Long.parseLong(params[3]);
-            String checksum = params[4];
-            crashlytics.setCustomKey(CrashlyticsValues.FILE_LENGTH, fileSize);
 
             getNotifBuilder().setContentTitle(getString(R.string.waiting_connection))
                     .setContentText(getString(R.string.waiting_connection_message, Fandem.toHexString(fileSender.getPeer())));
             updateNotification();
             try {
-                List<SendingFileData> fileData = Collections.singletonList(new SendingFileData(fileName, fileSize, checksum, () -> contentResolver.openInputStream(fileUri)));
+                List<SendingFileData> fileData = files.stream()
+                    .map(f -> f.toSendingFileData(contentResolver))
+                    .collect(Collectors.toList());
                 fileSender.send(fileData);
 
                 finishNotification().setContentTitle(getString(R.string.transfer_complete))
-                        .setStyle(notifStyle.bigText(getString(R.string.success_send, fileName)));
+                        .setStyle(notifStyle.bigText(getString(R.string.success_send, fileNames)));
 
                 Bundle bundle = new Bundle();
                 bundle.putString(FirebaseAnalytics.Param.METHOD, "SEND");
-                bundle.putLong("size", fileSize);
+                bundle.putLong("size", files.stream().mapToLong(FileData::getFileSize).sum());
                 bundle.putLong("duration", System.currentTimeMillis() - startTime);
                 getAnalytics().logEvent(FirebaseAnalytics.Event.SHARE, bundle);
             } catch (HandshakeFailException e) {
