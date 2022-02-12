@@ -173,8 +173,9 @@ public class ReceiveActivity extends TransferActivity implements MulticastReceiv
         PersistableBundle bundle = new PersistableBundle();
 
         bundle.putString("peer", peer.toString());
-        bundle.putString("filenames", peer instanceof  SenderPeer ?
-            ((SenderPeer)peer).getFiles().stream().map(FileData::getFileName).collect(Collectors.joining(", ")) : "files");
+
+        bundle.putStringArray("filenames", peer instanceof  SenderPeer ?
+            ((SenderPeer)peer).getFiles().stream().map(FileData::getFileName).toArray(String[]::new) : new String[]{"files"});
 
         JobInfo.Builder jobInfoBuilder = new JobInfo.Builder(1,
                 new ComponentName(this, FileReceivingJobService.class))
@@ -346,28 +347,20 @@ public class ReceiveActivity extends TransferActivity implements MulticastReceiv
             holder.fileNameText.setText(fileNames);
             holder.fileSizeText.setText(FileUtils.toFileSize(discoveredPeer.getFiles().stream().mapToLong(FileData::getFileSize).sum()));
             holder.deviceNameText.setText(discoveredPeer.getDeviceName());
-            holder.itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    String message = getString(R.string.alert_receive_file_message, discoveredPeer.getFiles().stream().map(FileData::getFileName).collect(Collectors.joining(", ")), discoveredPeer.getDeviceName());
-                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
-                        message += "\n" + getString(R.string.in_download_folder);
-                    } else {
-                        message += "\n" + getString(R.string.select_file);
-                    }
-                    new AlertDialog.Builder(ReceiveActivity.this)
-                            .setTitle(getString(R.string.alert_receive_file, fileNames))
-                            .setMessage(message)
-                            .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    // receive in Download folder
-                                    startReceiving(discoveredPeer);
-                                }
-                            })
-                            .setNeutralButton(R.string.no, null)
-                            .show();
-                }
+            holder.itemView.setOnClickListener(v -> {
+                String message = getString(R.string.alert_receive_file_message,
+                    discoveredPeer.getDeviceName(),
+                    discoveredPeer.getFiles().stream().map(FileData::getFileName).collect(Collectors.joining("- ", "- ", "")));
+                message += "\n" + getString(R.string.in_download_folder);
+                new AlertDialog.Builder(ReceiveActivity.this)
+                        .setTitle(getString(R.string.alert_receive_file, fileNames))
+                        .setMessage(message)
+                        .setPositiveButton(R.string.yes, (dialog, which) -> {
+                            // receive in Download folder
+                            startReceiving(discoveredPeer);
+                        })
+                        .setNeutralButton(R.string.no, null)
+                        .show();
             });
             holder.itemView.setAlpha(0f);
             holder.itemView.animate()

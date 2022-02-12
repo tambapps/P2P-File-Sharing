@@ -4,7 +4,6 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.ContentResolver;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.PersistableBundle;
@@ -120,7 +119,7 @@ public class FileSendingJobService extends FileJobService implements SendingEven
                     ContentResolver contentResolver,
                     PendingIntent cancelIntent, FirebaseAnalytics analytics, PeriodicMulticastService<List<SenderPeer>> senderPeersMulticastService,
                     List<AndroidFileData> files) {
-            super(eventHandler, notifBuilder, notificationManager, notifId, cancelIntent, analytics, files.stream().map(FileData::getFileName).collect(Collectors.joining(", ")));
+            super(eventHandler, notifBuilder, notificationManager, notifId, cancelIntent, analytics, files.stream().map(FileData::getFileName).toArray(String[]::new));
             this.contentResolver = contentResolver;
             this.senderPeersMulticastService = senderPeersMulticastService;
             this.files = files;
@@ -144,7 +143,8 @@ public class FileSendingJobService extends FileJobService implements SendingEven
                 fileSender.send(fileData);
 
                 finishNotification().setContentTitle(getString(R.string.transfer_complete))
-                        .setStyle(notifStyle.bigText(getString(R.string.success_send, fileNames)));
+                        .setStyle(notifStyle.bigText(getString(R.string.success_send,
+                            fileNames.stream().collect(Collectors.joining("- ", "- ", "")))));
 
                 Bundle bundle = new Bundle();
                 bundle.putString(FirebaseAnalytics.Param.METHOD, "SEND");
@@ -189,11 +189,12 @@ public class FileSendingJobService extends FileJobService implements SendingEven
         }
 
         @Override
-        public String onConnected(String remoteAddress, String fileNames) {
+        public String onConnected(String remoteAddress) {
             this.startTime = System.currentTimeMillis();
             ((SendingEventHandler)eventHandler).onServiceStarted();
             senderPeersMulticastService.stop(true);
-            return getString(R.string.sending_connected, fileNames);
+            return getString(R.string.sending_connected,
+                fileNames.stream().collect(Collectors.joining("- ", "- ", "")));
         }
 
         @Override

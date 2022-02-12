@@ -26,6 +26,8 @@ import com.tambapps.p2p.speer.Peer;
 import com.tambapps.p2p.peer_transfer.android.R;
 import com.tambapps.p2p.peer_transfer.android.service.event.TaskEventHandler;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -132,19 +134,18 @@ public abstract class FileJobService extends JobService implements TaskEventHand
         private final int notifId;
         private FirebaseAnalytics analytics;
         protected TaskEventHandler eventHandler;
-        private long lastNotificationUpdate = 0L;
-        protected final String fileNames;
+        protected final List<String> fileNames;
 
         FileTask(TaskEventHandler eventHandler, NotificationCompat.Builder notifBuilder,
                  NotificationManager notificationManager,
                  int notifId,
-                 PendingIntent cancelIntent, FirebaseAnalytics analytics, String fileNames) {
+                 PendingIntent cancelIntent, FirebaseAnalytics analytics, String[] fileNames) {
             this.notifBuilder = notifBuilder;
             this.notificationManager = notificationManager;
             this.notifId = notifId;
             this.eventHandler = eventHandler;
             this.analytics = analytics;
-            this.fileNames = fileNames;
+            this.fileNames = Arrays.asList(fileNames);
             notifStyle = new NotificationCompat.BigTextStyle();
 
             notifBuilder.addAction(android.R.drawable.ic_delete, "cancel", cancelIntent);
@@ -160,11 +161,6 @@ public abstract class FileJobService extends JobService implements TaskEventHand
             if (progress < 100) {
                 notifBuilder.setProgress(100, progress, false);
                 notifStyle.bigText(FileUtils.toFileSize(bytesProcessed) + "/ " + FileUtils.toFileSize(totalBytes));
-            }
-            long now = System.currentTimeMillis();
-            if (now - lastNotificationUpdate >= 500L) {
-                updateNotification();
-                lastNotificationUpdate = now;
             }
         }
 
@@ -190,14 +186,14 @@ public abstract class FileJobService extends JobService implements TaskEventHand
                     .setOngoing(true)
                     .setProgress(100, 0, false)
                     .setContentText("")
-                    .setContentTitle(onConnected(remotePeer1, fileNames))
+                    .setContentTitle(onConnected(remotePeer1))
                     .setStyle(notifStyle.bigText(""));
             updateNotification();
         }
 
         abstract void run(String... params);
         abstract void cancel();
-        abstract String onConnected(String remotePeer, String fileNames); //return the title of the notification
+        abstract String onConnected(String remotePeer); //return the title of the notification
 
         NotificationCompat.Builder getNotifBuilder() {
             return notifBuilder;

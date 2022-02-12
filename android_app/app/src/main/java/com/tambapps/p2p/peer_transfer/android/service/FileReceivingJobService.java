@@ -45,6 +45,7 @@ import java.net.SocketTimeoutException;
 import java.nio.channels.AsynchronousCloseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by fonkoua on 13/05/18.
@@ -80,7 +81,7 @@ public class FileReceivingJobService extends FileJobService {
                         return PendingIntent.getActivity(FileReceivingJobService.this, notifId, intent, PendingIntent.FLAG_UPDATE_CURRENT);
                     }
 
-                }, analytics, bundle.getString("filenames"))
+                }, analytics, bundle.getStringArray("filenames"))
                 .execute(bundle.getString("peer"));
     }
 
@@ -106,7 +107,7 @@ public class FileReceivingJobService extends FileJobService {
                       NotificationManager notificationManager,
                       int notifId,
                       PendingIntent cancelIntent,
-                      FileIntentProvider fileIntentProvider, FirebaseAnalytics analytics, String fileNames) {
+                      FileIntentProvider fileIntentProvider, FirebaseAnalytics analytics, String[] fileNames) {
             super(taskEventHandler, notifBuilder, notificationManager, notifId, cancelIntent, analytics, fileNames);
             this.fileIntentProvider = fileIntentProvider;
             this.contentResolver = notifBuilder.mContext.getContentResolver();
@@ -126,7 +127,7 @@ public class FileReceivingJobService extends FileJobService {
 
             try {
                 fileReceiver.receiveFrom(peer, (OutputStreamProvider) this);
-                completeNotification(uris, fileNames);
+                completeNotification(uris);
                 updateNotification();
                 Bundle bundle = new Bundle();
                 bundle.putString(FirebaseAnalytics.Param.METHOD, "RECEIVE");
@@ -182,7 +183,7 @@ public class FileReceivingJobService extends FileJobService {
             }
         }
 
-        private void completeNotification(List<Uri> uris, String fileNames) {
+        private void completeNotification(List<Uri> uris) {
             NotificationCompat.Builder builder = finishNotification()
                     .setContentTitle(getString(R.string.transfer_complete))
                     // nullable file
@@ -203,7 +204,8 @@ public class FileReceivingJobService extends FileJobService {
             if (image != null) {
                 getNotifBuilder().setStyle(new NotificationCompat.BigPictureStyle().bigPicture(image));
             } else {
-                getNotifBuilder().setStyle(notifStyle.bigText(getString(R.string.success_received, fileNames)));
+                getNotifBuilder().setStyle(notifStyle.bigText(getString(R.string.success_received,
+                    fileNames.stream().collect(Collectors.joining("- ", "- ", "")))));
             }
         }
 
@@ -233,9 +235,10 @@ public class FileReceivingJobService extends FileJobService {
         }
 
         @Override
-        public String onConnected(String remoteAddress, String fileNames) {
+        public String onConnected(String remoteAddress) {
             this.startTime = System.currentTimeMillis();
-            return getString(R.string.receveiving_connected, fileNames);
+            return getString(R.string.receveiving_connected,
+                fileNames.stream().collect(Collectors.joining("- ", "- ", "")));
         }
     }
 }
