@@ -6,11 +6,16 @@ import android.net.Uri;
 import com.tambapps.p2p.fandem.model.FileData;
 import com.tambapps.p2p.fandem.model.SendingFileData;
 
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 
 public class AndroidFileData extends FileData {
 
   // storing string to facilitate deserialization
   private String uri;
+
+  private transient InputStream inputStream;
+
 
   public AndroidFileData(String fileName, long fileSize, Uri uri) {
     super(fileName, fileSize, null);
@@ -33,7 +38,15 @@ public class AndroidFileData extends FileData {
     this.uri = uri;
   }
 
-  public SendingFileData toSendingFileData(ContentResolver contentResolver) {
-    return new SendingFileData(getFileName(), getFileSize(), getChecksum().orElse(null), () -> contentResolver.openInputStream(getUri()));
+  public SendingFileData toSendingFileData() {
+    return new SendingFileData(getFileName(), getFileSize(), getChecksum().orElse(null), this::getInputStream);
+  }
+
+  public void setInputStream(InputStream inputStream) {
+    this.inputStream = inputStream;
+  }
+
+  public InputStream getInputStream() {
+    return inputStream;
   }
 }

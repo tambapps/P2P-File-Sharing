@@ -27,6 +27,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -242,6 +243,7 @@ public class ReceiveActivity extends TransferActivity implements MulticastReceiv
 
     @Override
     public void onError(IOException e) {
+        Log.e("ReceiveActivity", "Error while sniffing", e);
         runOnUiThread(() -> {
             progressBar.setVisibility(View.INVISIBLE);
             loadingText.setText(R.string.no_internet);

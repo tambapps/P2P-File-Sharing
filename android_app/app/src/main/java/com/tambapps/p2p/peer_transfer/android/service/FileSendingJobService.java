@@ -71,9 +71,14 @@ public class FileSendingJobService extends FileJobService implements SendingEven
         // now try to set checksum for all files
         for (AndroidFileData f : files) {
             try {
+                // need to open input stream as soon as possible for all files, otherwise some might expire and Android
+                // will throw me Permission Denial: reading com.android.providers.downloads.DownloadStorageProvider
+                f.setInputStream(notifBuilder.mContext.getContentResolver().openInputStream(f.getUri()));
                 String checksum = FileUtils.computeChecksum(notifBuilder.mContext.getContentResolver().openInputStream(f.getUri()));
                 f.setChecksum(checksum);
-            } catch (IOException e) { }
+            } catch (IOException e) {
+                Log.e("FileSendingJobService", "Couldn't compute checksum", e);
+            }
         }
 
         List<SenderPeer> senderPeers = Collections.singletonList(new SenderPeer(peer.getAddress(), peer.getPort(), deviceName, files));
@@ -138,7 +143,7 @@ public class FileSendingJobService extends FileJobService implements SendingEven
             updateNotification();
             try {
                 List<SendingFileData> fileData = files.stream()
-                    .map(f -> f.toSendingFileData(contentResolver))
+                    .map(AndroidFileData::toSendingFileData)
                     .collect(Collectors.toList());
                 fileSender.send(fileData);
 
@@ -180,6 +185,12 @@ public class FileSendingJobService extends FileJobService implements SendingEven
                 finishNotification()
                         .setContentTitle(getString(R.string.transfer_aborted))
                         .setContentText(getString(R.string.coudlnt_send));
+            } catch (Exception e) {
+                Log.e("FileSendingJobService", "error while sending file", e);
+                FirebaseCrashlytics.getInstance().recordException(e);
+                finishNotification()
+                    .setContentTitle(getString(R.string.transfer_aborted))
+                    .setStyle(notifStyle.bigText(getString(R.string.error_occured, e.getMessage())));
             }
         }
 
