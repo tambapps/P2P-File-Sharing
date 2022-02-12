@@ -61,8 +61,13 @@ public class FileTransferTest {
     for (int i = 0; i < 2; i++) {
       assertTrue(completionService.poll(10, TimeUnit.SECONDS).get());
     }
-    assertTrue(contentEquals(ORIGIN_FILE_1, new File(DIRECTORY, "received-" + ORIGIN_FILE_1.getName())));
-    assertTrue(contentEquals(ORIGIN_FILE_2, new File(DIRECTORY, "received-" + ORIGIN_FILE_2.getName())));
+    File receivedFile1 = new File(DIRECTORY, "received-" + ORIGIN_FILE_1.getName());
+    File receivedFile2 = new File(DIRECTORY, "received-" + ORIGIN_FILE_2.getName());
+    assertTrue(contentEquals(ORIGIN_FILE_1, receivedFile1));
+    assertTrue(contentEquals(ORIGIN_FILE_2, receivedFile2));
+
+    assertTrue(receivedFile1.delete());
+    assertTrue(receivedFile2.delete());
   }
 
   private boolean contentEquals(File f1, File f2) throws IOException {
