@@ -1,19 +1,20 @@
 package com.tambapps.p2p.fandem;
 
 import com.tambapps.p2p.fandem.handshake.FandemReceiverHandshake;
-import com.tambapps.p2p.fandem.handshake.ReceiverHandshakeData;
 import com.tambapps.p2p.fandem.handshake.SenderHandshakeData;
+import com.tambapps.p2p.fandem.model.FileData;
 import com.tambapps.p2p.fandem.util.OutputStreamProvider;
 import com.tambapps.p2p.fandem.util.FileProvider;
+import com.tambapps.p2p.fandem.util.RecordingFileProvider;
 import com.tambapps.p2p.fandem.util.TransferListener;
 import com.tambapps.p2p.speer.Peer;
 import com.tambapps.p2p.speer.PeerConnection;
 import com.tambapps.p2p.speer.handshake.Handshake;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -24,64 +25,50 @@ public class FileReceiver extends FileSharer {
   private final int bufferSize;
 
   public FileReceiver() {
-    this(true, null);
+    this(null);
   }
+
 
   public FileReceiver(TransferListener listener) {
-    this(true, listener);
+    this(listener, DEFAULT_BUFFER_SIZE);
   }
 
-  public FileReceiver(boolean withChecksum) {
-    this(withChecksum, null);
-  }
-
-  public FileReceiver(boolean withChecksum, TransferListener listener) {
-    this(withChecksum, listener, DEFAULT_BUFFER_SIZE);
-  }
-
-  public FileReceiver(boolean withChecksum, TransferListener listener, int bufferSize) {
+  public FileReceiver(TransferListener listener, int bufferSize) {
     super(listener);
-    this.handshake = new FandemReceiverHandshake(new ReceiverHandshakeData(withChecksum));
+    this.handshake = new FandemReceiverHandshake();
     this.bufferSize = bufferSize;
   }
 
-  public File receiveFrom(Peer peer, File file) throws IOException {
-    return receiveFrom(peer, (FileProvider) (name -> file));
+  public List<File> receiveInDirectory(Peer peer, File directory) throws IOException {
+    return receiveFrom(peer, (FileProvider) (name -> new File(directory, name)));
   }
 
-  public File receiveFrom(Peer peer, FileProvider fileProvider) throws IOException {
-    File[] fileReference = new File[1];
-    receiveFrom(peer, (OutputStreamProvider) (fileName) -> {
-      File outputFile = fileProvider.newFile(fileName);
-      if (!outputFile.exists() && !outputFile.createNewFile()) {
-        throw new IOException("Couldn't create file " + outputFile);
-      }
-      fileReference[0] = outputFile;
-      return new FileOutputStream(outputFile);
-    });
-    return fileReference[0];
+  public List<File> receiveFrom(Peer peer, FileProvider fileProvider) throws IOException {
+    RecordingFileProvider recordingFileProvider = new RecordingFileProvider(fileProvider);
+    receiveFrom(peer, recordingFileProvider.toOutputStreamProvider());
+    return recordingFileProvider.getFiles();
   }
 
-  // just for Android 11+ :(
-  public long receiveFrom(Peer peer, OutputStreamProvider outputStreamProvider) throws IOException {
+  // just for Android 11+ :( ?? but whyyyy?????
+  public void receiveFrom(Peer peer, OutputStreamProvider outputStreamProvider) throws IOException {
     try (PeerConnection connection = PeerConnection.from(peer, handshake)) {
       connectionReference.set(connection);
       SenderHandshakeData data = connection.getHandshakeData();
-      long totalBytes = data.getFileSize();
-      String fileName = data.getFileName();
       if (listener != null) {
-        listener.onConnected(connection.getSelfPeer(), connection.getRemotePeer(), fileName, totalBytes);
+        listener.onConnected(connection.getSelfPeer(), connection.getRemotePeer());
       }
-      Optional<String> optExpectedChecksum = data.getChecksum();
 
-      try (OutputStream fos = outputStreamProvider.newOutputStream(fileName)) {
-        if (optExpectedChecksum.isPresent()) {
-          share(connection.getInputStream(), fos, bufferSize, totalBytes, optExpectedChecksum.get());
-        } else {
-          share(connection.getInputStream(), fos, bufferSize, totalBytes);
+      for (FileData fileData : data.getFiles()) {
+        String fileName = fileData.getFileName();
+        long fileSize = fileData.getFileSize();
+        Optional<String> optExpectedChecksum = fileData.getChecksum();
+        try (OutputStream fos = outputStreamProvider.newOutputStream(fileName)) {
+          if (listener != null) {
+            listener.onTransferStarted(fileName, fileSize);
+          }
+          share(connection.getInputStream(), fos, bufferSize, fileSize, optExpectedChecksum.orElse(null));
         }
       }
-      return totalBytes;
     }
   }
 

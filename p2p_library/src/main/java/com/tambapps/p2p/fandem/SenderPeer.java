@@ -1,10 +1,12 @@
 package com.tambapps.p2p.fandem;
 
+import com.tambapps.p2p.fandem.model.FileData;
 import com.tambapps.p2p.speer.Peer;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 import java.net.InetAddress;
+import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
 @Getter
@@ -12,15 +14,13 @@ public class SenderPeer extends Peer {
 
   public static final int DEFAULT_PORT = 8081;
 
-  private final String deviceName;
-  private final String fileName;
-  private final long fileSize;
+  String deviceName;
+  List<FileData> files;
 
-  public SenderPeer(InetAddress ip, int port, String deviceName, String fileName, long fileSize) {
+  public SenderPeer(InetAddress ip, int port, String deviceName, String fileName, List<FileData> files) {
     super(ip, port);
     this.deviceName = deviceName;
-    this.fileName = fileName;
-    this.fileSize = fileSize;
+    this.files = files;
   }
 
   public String peerString() {

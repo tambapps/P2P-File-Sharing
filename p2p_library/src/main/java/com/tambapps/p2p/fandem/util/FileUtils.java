@@ -1,10 +1,16 @@
 package com.tambapps.p2p.fandem.util;
 
+import com.tambapps.p2p.fandem.FileSharer;
+
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Locale;
 
 public class FileUtils {
@@ -91,5 +97,31 @@ public class FileUtils {
       hexString.append(hex);
     }
     return hexString.toString();
+  }
+
+  public static String computeChecksum(File file) throws IOException {
+    try (FileInputStream inputStream = new FileInputStream(file)) {
+      return computeChecksum(inputStream);
+    }
+  }
+
+  public static MessageDigest getSha256MessageDigest() throws IOException {
+    MessageDigest digest = null;
+    try {
+      return MessageDigest.getInstance("SHA-256");
+    } catch (NoSuchAlgorithmException e) {
+      throw new IOException("Couldn't find MD5 algorithm", e);
+    }
+  }
+
+  public static String computeChecksum(InputStream inputStream) throws IOException {
+    byte[] buffer = new byte[FileSharer.DEFAULT_BUFFER_SIZE];
+    int count;
+    MessageDigest digest = getSha256MessageDigest();
+    while ((count = inputStream.read(buffer)) > 0) {
+      digest.update(buffer, 0, count);
+    }
+    byte[] hash = digest.digest();
+    return bytesToHex(hash);
   }
 }

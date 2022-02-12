@@ -46,7 +46,7 @@ public final class Fandem {
       throw new IOException(e);
     }
   };
-  public static final String VERSION = "2.2";
+  public static final String VERSION = "2.3";
   public static final int[] VERSION_FIELDS = Arrays.stream(VERSION.split("\\."))
       .mapToInt(Integer::parseInt)
       .toArray();

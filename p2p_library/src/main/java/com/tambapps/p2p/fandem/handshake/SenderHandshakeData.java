@@ -1,27 +1,19 @@
 package com.tambapps.p2p.fandem.handshake;
 
-import lombok.AllArgsConstructor;
+import com.tambapps.p2p.fandem.model.FileData;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Optional;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 public class SenderHandshakeData {
 
-  String fileName;
-  Long fileSize;
-  // nullable
-  String checksum;
+  List<? extends FileData> files;
 
-  public SenderHandshakeData(String fileName, Long fileSize) {
-    this.fileName = fileName;
-    this.fileSize = fileSize;
+  public SenderHandshakeData(List<? extends FileData> files) {
+    this.files = files;
   }
 
-  public Optional<String> getChecksum() {
-    return Optional.ofNullable(checksum);
-  }
 }
