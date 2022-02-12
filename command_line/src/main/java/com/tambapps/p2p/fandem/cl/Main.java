@@ -168,7 +168,7 @@ public class Main implements TransferListener {
 									senderPeer.getFiles()
 											.stream()
 											.map(f -> String.format("%s (%s)", f.getFileName(), FileUtils.toFileSize(f.getFileSize())))
-											.collect(Collectors.joining("- ", "- ", "")))
+											.collect(Collectors.joining("\n- ", "- ", "")))
 							.println();
 					switch (scanner.nextLine().toLowerCase().charAt(0)) {
 						case 'y':
@@ -191,7 +191,7 @@ public class Main implements TransferListener {
 
 	@Override
 	public void onTransferStarted(String fileName, long fileSize) {
-		System.out.format("%s %s", mode.ingString(), fileName).println();
+		System.out.format("\n%s %s", mode.ingString(), fileName).println();
 		System.out.format(mode.progressFormat(), "0kb",
 				FileUtils.toFileSize(fileSize));
 	}
