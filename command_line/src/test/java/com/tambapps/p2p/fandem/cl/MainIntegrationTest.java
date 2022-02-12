@@ -2,20 +2,21 @@ package com.tambapps.p2p.fandem.cl;
 
 import com.tambapps.p2p.fandem.Fandem;
 import com.tambapps.p2p.fandem.cl.command.ReceiveCommand;
-import org.junit.After;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -27,16 +28,16 @@ public class MainIntegrationTest {
 	private static final String IP_ADDRESS_HEX_STRING = Fandem.toHexString(IP_ADDRESS);
 	private static final String SNIFF_IP_ADDRESS = "127.0.0.2";
 
-	private static final File OUTPUT_FILE = new File("./file-received.txt");
+	private static final File OUTPUT_DIRECTORY = new File("./");
 
 	@Test
 	public void transferTest() throws Exception {
-		test(() -> Main.main(String.format("receive -d=%s -peer=%s:8081", OUTPUT_FILE, IP_ADDRESS).split(" ")));
+		test(() -> Main.main(String.format("receive -d=%s -peer=%s:8081", OUTPUT_DIRECTORY, IP_ADDRESS).split(" ")));
 	}
 
 	@Test
 	public void transferTestHexString() throws Exception {
-		test(() -> Main.main(String.format("receive -d=%s -peer=%s", OUTPUT_FILE, IP_ADDRESS_HEX_STRING).split(" ")));
+		test(() -> Main.main(String.format("receive -d=%s -peer=%s", OUTPUT_DIRECTORY, IP_ADDRESS_HEX_STRING).split(" ")));
 	}
 
 	// run these test individually (weird but when we run all test, this ne fails)
@@ -52,55 +53,37 @@ public class MainIntegrationTest {
 		};
 
 		ReceiveCommand command = Mockito.mock(ReceiveCommand.class);
-		when(command.getCount())
-				.thenReturn(1);
 		when(command.getPeer())
 				.thenReturn(Optional.empty());
-		when(command.getDownloadFile())
-				.thenReturn(OUTPUT_FILE);
+		when(command.getDownloadDirectory())
+				.thenReturn(OUTPUT_DIRECTORY);
 		test(() -> receiveMain.receive(command));
 	}
 
 	private void test(Runnable receiveRunnable) throws Exception {
-		String filePath = getClass().getClassLoader()
-				.getResource("file.txt")
-				.getFile();
+		List<String> filePaths = Stream.of("file1.txt", "file2.txt")
+				.map(name -> getClass().getClassLoader()
+						.getResource(name)
+						.getFile())
+				.collect(Collectors.toList());
 
 		new Thread(() -> Main.main(
-				String.format("send %s -ip=%s -p=8081", filePath, IP_ADDRESS)
+				String.format("send %s -ip=%s -p=8081", String.join(" ", filePaths), IP_ADDRESS)
 						.split(" "))).start();
 		Thread.sleep(1000);
 
-		File originFile = new File(URLDecoder.decode(filePath, "UTF-8"));
+		List<File> originFiles = filePaths.stream()
+				.map(filePath -> new File(URLDecoder.decode(filePath, StandardCharsets.UTF_8)))
+				.collect(Collectors.toList());
 
 		receiveRunnable.run();
 
-		assertTrue("Didn't correctly downloaded file", OUTPUT_FILE.exists());
-
-		assertEquals("Content of received file differs from origin file",
-				Files.readString(originFile.toPath()), Files.readString(OUTPUT_FILE.toPath()));
-	}
-
-	@After
-	public void dispose() {
-		if (OUTPUT_FILE.exists()) {
-			OUTPUT_FILE.delete();
-		}
-	}
-
-	private boolean contentEquals(File f1, File f2) throws IOException {
-		try (InputStream is1 = new FileInputStream(f1);
-				InputStream is2 = new FileInputStream(f2)) {
-			final int EOF = -1;
-			int i1 = is1.read();
-			while (i1 != EOF) {
-				int i2 = is2.read();
-				if (i2 != i1) {
-					return false;
-				}
-				i1 = is1.read();
-			}
-			return is2.read() == EOF;
+		for (File originFile : originFiles) {
+			File downloadedFile = new File(OUTPUT_DIRECTORY, originFile.getName());
+			assertTrue("Didn't downloaded file", downloadedFile.exists());
+			assertEquals("Content of received file differs from origin file",
+					Files.readString(originFile.toPath()), Files.readString(downloadedFile.toPath()));
+			assertTrue(downloadedFile.delete());
 		}
 	}
 

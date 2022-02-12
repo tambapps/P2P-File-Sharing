@@ -15,9 +15,9 @@ public class SenderPeer extends Peer {
   public static final int DEFAULT_PORT = 8081;
 
   String deviceName;
-  List<FileData> files;
+  List<? extends FileData> files;
 
-  public SenderPeer(InetAddress ip, int port, String deviceName, String fileName, List<FileData> files) {
+  public SenderPeer(InetAddress ip, int port, String deviceName, List<? extends FileData> files) {
     super(ip, port);
     this.deviceName = deviceName;
     this.files = files;

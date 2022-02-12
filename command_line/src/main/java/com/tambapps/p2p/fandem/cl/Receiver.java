@@ -7,6 +7,7 @@ import com.tambapps.p2p.speer.Peer;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 public class Receiver {
 
@@ -20,10 +21,10 @@ public class Receiver {
     this.downloadFile = downloadFile;
   }
 
-  public File receive() throws IOException {
+  public List<File> receive() throws IOException {
     return downloadFile.isDirectory() ? fileReceiver.receiveFrom(senderPeer,
         FileUtils.availableFileInDirectoryProvider(downloadFile)) :
-        fileReceiver.receiveFrom(senderPeer, downloadFile);
+        fileReceiver.receiveInDirectory(senderPeer, downloadFile);
   }
 
 }

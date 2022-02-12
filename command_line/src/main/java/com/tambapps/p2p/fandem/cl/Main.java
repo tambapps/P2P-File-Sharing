@@ -28,16 +28,14 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.List;
 import java.util.Scanner;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.stream.Collectors;
 
 public class Main implements TransferListener {
 
 	private final ScheduledExecutorService senderExecutor =
 			Executors.newSingleThreadScheduledExecutor();
-	private final ExecutorService seekExecutor =
-			Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 4);
 	private final Mode mode;
 
 	public Main(Mode mode) {
@@ -84,25 +82,22 @@ public class Main implements TransferListener {
 				main.send(sendCommand);
 				break;
 		}
-		main.senderExecutor.shutdownNow();
-		main.seekExecutor.shutdownNow();
+		main.senderExecutor.shutdown();
 	}
 
 	void send(SendCommand command) {
 		try (Sender sender = Sender.create(senderExecutor, command, this)) {
-			for (File file : command.getFiles()) {
-				try {
-					System.out.println("Sending " + file.getName());
-					System.out.format("Waiting for a connection on %s (hex string %s)", sender.getPeer(), Fandem.toHexString(sender.getPeer()))
-					.println();
-					sender.send(file);
-					System.out.println();
-					System.out.println(file.getName() + " was successfully sent");
-				} catch (SocketException e) {
-					System.out.println();
-					System.out.println("Transfer was cancelled.");
-				}
+			try {
+				System.out.println("Will send files " + command.getFiles().stream().map(File::getName).collect(
+						Collectors.joining(", ")));
+				System.out.format("Waiting for a connection on %s (hex string %s)", sender.getPeer(), Fandem.toHexString(sender.getPeer()))
+						.println();
+				sender.send(command.getFiles());
 				System.out.println();
+				System.out.println("File(s) were successfully sent");
+			} catch (SocketException e) {
+				System.out.println();
+				System.out.println("Transfer was cancelled.");
 			}
 		} catch (SendingException e) {
 			System.out.println(e.getMessage());
@@ -116,22 +111,21 @@ public class Main implements TransferListener {
 	void receive(ReceiveCommand receiveCommand) {
 		Peer peer = receiveCommand.getPeer().orElseGet(this::seekSendingPeer);
 		if (peer != null) {
-			Receiver receiver = new Receiver(peer, receiveCommand.getDownloadFile(), this);
-			for (int i = 0; i < receiveCommand.getCount(); i++) {
-				System.out.println("Connecting to " + peer);
-				try {
-					File file = receiver.receive();
-					System.out.println();
-					System.out.println("Received " + file.getName() + " successfully");
-					System.out.println("Path: " + file.getPath());
-				} catch (HandshakeFailException e) {
-					System.out.println("Error while communicating with other peer: " + e.getMessage());
-				} catch (IOException e) {
-					System.out.println();
-					System.out.println("Error while receiving file: " + e.getMessage());
-					continue;
-				}
+			Receiver receiver = new Receiver(peer, receiveCommand.getDownloadDirectory(), this);
+			System.out.println("Connecting to " + peer);
+			try {
+				List<File> files = receiver.receive();
 				System.out.println();
+				System.out.println("Received successfully files " +
+						files.stream()
+						.map(File::getName)
+								.collect(Collectors.joining(", ")));
+				System.out.println("Directory: " + receiveCommand.getDownloadDirectory().getAbsolutePath());
+			} catch (HandshakeFailException e) {
+				System.out.println("Error while communicating with other peer: " + e.getMessage());
+			} catch (IOException e) {
+				System.out.println();
+				System.out.println("Error while receiving files: " + e.getMessage());
 			}
 		}
 	}
@@ -169,8 +163,12 @@ public class Main implements TransferListener {
 				List<SenderPeer> senderPeers = sniffSupplier.get();
 				for (SenderPeer senderPeer : senderPeers) {
 					System.out.format(
-							"%s wants to send %s (%s).\nReceive this file? (Tap 'y' for yes ,'n' for no or 's' to stop)",
-							senderPeer.getDeviceName(), senderPeer.getFileName(), FileUtils.toFileSize(senderPeer.getFileSize()))
+							"%s wants to send\n%s.\nReceive this file? (Tap 'y' for yes ,'n' for no or 's' to stop)",
+							senderPeer.getDeviceName(),
+									senderPeer.getFiles()
+											.stream()
+											.map(f -> String.format("%s (%s)", f.getFileName(), FileUtils.toFileSize(f.getFileSize())))
+											.collect(Collectors.joining("- ", "- ", "")))
 							.println();
 					switch (scanner.nextLine().toLowerCase().charAt(0)) {
 						case 'y':
@@ -187,9 +185,12 @@ public class Main implements TransferListener {
 	}
 
 	@Override
-	public void onConnected(Peer selfPeer, Peer remotePeer, String fileName,
-			long fileSize) {
+	public void onConnected(Peer selfPeer, Peer remotePeer) {
 		System.out.println("Connected to peer " + remotePeer);
+	}
+
+	@Override
+	public void onTransferStarted(String fileName, long fileSize) {
 		System.out.format("%s %s", mode.ingString(), fileName).println();
 		System.out.format(mode.progressFormat(), "0kb",
 				FileUtils.toFileSize(fileSize));

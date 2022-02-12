@@ -3,6 +3,7 @@ package com.tambapps.p2p.fandem.cl;
 import com.tambapps.p2p.fandem.Fandem;
 import com.tambapps.p2p.fandem.FileSender;
 import com.tambapps.p2p.fandem.SenderPeer;
+import com.tambapps.p2p.fandem.model.SendingFileData;
 import com.tambapps.p2p.fandem.util.TransferListener;
 import com.tambapps.p2p.speer.Peer;
 import com.tambapps.p2p.fandem.cl.command.SendCommand;
@@ -15,6 +16,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -33,10 +35,14 @@ public class Sender implements Closeable {
     this.fileSender = new FileSender(peer, listener, timeout);
   }
 
-  public void send(File file) throws IOException {
-    greeterService.setData(List.of(new SenderPeer(peer.getAddress(), peer.getPort(), DESKTOP_NAME, file.getName(), file.length())));
+  public void send(List<File> files) throws IOException {
+    List<SendingFileData> fileData = new ArrayList<>();
+    for (File file : files) {
+      fileData.add(SendingFileData.fromFile(file));
+    }
+    greeterService.setData(List.of(new SenderPeer(peer.getAddress(), peer.getPort(), DESKTOP_NAME, fileData)));
     greeterService.start(1000L);
-    fileSender.send(file);
+    fileSender.sendFiles(files);
   }
 
   private static String getDesktopName() {
