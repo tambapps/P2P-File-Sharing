@@ -1,10 +1,11 @@
 package com.tambapps.p2p.fandem.desktop.model;
 
 import java.io.File;
+import java.util.List;
 
 public class SharingTask {
   public final boolean sender;
-  public File file;
+  public List<File> files;
   public boolean canceled = false;
   private Runnable canceler;
 

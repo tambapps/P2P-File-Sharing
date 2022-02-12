@@ -197,7 +197,8 @@ public class Main implements TransferListener {
 	}
 
 	@Override
-	public void onProgressUpdate(int progress, long bytesProcessed, long totalBytes) {
+	public void onProgressUpdate(String fileName, int progress, long bytesProcessed,
+			long totalBytes) {
 		System.out.format(mode.progressFormat(),
 				FileUtils.toFileSize(bytesProcessed),
 				FileUtils.toFileSize(totalBytes));

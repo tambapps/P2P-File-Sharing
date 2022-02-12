@@ -66,7 +66,7 @@ public class FileReceiver extends FileSharer {
           if (listener != null) {
             listener.onTransferStarted(fileName, fileSize);
           }
-          share(connection.getInputStream(), fos, bufferSize, fileSize, optExpectedChecksum.orElse(null));
+          share(connection.getInputStream(), fos, bufferSize, fileName, fileSize, optExpectedChecksum.orElse(null));
         }
       }
     }

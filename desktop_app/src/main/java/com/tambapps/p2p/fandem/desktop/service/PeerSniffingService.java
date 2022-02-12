@@ -20,6 +20,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
 
 @Service
 public class PeerSniffingService implements MulticastReceiverService.DiscoveryListener<List<SenderPeer>> {
@@ -53,8 +54,11 @@ public class PeerSniffingService implements MulticastReceiverService.DiscoveryLi
 
   private boolean proposePeer(SenderPeer senderPeer) {
     Alert alert = new Alert(Alert.AlertType.CONFIRMATION,
-        String.format("%s wants to send %s (%s)", senderPeer.getDeviceName(), senderPeer.getFileName(),
-            FileUtils.toFileSize(senderPeer.getFileSize())),
+        String.format("%s wants to send files\n%s", senderPeer.getDeviceName(),
+            senderPeer.getFiles()
+                .stream()
+                .map(f -> String.format("%s (%s)", f.getFileName(), FileUtils.toFileSize(f.getFileSize())))
+                .collect(Collectors.joining("- ", "- ", ""))),
         new ButtonType("Receive file", ButtonBar.ButtonData.YES),
         new ButtonType("Ignore", ButtonBar.ButtonData.NO));
     alert.setTitle("Sender found");

@@ -12,15 +12,17 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 @Component
 public class SendPaneController {
 
-  private final Supplier<File> fileChooser;
+  private final Supplier<List<File>> fileChooser;
   private final Supplier<Boolean> canAddTaskSupplier;
-  private final Consumer<File> sendTaskLauncher;
+  private final Consumer<List<File>> sendTaskLauncher;
   @FXML
   private Pane sendPane;
   @FXML
@@ -28,9 +30,9 @@ public class SendPaneController {
   @FXML
   private Label dragDropLabel;
 
-  public SendPaneController(@Qualifier("fileChooser") Supplier<File> fileChooser,
+  public SendPaneController(@Qualifier("fileChooser") Supplier<List<File>> fileChooser,
                             Supplier<Boolean> canAddTaskSupplier,
-                            Consumer<File> sendTaskLauncher) {
+                            Consumer<List<File>> sendTaskLauncher) {
     this.fileChooser = fileChooser;
     this.canAddTaskSupplier = canAddTaskSupplier;
     this.sendTaskLauncher = sendTaskLauncher;
@@ -64,27 +66,23 @@ public class SendPaneController {
        * transferred and used */
       event.setDropCompleted(success);
       event.consume();
-      for (File file : db.getFiles()) {
-        if (!file.isFile()) {
-          continue;
-        }
-        if (!sendFile(file)) {
-          break;
-        }
-      }
+      List<File> files = db.getFiles().stream()
+          .filter(File::isFile)
+          .toList();
+      sendFile(files);
     });
   }
 
   @FXML
   private void pickFile() {
-    File file = fileChooser.get();
-    if (file == null) {
+    List<File> files = fileChooser.get();
+    if (files == null || files.isEmpty()) {
       return;
     }
-    sendFile(file);
+    sendFile(files);
   }
 
-  private boolean sendFile(File file) {
+  private boolean sendFile(List<File> file) {
     if (!canAddTaskSupplier.get()) {
       Alert alert = new Alert(Alert.AlertType.INFORMATION,
           "Maximum tasks number reached. Wait until one task is over to start another.",

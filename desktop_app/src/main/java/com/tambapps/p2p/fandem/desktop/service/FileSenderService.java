@@ -4,6 +4,7 @@ import com.tambapps.p2p.fandem.FileSender;
 import com.tambapps.p2p.fandem.SenderPeer;
 import com.tambapps.p2p.fandem.desktop.controller.TaskViewController;
 import com.tambapps.p2p.fandem.desktop.model.SharingTask;
+import com.tambapps.p2p.fandem.model.SendingFileData;
 import com.tambapps.p2p.fandem.util.TransferListener;
 import com.tambapps.p2p.speer.Peer;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -14,6 +15,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
@@ -33,16 +36,25 @@ public class FileSenderService {
     this.multicastSenderPeersService = multicastSenderPeersService;
   }
 
-  public SharingTask sendFile(Peer peer, File file, TaskViewController controller) {
+  public SharingTask sendFile(Peer peer, List<File> files, TaskViewController controller) {
     SharingTask sendingTask = new SharingTask(true);
-    sendingTask.file = file;
-    SenderPeer senderPeer = new SenderPeer(peer.getAddress(), peer.getPort(), DESKTOP_NAME, file.getName(), file.length());
+    sendingTask.files = files;
+    List<SendingFileData> fileData = new ArrayList<>();
+    for (File file : files) {
+      try {
+        fileData.add(SendingFileData.fromFile(file));
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+    }
+    SenderPeer senderPeer = new SenderPeer(peer.getAddress(), peer.getPort(), DESKTOP_NAME, fileData);
     multicastSenderPeersService.addSenderPeer(senderPeer);
     FileSender fileSender = new FileSender(peer, controller, socketTimeoutSeconds * 1000);
 
     Future<?> future = executorService.submit(() -> {
       try {
-        fileSender.send(file);
+        fileSender.send(fileData);
+        controller.onEnd();
       } catch (IOException e) {
         controller.onError(e);
       }
@@ -87,14 +99,20 @@ public class FileSenderService {
     }
 
     @Override
-    public void onConnected(Peer selfPeer, Peer remotePeer, String fileName, long fileSize) {
+    public void onConnected(Peer selfPeer, Peer remotePeer) {
       multicastSenderPeersService.removeSenderPeer(senderPeer);
-      baseListener.onConnected(selfPeer, remotePeer, fileName, fileSize);
+      baseListener.onConnected(selfPeer, remotePeer);
     }
 
     @Override
-    public void onProgressUpdate(int progress, long bytesProcessed, long totalBytes) {
-      baseListener.onProgressUpdate(progress, bytesProcessed, totalBytes);
+    public void onTransferStarted(String fileName, long fileSize) {
+      baseListener.onTransferStarted(fileName, fileSize);
+    }
+
+    @Override
+    public void onProgressUpdate(String fileName, int progress, long bytesProcessed,
+        long totalBytes) {
+      baseListener.onProgressUpdate(fileName, progress, bytesProcessed, totalBytes);
     }
   }
 }

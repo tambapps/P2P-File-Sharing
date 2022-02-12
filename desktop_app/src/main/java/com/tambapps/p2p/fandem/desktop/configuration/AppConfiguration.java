@@ -76,7 +76,7 @@ public class AppConfiguration {
   }
 
   @Bean
-  public Consumer<File> sendTaskLauncher(AppController appController) {
+  public Consumer<List<File>> sendTaskLauncher(AppController appController) {
     return appController::sendTask;
   }
 
@@ -96,8 +96,8 @@ public class AppConfiguration {
   }
 
   @Bean
-  public Supplier<File> fileChooser(AtomicReference<Stage> stageReference) {
-    return () -> new FileChooser().showOpenDialog(stageReference.get());
+  public Supplier<List<File>> fileChooser(AtomicReference<Stage> stageReference) {
+    return () -> new FileChooser().showOpenMultipleDialog(stageReference.get());
   }
 
   @Bean

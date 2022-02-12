@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 @Component
 public class AppController implements ListChangeListener<SharingTask> {
@@ -41,12 +42,12 @@ public class AppController implements ListChangeListener<SharingTask> {
     }
   }
 
-  public void sendTask(File file) {
+  public void sendTask(List<File> files) {
     try {
       Pair<Region, TaskViewController> pair = regionLoader.loadWithController(taskViewResource);
       TaskViewController controller = pair.getValue();
       tasksVBox.getChildren().add(pair.getKey());
-      controller.sendTask(file);
+      controller.sendTask(files);
     }  catch (IOException e) {
       e.printStackTrace();
     }

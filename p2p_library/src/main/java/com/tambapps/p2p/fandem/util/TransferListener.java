@@ -11,6 +11,6 @@ public interface TransferListener {
 
   void onTransferStarted(String fileName, long fileSize);
 
-  void onProgressUpdate(int progress, long bytesProcessed, long totalBytes);
+  void onProgressUpdate(String fileName, int progress, long bytesProcessed, long totalBytes);
 
 }

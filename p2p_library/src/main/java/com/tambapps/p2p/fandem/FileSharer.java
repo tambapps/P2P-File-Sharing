@@ -12,7 +12,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 
 @AllArgsConstructor
 public abstract class FileSharer {
@@ -25,7 +24,7 @@ public abstract class FileSharer {
 
   protected void share(InputStream inputStream, OutputStream outputStream, int bufferSize,
       // nullable expectedChecksum
-      long totalBytes, String expectedChecksum) throws IOException {
+      String fileName, long totalBytes, String expectedChecksum) throws IOException {
     byte[] buffer = new byte[bufferSize];
     int lastProgress = 0;
     long bytesProcessed = 0;
@@ -40,13 +39,13 @@ public abstract class FileSharer {
       progress = (int) Math.min(MAX_PROGRESS - 1, MAX_PROGRESS * bytesProcessed / totalBytes);
       if (progress != lastProgress && listener != null) {
         lastProgress = progress;
-        listener.onProgressUpdate(progress, bytesProcessed, totalBytes);
+        listener.onProgressUpdate(fileName, progress, bytesProcessed, totalBytes);
       }
     }
     if (bytesProcessed != totalBytes) {
       throw new SharingException("Transfer was not properly finished");
     } else if (listener != null) {
-      listener.onProgressUpdate(MAX_PROGRESS, totalBytes, totalBytes);
+      listener.onProgressUpdate(fileName, MAX_PROGRESS, totalBytes, totalBytes);
     }
     if (expectedChecksum != null && !bytesToHex(digest.digest()).equals(expectedChecksum)) {
       throw new CorruptedFileException();

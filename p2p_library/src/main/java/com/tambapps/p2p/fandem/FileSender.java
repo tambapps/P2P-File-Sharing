@@ -65,7 +65,7 @@ public class FileSender extends FileSharer {
           listener.onTransferStarted(fileName, fileSize);
         }
         try (InputStream inputStream = fileData.newInputStream()) {
-          share(inputStream, connection.getOutputStream(), DEFAULT_BUFFER_SIZE, fileSize,
+          share(inputStream, connection.getOutputStream(), DEFAULT_BUFFER_SIZE, fileName, fileSize,
               fileData.getChecksum().orElse(null));
         }
       }

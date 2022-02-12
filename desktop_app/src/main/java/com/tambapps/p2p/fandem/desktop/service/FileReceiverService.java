@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
@@ -25,15 +26,18 @@ public class FileReceiverService {
 
   public SharingTask receiveFile(File folder, Peer peer, TaskViewController controller) {
     SharingTask task = new SharingTask(false);
+    // will be filled as long as we received file
+    task.files = new ArrayList<>();
     FileReceiver fileReceiver = new FileReceiver(controller);
 
     Future<?> future = executorService.submit(() -> {
       try {
         fileReceiver.receiveFrom(peer, (FileProvider) name -> {
           File file = FileUtils.newAvailableFile(folder, name);
-          task.file = file;
+          task.files.add(file);
           return file;
         });
+        controller.onEnd();
       } catch (IOException e) {
         controller.onError(e);
       }

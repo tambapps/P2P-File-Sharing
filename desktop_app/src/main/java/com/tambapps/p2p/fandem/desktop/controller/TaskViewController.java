@@ -18,6 +18,8 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 @Scope("prototype") /// allow to have a new instance each time we need this component
@@ -84,13 +86,12 @@ public class TaskViewController implements TransferListener, SharingErrorListene
   }
 
   @Override
-  public void onConnected(Peer selfPeer, Peer remotePeer, String fileName, long fileSize) {
+  public void onConnected(Peer selfPeer, Peer remotePeer) {
     String text;
-    fileName = formattedFileName(fileName, 10);
     if (task.sender) {
-      text = String.format("Sending %s to peer %s", fileName, remotePeer);
+      text = String.format("Sending to peer %s", remotePeer);
     } else {
-      text = String.format("Receiving %s from peer %s", fileName, remotePeer);
+      text = String.format("Receiving from peer %s", remotePeer);
     }
     Platform.runLater(() -> {
       centerLabel.setText("");
@@ -102,25 +103,40 @@ public class TaskViewController implements TransferListener, SharingErrorListene
   }
 
   @Override
-  public void onProgressUpdate(int progress, long byteProcessed, long totalBytes) {
-    if (progress == 100) { // transfer finished
-      Platform.runLater(() -> {
-        String text;
-        String filename = formattedFileName(task.file.getName(), 30);
-        if (task.sender) {
-          text = String.format("%s was successfully sent ", filename);
-        } else {
-          text = String.format("%s was received successfully in %s", filename,
-            task.file.getParentFile().getName());
-        }
-        setEndMessage(text);
-      });
-      return;
+  public void onTransferStarted(String fileName, long fileSize) {
+    String text;
+    fileName = formattedFileName(fileName, 10);
+    if (task.sender) {
+      text = String.format("Sending file %s", fileName);
+    } else {
+      text = String.format("Receiving file %s", fileName);
     }
+    Platform.runLater(() -> leftLabel.setText(text));
+  }
+
+  @Override
+  public void onProgressUpdate(String fileName, int progress, long byteProcessed,
+      long totalBytes) {
     double newProgress = ((double)byteProcessed) / ((double)totalBytes);
     if (newProgress > progressBar.getProgress() + 0.025) {
       Platform.runLater(() -> progressBar.setProgress(newProgress));
     }
+  }
+
+  public void onEnd() {
+    Platform.runLater(() -> {
+      String text;
+      String fileNames = task.files.stream()
+          .map(file -> formattedFileName(file.getName(), 30))
+          .collect(Collectors.joining(", "));
+      if (task.sender) {
+        text = String.format("%s was successfully sent ", fileNames);
+      } else {
+        text = String.format("%s was received successfully in %s", fileNames,
+            task.files.get(0).getParentFile().getName());
+      }
+      setEndMessage(text);
+    });
   }
 
   private String formattedFileName(String name, int maxLength) {
@@ -129,7 +145,7 @@ public class TaskViewController implements TransferListener, SharingErrorListene
     }
     return name;
   }
-  public void sendTask(File file) {
+  public void sendTask(List<File> files) {
     Peer peer;
     try {
       peer = Fandem.findAvailableSendingPeer();
@@ -137,10 +153,13 @@ public class TaskViewController implements TransferListener, SharingErrorListene
       setEndMessage("Couldn't retrieve IP. Are you connected to internet?");
       return;
     }
-    task = fileSenderService.sendFile(peer, file, this);
+    task = fileSenderService.sendFile(peer, files, this);
     sharingTasks.add(task);
     centerLabel.setText(String.format("Waiting for a connection (peer key: %s, file: %s)",
-        Fandem.toHexString(peer), file.getName()));
+        Fandem.toHexString(peer),
+        files.stream()
+            .map(File::getName)
+            .collect(Collectors.joining(", "))));
   }
 
   public void receiveTask(File folder, Peer peer) {
