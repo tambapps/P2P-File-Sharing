@@ -39,6 +39,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class SendActivity extends TransferActivity {
 
@@ -83,6 +84,27 @@ public class SendActivity extends TransferActivity {
                 return;
             }
             if (sendFile(Collections.singletonList(uri), peer)) {
+                sendContent(peer);
+            }
+        } else if (Intent.ACTION_SEND_MULTIPLE.equals(receivedAction)) {
+            ClipData clipData = intent.getClipData();
+            if (clipData == null) {
+                Toast.makeText(this, this.getString(R.string.couldnt_get_file), Toast.LENGTH_SHORT).show();
+                return;
+            }
+            List<Uri> uris = new ArrayList<>();
+            for (int i = 0; i < clipData.getItemCount(); i++) {
+                uris.add(clipData.getItemAt(i).getUri());
+            }
+            if (uris.isEmpty()) {
+                Toast.makeText(this, this.getString(R.string.couldnt_get_file), Toast.LENGTH_SHORT).show();
+                return;
+            }
+            Peer peer = getPeer();
+            if (peer == null) {
+                return;
+            }
+            if (sendFile(uris, peer)) {
                 sendContent(peer);
             }
         }
