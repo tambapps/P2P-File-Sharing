@@ -43,6 +43,7 @@ public class Main implements TransferListener {
 	}
 
 	public static void main(String[] args) {
+		System.out.println("Fandem command line " + Fandem.VERSION);
 		Arguments arguments = new Arguments();
 		ReceiveCommand receiveCommand = new ReceiveCommand();
 		SendCommand sendCommand = new SendCommand();
