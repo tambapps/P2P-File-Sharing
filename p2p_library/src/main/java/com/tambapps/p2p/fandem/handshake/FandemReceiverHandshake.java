@@ -37,17 +37,6 @@ public class FandemReceiverHandshake extends SerializedHandshake<ReceiverHandsha
 
   @Override
   protected void validate(SenderHandshakeData senderHandshakeData) throws HandshakeFailException {
-    if (senderHandshakeData.getFiles() == null || senderHandshakeData.getFiles().isEmpty()) {
-      throw new HandshakeFailException("Sender should have sent files");
-    }
-    for (FileData fileData : senderHandshakeData.getFiles()) {
-      if (fileData.getFileName() == null) {
-        throw new HandshakeFailException("Sender should have sent file_name");
-      }
-      if (fileData.getFileSize() == 0L) {
-        throw new HandshakeFailException("Sender should have sent file_size");
-      }
-    }
-    // TODO move validation logic in a method in SenderHandshakeData
+    senderHandshakeData.validate();
   }
 }
