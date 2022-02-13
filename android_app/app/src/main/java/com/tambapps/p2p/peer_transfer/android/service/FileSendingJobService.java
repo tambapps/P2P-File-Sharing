@@ -74,10 +74,15 @@ public class FileSendingJobService extends FileJobService implements SendingEven
                 // need to open input stream as soon as possible for all files, otherwise some might expire and Android
                 // will throw me Permission Denial: reading com.android.providers.downloads.DownloadStorageProvider
                 f.setInputStream(notifBuilder.mContext.getContentResolver().openInputStream(f.getUri()));
+            } catch (IOException e) {
+                Log.e("FileSendingJobService", "Couldn't compute checksum", e);
+            }
+        }
+        for (AndroidFileData f : files) {
+            try {
                 String checksum = FileUtils.computeChecksum(notifBuilder.mContext.getContentResolver().openInputStream(f.getUri()));
                 f.setChecksum(checksum);
             } catch (IOException e) {
-                Log.e("FileSendingJobService", "Couldn't compute checksum", e);
             }
         }
 
