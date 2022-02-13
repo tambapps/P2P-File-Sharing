@@ -265,8 +265,6 @@ public class ReceiveActivity extends TransferActivity implements MulticastReceiv
         View layout = LayoutInflater.from(this).inflate(R.layout.manual_receive_dialog, null);
         final TextInputLayout peerKeyLayout = layout.findViewById(R.id.peerkey_layout);
         final TextInputEditText peerKeyEditText = layout.findViewById(R.id.peerkey_edittext);
-        final TextInputLayout fileNameLayout = layout.findViewById(R.id.filename_layout);
-        final TextInputEditText fileNameEditText = layout.findViewById(R.id.filename_edittext);
 
         String keyPrefix = getPeerKeyPrefix();
         if (keyPrefix != null) {
@@ -294,24 +292,6 @@ public class ReceiveActivity extends TransferActivity implements MulticastReceiv
                 }
             }
         });
-        fileNameEditText.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                if (fileNameLayout.getError() != null && isValidFileName(s.toString())) {
-                    fileNameLayout.setError(null);
-                }
-            }
-        });
         dialog.setOnShowListener(new DialogInterface.OnShowListener() {
             @Override
             public void onShow(DialogInterface dialogInterface) {
@@ -321,7 +301,6 @@ public class ReceiveActivity extends TransferActivity implements MulticastReceiv
                     @Override
                     public void onClick(View view) {
                         String hexCode = peerKeyEditText.getText() == null ? "" : peerKeyEditText.getText().toString();
-                        // TODO delete fileNameEditText and fileNameLayout
                         peerKeyLayout.setError(Fandem.isCorrectPeerKey(hexCode) ? null : getString(R.string.peer_key_malformed));
                         startReceiving(Fandem.parsePeerFromHexString(hexCode));
                     }

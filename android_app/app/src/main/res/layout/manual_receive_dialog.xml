@@ -18,19 +18,4 @@
             />
     </com.google.android.material.textfield.TextInputLayout>
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/filename_layout"
-        >
-        <com.google.android.material.textfield.TextInputEditText
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/filename_edittext"
-            android:maxLines="1"
-            android:inputType="text"
-            android:hint="File name"
-            />
-    </com.google.android.material.textfield.TextInputLayout>
-
 </LinearLayout>
