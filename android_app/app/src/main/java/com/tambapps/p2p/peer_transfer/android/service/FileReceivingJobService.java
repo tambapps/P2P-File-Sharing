@@ -6,16 +6,12 @@ import android.app.PendingIntent;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.ParcelFileDescriptor;
 import android.os.PersistableBundle;
 import androidx.core.app.NotificationCompat;
-import androidx.core.content.FileProvider;
 
 import android.provider.MediaStore;
 import android.util.Log;
@@ -35,10 +31,8 @@ import com.tambapps.p2p.peer_transfer.android.service.event.TaskEventHandler;
 import com.tambapps.p2p.speer.exception.HandshakeFailException;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
@@ -189,39 +183,10 @@ public class FileReceivingJobService extends FileJobService {
                     // nullable file
                     .setContentIntent(fileIntentProvider.ofUris(uris));
 
-            Bitmap image = null;
-            if (false && uris.size() == 1) {
-                /* TODO
-                if (file != null && isImage(file)) {
-                    try (InputStream inputStream = new FileInputStream(file)) {
-                        image = BitmapFactory.decodeStream(inputStream);
-                    } catch (IOException e) {
-                    }
-                }
-                */
-            }
-
-            if (image != null) {
-                getNotifBuilder().setStyle(new NotificationCompat.BigPictureStyle().bigPicture(image));
-            } else {
-                getNotifBuilder().setStyle(notifStyle.bigText(getString(R.string.success_received,
-                    fileNames.stream().collect(Collectors.joining("\n- ", "- ", "")))));
-            }
+            getNotifBuilder().setStyle(notifStyle.bigText(getString(R.string.success_received,
+                fileNames.stream().collect(Collectors.joining("\n- ", "- ", "")))));
         }
 
-        private boolean isImage(File file) {
-            String fileName  = file.getName();
-            int extensionIndex = fileName.lastIndexOf('.');
-            if (extensionIndex > 0) {
-                String extension = fileName.substring(extensionIndex + 1);
-                for (String imageExtension : new String[]{"jpg", "png", "gif", "bmp"}) {
-                    if (imageExtension.equalsIgnoreCase(extension)) {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
         @Override
         public void cancel() {
             fileReceiver.cancel();
