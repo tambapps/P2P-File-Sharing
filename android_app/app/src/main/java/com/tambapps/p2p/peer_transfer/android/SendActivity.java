@@ -14,6 +14,10 @@ import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.provider.OpenableColumns;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import android.util.Pair;
 import android.view.Gravity;
@@ -38,12 +42,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class SendActivity extends TransferActivity {
 
-    private final static int PICK_FILE = 1;
     private final IntentFilter intentFilter = new IntentFilter();
 
     private FirebaseAnalytics analytics;
@@ -60,15 +61,24 @@ public class SendActivity extends TransferActivity {
         setContentView(R.layout.activity_send);
         FloatingActionButton fab = findViewById(R.id.fab);
 
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                intent.setType("*/*");
-                intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
-                startActivityForResult(Intent.createChooser(intent, "Pick files"), PICK_FILE);
+        ActivityResultLauncher<String> getContentLauncher = registerForActivityResult(new ActivityResultContracts.GetMultipleContents(), uris -> {
+            if (uris == null || uris.isEmpty()) {
+                Toast.makeText(this, this.getString(R.string.couldnt_get_file), Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (uris.size() > 10) {
+                Toast.makeText(this, R.string.no_more_than_n_files, Toast.LENGTH_SHORT).show();
+                return;
+            }
+            Peer peer = getPeer();
+            if (peer == null) {
+                return;
+            }
+            if (sendFile(uris, peer)) {
+                sendContent(peer);
             }
         });
+        fab.setOnClickListener(view -> getContentLauncher.launch("*/*"));
 
         Intent intent = getIntent();
         String receivedAction = intent.getAction();
@@ -191,29 +201,6 @@ public class SendActivity extends TransferActivity {
             bundle.putLong("size", file.getFileSize());
             bundle.putString(FirebaseAnalytics.Param.METHOD, "SEND");
             analytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
-        }
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == PICK_FILE) {
-            if (resultCode == RESULT_OK) {
-                List<Uri> uris = getIntentUris(data);
-                if (uris == null) {
-                    return;
-                }
-                Peer peer = getPeer();
-                if (peer == null) {
-                    return;
-                }
-                if (sendFile(uris, peer)) {
-                    sendContent(peer);
-                }
-            } else {
-                Toast.makeText(this, this.getString(R.string.couldnt_get_file_short), Toast.LENGTH_SHORT).show();
-            }
-        } else {
-            super.onActivityResult(requestCode, resultCode, data);
         }
     }
 
