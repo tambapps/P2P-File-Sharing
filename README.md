@@ -2,6 +2,8 @@
 
 This project aims to transfer files from one device (computer or android smartphone) to another. It works only if the two devices are on the same local network. If one of the devices is an android smartphone, you can share data with it and connect the other device to the smartphone's data.
 
+You can download the apps [here](https://tambapps-portfolio.herokuapp.com/fandem/) or [here](https://github.com/tambapps/P2P-File-Sharing/releases/latest)
+
 ## P2P Library
 
 This is the library I built, used by both the Android app and the Desktop app. It is because of this library that we can also share files between android and desktop.
