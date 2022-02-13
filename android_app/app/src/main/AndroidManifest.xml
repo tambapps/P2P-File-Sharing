@@ -23,7 +23,9 @@
 
         <activity
             android:name=".HelpActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar"
+            android:exported="false"
+            />
 
         <provider
             android:name=".io.GenericFileProvider"
@@ -35,9 +37,15 @@
                 android:resource="@xml/provider_paths" />
         </provider>
 
-        <activity android:name=".OnBoardingActivity"/>
+        <activity
+            android:name=".OnBoardingActivity"
+            android:exported="false"
+            />
 
-        <activity android:name=".MainActivity">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -49,7 +57,8 @@
             android:theme="@style/AppTheme" />
         <activity
             android:name=".SendActivity"
-            android:theme="@style/AppTheme.TransferScreen">
+            android:theme="@style/AppTheme.TransferScreen"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
 
