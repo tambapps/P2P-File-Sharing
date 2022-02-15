@@ -59,7 +59,7 @@ public class PeerSniffingService implements MulticastReceiverService.DiscoveryLi
                 .stream()
                 .map(f -> String.format("%s (%s)", f.getFileName(), FileUtils.toFileSize(f.getFileSize())))
                 .collect(Collectors.joining("\n- ", "- ", ""))),
-        new ButtonType("Receive file", ButtonBar.ButtonData.YES),
+        new ButtonType("Receive file(s)", ButtonBar.ButtonData.YES),
         new ButtonType("Ignore", ButtonBar.ButtonData.NO));
     alert.setTitle("Sender found");
     alert.setHeaderText(String.format("Sender: %s\nPeer key: %s",

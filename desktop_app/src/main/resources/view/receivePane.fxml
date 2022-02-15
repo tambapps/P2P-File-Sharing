@@ -11,7 +11,7 @@
       <URL value="@../style/style.css" />
    </stylesheets>
    <children>
-      <Label layoutX="140.0" layoutY="30.0" styleClass="title" text="Receive File" />
+      <Label layoutX="140.0" layoutY="30.0" styleClass="title" text="Receive File(s)" />
       <Button layoutX="57.0" layoutY="116.0" mnemonicParsing="false" onAction="#pickFolder" text="Pick folder" />
       <Label fx:id="pathLabel" layoutX="188.0" layoutY="116.0" prefHeight="29.0" prefWidth="295.0" />
       <Button layoutX="202.0" layoutY="282.0" mnemonicParsing="false" onAction="#receiveFile" text="Receive" />

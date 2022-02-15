@@ -10,7 +10,7 @@
       <URL value="@../style/style.css" />
    </stylesheets>
    <children>
-      <Label layoutX="165.0" layoutY="30.0" styleClass="title" text="Send File" />
+      <Label layoutX="165.0" layoutY="30.0" styleClass="title" text="Send File(s)" />
       <Button fx:id="pickFileButton" layoutX="203.0" layoutY="159.0" mnemonicParsing="false" onAction="#pickFile" text="Pick file" />
       <Label fx:id="dragDropLabel" layoutX="126.0" layoutY="210.0" prefHeight="29.0" prefWidth="247.0" text="or drag and drop file(s) here" textAlignment="CENTER" />
    </children>
