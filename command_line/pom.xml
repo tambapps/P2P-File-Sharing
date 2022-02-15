@@ -6,7 +6,7 @@
 
   <groupId>com.tambapps.p2p.fandem</groupId>
   <artifactId>fandem-command-line-tool</artifactId>
-  <version>3.0-SNAPSHOT</version>
+  <version>3.0</version>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -19,7 +19,7 @@
     <dependency>
       <groupId>com.tambapps.p2p.fandem</groupId>
       <artifactId>fandem</artifactId>
-      <version>3.0-SNAPSHOT</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>com.beust</groupId>
@@ -74,6 +74,4 @@
       </plugin>
     </plugins>
   </build>
-
-
 </project>

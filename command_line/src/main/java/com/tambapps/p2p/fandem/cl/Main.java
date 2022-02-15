@@ -164,7 +164,7 @@ public class Main implements TransferListener {
 				List<SenderPeer> senderPeers = sniffSupplier.get();
 				for (SenderPeer senderPeer : senderPeers) {
 					System.out.format(
-							"%s wants to send\n%s.\nReceive this file? (Tap 'y' for yes ,'n' for no or 's' to stop)",
+							"%s wants to send\n%s.\nReceive the file(s)? (Tap 'y' for yes ,'n' for no or 's' to stop)",
 							senderPeer.getDeviceName(),
 									senderPeer.getFiles()
 											.stream()

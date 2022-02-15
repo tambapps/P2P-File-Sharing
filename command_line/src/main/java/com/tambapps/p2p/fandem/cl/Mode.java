@@ -5,17 +5,22 @@ public enum Mode {
     @Override String pastTense() {
       return "Sent";
     }
+
+    @Override String ingString() {
+      return "Sending";
+    }
   }, RECEIVE {
     @Override String pastTense() {
       return "Received";
     }
+
+    @Override String ingString() {
+      return "Receiving";
+    }
   };
 
   // couldn't find a better name
-  String ingString() {
-    String name = name();
-    return name.substring(0, 1).toUpperCase() + name.substring(1).toLowerCase();
-  }
+  abstract String ingString();
 
   abstract String pastTense();
 

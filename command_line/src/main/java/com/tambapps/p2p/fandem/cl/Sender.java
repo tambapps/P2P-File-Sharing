@@ -70,6 +70,9 @@ public class Sender implements Closeable {
         .orElseThrow(() ->
             new SendingException("Couldn't get ip address (are you connected to the internet?)"));
     int port = sendCommand.getPort().orElseGet(() -> PeerUtils.getAvailablePort(address, SenderPeer.DEFAULT_PORT));
+    if (sendCommand.getFiles().size() > 10) {
+      throw new SendingException("You cannot send more than 10 files at once");
+    }
     return new Sender(Peer.of(address, port), Fandem.multicastService(executor), sendCommand.getTimeout(), listener);
   }
 
