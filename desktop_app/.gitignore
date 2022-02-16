@@ -6,6 +6,8 @@ target/
 mvnw
 mvnw.cmd
 
+${project.build.directory}/
+
 ### STS ###
 .apt_generated
 .classpath
@@ -33,3 +35,6 @@ mvnw.cmd
 .vscode/
 
 javafx-jmods-16/
+
+*.jar
+*.exe

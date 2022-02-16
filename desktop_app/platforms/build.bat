@@ -1,0 +1,1 @@
+..\..\..\..\groovy-3.0.8\bin\groovy build.groovy -jpackage C:\Users\Nelson\.jdks\openjdk-16.0.1\bin\jpackage.exe -jar .\fandem-desktop-3.0.jar -d -v 3.0
