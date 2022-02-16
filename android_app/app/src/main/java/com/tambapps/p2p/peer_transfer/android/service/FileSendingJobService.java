@@ -1,5 +1,6 @@
 package com.tambapps.p2p.peer_transfer.android.service;
 
+import android.annotation.SuppressLint;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.ContentResolver;
@@ -47,7 +48,7 @@ import java.util.stream.Collectors;
 /**
  * Created by fonkoua on 05/05/18.
  */
-
+@SuppressLint("SpecifyJobSchedulerIdRange")
 public class FileSendingJobService extends FileJobService implements SendingEventHandler {
 
     private final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
@@ -119,9 +120,9 @@ public class FileSendingJobService extends FileJobService implements SendingEven
 
         private final PeriodicMulticastService<List<SenderPeer>> senderPeersMulticastService;
         private FileSender fileSender;
-        private ContentResolver contentResolver;
         private long startTime;
         private final List<AndroidFileData> files;
+        private final List<String> fileNames;
 
         SendingTask(SendingEventHandler eventHandler, NotificationCompat.Builder notifBuilder,
                     NotificationManager notificationManager,
@@ -129,10 +130,10 @@ public class FileSendingJobService extends FileJobService implements SendingEven
                     ContentResolver contentResolver,
                     PendingIntent cancelIntent, FirebaseAnalytics analytics, PeriodicMulticastService<List<SenderPeer>> senderPeersMulticastService,
                     List<AndroidFileData> files) {
-            super(eventHandler, notifBuilder, notificationManager, notifId, cancelIntent, analytics, files.stream().map(FileData::getFileName).toArray(String[]::new));
-            this.contentResolver = contentResolver;
+            super(eventHandler, notifBuilder, notificationManager, notifId, cancelIntent, analytics);
             this.senderPeersMulticastService = senderPeersMulticastService;
             this.files = files;
+            fileNames = files.stream().map(FileData::getFileName).collect(Collectors.toList());
         }
 
         void run(String... params) {
@@ -216,7 +217,6 @@ public class FileSendingJobService extends FileJobService implements SendingEven
         @Override
         void dispose() {
             super.dispose();
-            contentResolver = null;
             senderPeersMulticastService.stop(true);
         }
 

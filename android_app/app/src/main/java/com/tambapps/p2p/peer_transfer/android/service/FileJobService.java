@@ -1,5 +1,6 @@
 package com.tambapps.p2p.peer_transfer.android.service;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -26,6 +27,7 @@ import com.tambapps.p2p.speer.Peer;
 import com.tambapps.p2p.peer_transfer.android.R;
 import com.tambapps.p2p.peer_transfer.android.service.event.TaskEventHandler;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -37,7 +39,7 @@ import java.util.concurrent.ThreadLocalRandom;
 /**
  * Created by fonkoua on 13/05/18.
  */
-
+@SuppressLint("SpecifyJobSchedulerIdRange")
 public abstract class FileJobService extends JobService implements TaskEventHandler {
 
     private final static ExecutorService executor = Executors.newCachedThreadPool();
@@ -134,26 +136,23 @@ public abstract class FileJobService extends JobService implements TaskEventHand
         private final int notifId;
         private FirebaseAnalytics analytics;
         protected TaskEventHandler eventHandler;
-        protected final List<String> fileNames;
 
         FileTask(TaskEventHandler eventHandler, NotificationCompat.Builder notifBuilder,
                  NotificationManager notificationManager,
                  int notifId,
-                 PendingIntent cancelIntent, FirebaseAnalytics analytics, String[] fileNames) {
+                 PendingIntent cancelIntent, FirebaseAnalytics analytics) {
             this.notifBuilder = notifBuilder;
             this.notificationManager = notificationManager;
             this.notifId = notifId;
             this.eventHandler = eventHandler;
             this.analytics = analytics;
-            this.fileNames = Arrays.asList(fileNames);
             notifStyle = new NotificationCompat.BigTextStyle();
 
             notifBuilder.addAction(android.R.drawable.ic_delete, "cancel", cancelIntent);
         }
 
         @Override
-        public void onTransferStarted(String s, long l) {
-
+        public void onTransferStarted(String fileName, long fileSize) {
         }
 
         @Override

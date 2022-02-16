@@ -1,5 +1,6 @@
 package com.tambapps.p2p.peer_transfer.android.service;
 
+import android.annotation.SuppressLint;
 import android.app.DownloadManager;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -45,6 +46,7 @@ import java.util.stream.Collectors;
  * Created by fonkoua on 13/05/18.
  */
 
+@SuppressLint("SpecifyJobSchedulerIdRange")
 public class FileReceivingJobService extends FileJobService {
 
     public interface FileIntentProvider {
@@ -75,7 +77,7 @@ public class FileReceivingJobService extends FileJobService {
                         return PendingIntent.getActivity(FileReceivingJobService.this, notifId, intent, PendingIntent.FLAG_UPDATE_CURRENT);
                     }
 
-                }, analytics, bundle.getStringArray("filenames"))
+                }, analytics)
                 .execute(bundle.getString("peer"));
     }
 
@@ -96,15 +98,21 @@ public class FileReceivingJobService extends FileJobService {
         private long startTime;
         private final ContentResolver contentResolver;
         private final List<Uri> uris = new ArrayList<>();
+        private final List<String> fileNames = new ArrayList<>();
 
         ReceivingTask(TaskEventHandler taskEventHandler, NotificationCompat.Builder notifBuilder,
                       NotificationManager notificationManager,
                       int notifId,
                       PendingIntent cancelIntent,
-                      FileIntentProvider fileIntentProvider, FirebaseAnalytics analytics, String[] fileNames) {
-            super(taskEventHandler, notifBuilder, notificationManager, notifId, cancelIntent, analytics, fileNames);
+                      FileIntentProvider fileIntentProvider, FirebaseAnalytics analytics) {
+            super(taskEventHandler, notifBuilder, notificationManager, notifId, cancelIntent, analytics);
             this.fileIntentProvider = fileIntentProvider;
             this.contentResolver = notifBuilder.mContext.getContentResolver();
+        }
+
+        @Override
+        public void onTransferStarted(String fileName, long fileSize) {
+            fileNames.add(fileName);
         }
 
         @Override

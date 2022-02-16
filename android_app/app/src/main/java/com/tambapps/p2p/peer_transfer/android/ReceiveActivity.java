@@ -174,10 +174,6 @@ public class ReceiveActivity extends TransferActivity implements MulticastReceiv
         PersistableBundle bundle = new PersistableBundle();
 
         bundle.putString("peer", peer.toString());
-
-        bundle.putStringArray("filenames", peer instanceof  SenderPeer ?
-            ((SenderPeer)peer).getFiles().stream().map(FileData::getFileName).toArray(String[]::new) : new String[]{"files"});
-
         JobInfo.Builder jobInfoBuilder = new JobInfo.Builder(1,
                 new ComponentName(this, FileReceivingJobService.class))
                 .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
