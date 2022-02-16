@@ -1,0 +1,1 @@
+groovy build.groovy -jar ../target/fandem-desktop-3.0.jar -jpackage /home/nelson/.jdks/openjdk-16.0.1/bin/jpackage -d -v 3.0
