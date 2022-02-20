@@ -288,20 +288,16 @@ public class ReceiveActivity extends TransferActivity implements MulticastReceiv
                 }
             }
         });
-        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-            @Override
-            public void onShow(DialogInterface dialogInterface) {
-                Button button = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-                button.setOnClickListener(new View.OnClickListener() {
-
-                    @Override
-                    public void onClick(View view) {
-                        String hexCode = peerKeyEditText.getText() == null ? "" : peerKeyEditText.getText().toString();
-                        peerKeyLayout.setError(Fandem.isCorrectPeerKey(hexCode) ? null : getString(R.string.peer_key_malformed));
-                        startReceiving(Fandem.parsePeerFromHexString(hexCode));
-                    }
-                });
-            }
+        dialog.setOnShowListener(dialogInterface -> {
+            Button button = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            button.setOnClickListener(view1 -> {
+                String hexCode = peerKeyEditText.getText() == null ? "" : peerKeyEditText.getText().toString();
+                if (Fandem.isCorrectPeerKey(hexCode)) {
+                    startReceiving(Fandem.parsePeerFromHexString(hexCode));
+                } else {
+                    peerKeyLayout.setError(getString(R.string.peer_key_malformed));
+                }
+            });
         });
         dialog.show();
     }
