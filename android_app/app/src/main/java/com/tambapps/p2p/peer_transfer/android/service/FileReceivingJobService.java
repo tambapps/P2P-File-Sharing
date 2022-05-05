@@ -74,7 +74,7 @@ public class FileReceivingJobService extends FileJobService {
                         } else {
                             intent = new Intent(DownloadManager.ACTION_VIEW_DOWNLOADS);
                         }
-                        return PendingIntent.getActivity(FileReceivingJobService.this, notifId, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                        return PendingIntent.getActivity(FileReceivingJobService.this, notifId, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
                     }
 
                 }, analytics)

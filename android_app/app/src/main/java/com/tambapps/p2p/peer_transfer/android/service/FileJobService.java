@@ -72,7 +72,7 @@ public abstract class FileJobService extends JobService implements TaskEventHand
         int notifId = ThreadLocalRandom.current().nextInt();
 
         PendingIntent cancelIntent = PendingIntent.getBroadcast(this, 0,
-                new Intent(ACTION_CANCEL), 0);
+                new Intent(ACTION_CANCEL), PendingIntent.FLAG_IMMUTABLE);
 
         fileTask = startTask(buildNotification(notificationManager, notifId),
                 notificationManager, notifId, bundle, cancelIntent, analytics);

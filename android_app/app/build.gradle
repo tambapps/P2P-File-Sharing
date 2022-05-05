@@ -13,13 +13,13 @@ if (rootProject.file("admob.properties").exists()) {
 }
 
 android {
-    compileSdkVersion 31
+    compileSdkVersion 32
     defaultConfig {
         applicationId "com.tambapps.p2p.peer_transfer.android"
         minSdkVersion 24
-        targetSdkVersion 31
-        versionCode 22
-        versionName "3.0.1"
+        targetSdkVersion 32
+        versionCode 23
+        versionName "3.0.2"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         manifestPlaceholders = [admobApplicationId: admobProperties['admob.application.id']]
