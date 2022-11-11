@@ -1,4 +1,4 @@
-package com.tambapps.p2p.fandem.cl.command;
+package com.tambapps.p2p.fandem.cl.command.converter;
 
 import com.beust.jcommander.IStringConverter;
 import com.tambapps.p2p.fandem.Fandem;

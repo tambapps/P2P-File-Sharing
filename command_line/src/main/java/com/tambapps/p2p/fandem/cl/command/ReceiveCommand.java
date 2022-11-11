@@ -7,6 +7,7 @@ import com.tambapps.p2p.fandem.SenderPeer;
 import com.tambapps.p2p.fandem.cl.FandemMode;
 import com.tambapps.p2p.fandem.cl.Receiver;
 import com.tambapps.p2p.fandem.cl.command.converter.ExistingFileConverter;
+import com.tambapps.p2p.fandem.cl.command.converter.PeerConverter;
 import com.tambapps.p2p.fandem.util.FileUtils;
 import com.tambapps.p2p.speer.Peer;
 import com.tambapps.p2p.speer.datagram.DatagramSupplier;
