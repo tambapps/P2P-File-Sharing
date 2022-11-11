@@ -30,7 +30,8 @@ public class Sender implements Closeable {
 
   private final FileSender fileSender;
 
-  private Sender(Peer peer, PeriodicMulticastService<List<SenderPeer>> greeterService, int timeout, TransferListener listener) {
+  private Sender(Peer peer, PeriodicMulticastService<List<SenderPeer>> greeterService, int timeout,
+                 TransferListener listener) {
     this.peer = peer;
     this.greeterService = greeterService;
     this.fileSender = new FileSender(peer, listener, timeout);
@@ -57,15 +58,12 @@ public class Sender implements Closeable {
     }
     try {
       return InetAddress.getLocalHost().getHostName();
-    }
-    catch (UnknownHostException ex) {
+    } catch (UnknownHostException ex) {
       return System.getProperty("user.name") + " Desktop";
     }
   }
 
-  public static Sender create(SendCommand sendCommand,
-      TransferListener listener)
-      throws SendingException {
+  public static Sender create(SendCommand sendCommand, TransferListener listener) throws SendingException {
     ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
     // extract the sender peer
     InetAddress address = sendCommand.getIp()

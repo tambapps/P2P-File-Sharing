@@ -22,79 +22,79 @@ import java.util.stream.Collectors;
 @Setter
 @Parameters(separators = "=", commandDescription = "Receive file from another peer. If no peer is provided, the program will look for it")
 public class ReceiveCommand extends FandemCommand {
-    @Parameter(names = {"-p", "-peer"}, description = "the sending peer (in peer notation or hexString)", converter = PeerConverter.class)
-    private Peer peer;
+  @Parameter(names = {"-p", "-peer"}, description = "the sending peer (in peer notation or hexString)", converter = PeerConverter.class)
+  private Peer peer;
 
-    @Parameter(names = {"-d", "--download"}, description = "the file/directory where the file will be downloaded",
-    converter = ExistingFileConverter.class)
-    private File downloadDirectory = new File(System.getProperty("user.dir"));
+  @Parameter(names = {"-d", "--download"}, description = "the file/directory where the file will be downloaded",
+      converter = ExistingFileConverter.class)
+  private File downloadDirectory = new File(System.getProperty("user.dir"));
 
-    public ReceiveCommand() {
-        super(FandemMode.RECEIVE);
+  public ReceiveCommand() {
+    super(FandemMode.RECEIVE);
+  }
+
+  @Override
+  public void execute() {
+    Peer peer = this.peer != null ? this.peer : seekSendingPeer();
+    if (peer == null) {
+      return;
     }
-
-    @Override
-    public void execute() {
-        Peer peer = this.peer != null ? this.peer : seekSendingPeer();
-        if (peer == null) {
-            return;
-        }
-        Receiver receiver = new Receiver(peer, downloadDirectory, this);
-        System.out.println("Connecting to " + peer);
-        try {
-            List<File> files = receiver.receive();
-            System.out.println();
-            System.out.println("Received successfully files " +
-                files.stream()
-                    .map(File::getName)
-                    .collect(Collectors.joining(", ")));
-            System.out.println("Directory: " + downloadDirectory.getAbsolutePath());
-        } catch (HandshakeFailException e) {
-            System.out.println("Error while communicating with other peer: " + e.getMessage());
-        } catch (IOException e) {
-            System.out.println();
-            System.out.println("Error while receiving files: " + e.getMessage());
-        }
+    Receiver receiver = new Receiver(peer, downloadDirectory, this);
+    System.out.println("Connecting to " + peer);
+    try {
+      List<File> files = receiver.receive();
+      System.out.println();
+      System.out.println("Received successfully files " +
+          files.stream()
+              .map(File::getName)
+              .collect(Collectors.joining(", ")));
+      System.out.println("Directory: " + downloadDirectory.getAbsolutePath());
+    } catch (HandshakeFailException e) {
+      System.out.println("Error while communicating with other peer: " + e.getMessage());
+    } catch (IOException e) {
+      System.out.println();
+      System.out.println("Error while receiving files: " + e.getMessage());
     }
+  }
 
-    private Peer seekSendingPeer() {
-        System.out.println("Looking for a sending peer...");
-        try (Scanner scanner = new Scanner(System.in)) {
-            return seekSendingPeer(scanner);
-        }
+  private Peer seekSendingPeer() {
+    System.out.println("Looking for a sending peer...");
+    try (Scanner scanner = new Scanner(System.in)) {
+      return seekSendingPeer(scanner);
     }
+  }
 
-    private SenderPeer seekSendingPeer(Scanner scanner) {
-        try (DatagramSupplier<List<SenderPeer>> senderPeersSupplier = Fandem.senderPeersSupplier()) {
-            return proposePeer(scanner, senderPeersSupplier);
-        } catch (IOException e) {
-            System.out.println("Couldn't start seeking peers: " + e.getMessage());
-            System.exit(1);
+  private SenderPeer seekSendingPeer(Scanner scanner) {
+    try (DatagramSupplier<List<SenderPeer>> senderPeersSupplier = Fandem.senderPeersSupplier()) {
+      return proposePeer(scanner, senderPeersSupplier);
+    } catch (IOException e) {
+      System.out.println("Couldn't start seeking peers: " + e.getMessage());
+      System.exit(1);
+      return null;
+    }
+  }
+
+  private SenderPeer proposePeer(Scanner scanner, DatagramSupplier<List<SenderPeer>> senderPeersSupplier) throws IOException {
+    while (true) {
+      List<SenderPeer> senderPeers = senderPeersSupplier.get();
+      for (SenderPeer senderPeer : senderPeers) {
+        System.out.format(
+                "%s wants to send\n%s.\nReceive the file(s)? (Tap 'y' for yes ,'n' for no or 's' to stop)",
+                senderPeer.getDeviceName(),
+                senderPeer.getFiles()
+                    .stream()
+                    .map(f -> String.format("%s (%s)", f.getFileName(), FileUtils.toFileSize(f.getFileSize())))
+                    .collect(Collectors.joining("\n- ", "- ", "")))
+            .println();
+        switch (scanner.nextLine().toLowerCase().charAt(0)) {
+          case 'y':
+            return senderPeer;
+          case 's':
+            System.out.println("Stopped looking for sending peers");
             return null;
+          // default do nothing
         }
+      }
     }
-
-    private SenderPeer proposePeer(Scanner scanner, DatagramSupplier<List<SenderPeer>> senderPeersSupplier) throws IOException {
-        while (true) {
-            List<SenderPeer> senderPeers = senderPeersSupplier.get();
-            for (SenderPeer senderPeer : senderPeers) {
-                System.out.format(
-                        "%s wants to send\n%s.\nReceive the file(s)? (Tap 'y' for yes ,'n' for no or 's' to stop)",
-                        senderPeer.getDeviceName(),
-                        senderPeer.getFiles()
-                            .stream()
-                            .map(f -> String.format("%s (%s)", f.getFileName(), FileUtils.toFileSize(f.getFileSize())))
-                            .collect(Collectors.joining("\n- ", "- ", "")))
-                    .println();
-                switch (scanner.nextLine().toLowerCase().charAt(0)) {
-                    case 'y':
-                        return senderPeer;
-                    case 's':
-                        System.out.println("Stopped looking for sending peers");
-                        return null;
-                    // default do nothing
-                }
-            }
-        }
-    }
+  }
 }

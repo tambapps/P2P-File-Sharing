@@ -5,12 +5,12 @@ import com.tambapps.p2p.fandem.Fandem;
 import com.tambapps.p2p.speer.Peer;
 
 public class PeerConverter implements IStringConverter<Peer> {
-    @Override
-    public Peer convert(String value) {
-        if (value.contains(".")) {
-            return Peer.parse(value);
-        } else {
-            return Fandem.parsePeerFromHexString(value);
-        }
+  @Override
+  public Peer convert(String value) {
+    if (value.contains(".")) {
+      return Peer.parse(value);
+    } else {
+      return Fandem.parsePeerFromHexString(value);
     }
+  }
 }

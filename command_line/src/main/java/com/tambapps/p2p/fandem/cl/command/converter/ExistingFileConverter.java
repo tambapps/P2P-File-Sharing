@@ -26,7 +26,8 @@ public class ExistingFileConverter implements IStringConverter<File> {
   }
 
   // overridable
-  protected void validate(File file) {}
+  protected void validate(File file) {
+  }
 
   private String decodePath(String path) throws UnsupportedEncodingException {
     return URLDecoder.decode(path, StandardCharsets.UTF_8);

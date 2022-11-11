@@ -4,19 +4,23 @@ import java.util.Locale;
 
 public enum FandemMode {
   SEND {
-    @Override public String pastTense() {
+    @Override
+    public String pastTense() {
       return "Sent";
     }
 
-    @Override public String ingString() {
+    @Override
+    public String ingString() {
       return "Sending";
     }
   }, RECEIVE {
-    @Override public String pastTense() {
+    @Override
+    public String pastTense() {
       return "Received";
     }
 
-    @Override public String ingString() {
+    @Override
+    public String ingString() {
       return "Receiving";
     }
   };

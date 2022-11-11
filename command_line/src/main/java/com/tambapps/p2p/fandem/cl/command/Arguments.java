@@ -6,10 +6,10 @@ import com.beust.jcommander.Parameters;
 @Parameters(commandNames = {"send", "receive"})
 public class Arguments {
 
-    @Parameter(names = "-help", help = true)
-    private boolean help;
+  @Parameter(names = "-help", help = true)
+  private boolean help;
 
-    public boolean getHelp() {
-        return help;
-    }
+  public boolean getHelp() {
+    return help;
+  }
 }
