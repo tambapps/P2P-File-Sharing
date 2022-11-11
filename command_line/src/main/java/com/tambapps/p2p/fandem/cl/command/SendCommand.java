@@ -18,8 +18,6 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.stream.Collectors;
 
 @Parameters(separators = "=", commandDescription = "Send file to another peer")
@@ -43,7 +41,8 @@ public class SendCommand extends FandemCommand {
         super(Mode.SEND);
     }
 
-    public void send() {
+    @Override
+    public void execute() {
         try (Sender sender = Sender.create(this, this)) {
             try {
                 System.out.println("Will send files " + files.stream().map(File::getName).collect(

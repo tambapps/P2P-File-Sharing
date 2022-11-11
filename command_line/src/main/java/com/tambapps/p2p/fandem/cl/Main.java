@@ -45,14 +45,14 @@ public class Main {
 
 		Mode mode = Mode.valueOf(command.toUpperCase());
 		switch (mode) {
-			case RECEIVE -> receiveCommand.receive();
+			case RECEIVE -> receiveCommand.execute();
 			case SEND -> {
 				// TODO replace this by custom validation
 				if (sendCommand.getFiles().size() > 10) {
 					System.out.println("You cannot send more than 10 files at once");
 					return;
 				}
-				sendCommand.send();
+				sendCommand.execute();
 			}
 		}
 	}

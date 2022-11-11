@@ -11,15 +11,11 @@ import com.tambapps.p2p.fandem.util.FileUtils;
 import com.tambapps.p2p.speer.Peer;
 import com.tambapps.p2p.speer.datagram.DatagramSupplier;
 import com.tambapps.p2p.speer.exception.HandshakeFailException;
-import lombok.Data;
-import lombok.Getter;
 import lombok.Setter;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.InetAddress;
 import java.util.List;
-import java.util.Optional;
 import java.util.Scanner;
 import java.util.stream.Collectors;
 
@@ -37,8 +33,8 @@ public class ReceiveCommand extends FandemCommand {
         super(Mode.RECEIVE);
     }
 
-    // TODO replace by execute() or run()
-    public void receive() {
+    @Override
+    public void execute() {
         Peer peer = this.peer != null ? this.peer : seekSendingPeer();
         if (peer != null) {
             Receiver receiver = new Receiver(peer, downloadDirectory, this);

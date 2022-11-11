@@ -5,7 +5,7 @@ import com.tambapps.p2p.fandem.util.FileUtils;
 import com.tambapps.p2p.fandem.util.TransferListener;
 import com.tambapps.p2p.speer.Peer;
 
-public class FandemCommand implements TransferListener {
+public abstract class FandemCommand implements TransferListener {
 
 
   private final Mode mode;
@@ -13,6 +13,8 @@ public class FandemCommand implements TransferListener {
   public FandemCommand(Mode mode) {
     this.mode = mode;
   }
+
+  public abstract void execute();
 
   @Override
   public void onConnected(Peer selfPeer, Peer remotePeer) {
