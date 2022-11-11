@@ -2,6 +2,37 @@
 
 This command line tool allows to send/receive files to/from other fandem peers.
 
+## Usage
+
+```
+Fandem command-line 3.1
+Usage: <main class> [options] [command] [command options]
+  Options:
+    -h, --help
+
+  Commands:
+    receive      Receive file from another peer. If no peer is provided, the 
+            program will look for it
+      Usage: receive [options]
+        Options:
+          -d, --download-path
+            the file/directory where the file will be downloaded
+            Default: /Users/nfonkoua/workspace/P2P-File-Sharing
+          -p, -peer
+            the sending peer (in peer notation or hexString)
+
+    send      Send file to another peer
+      Usage: send [options] path of the file to send
+        Options:
+          -i, --ip
+            the ip address used to send (optional)
+          -p, --port
+            the port used to send (optional)
+          -t, --timeout
+            the port used to send (optional)
+            Default: 90000
+```
+
 ## Getting Started
 
 These instructions will get you a copy of the project up and running on your local machine and assume that you are in a linux environment.
