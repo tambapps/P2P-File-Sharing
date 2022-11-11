@@ -6,12 +6,12 @@
 
   <groupId>com.tambapps.p2p.fandem</groupId>
   <artifactId>fandem-command-line-tool</artifactId>
-  <version>3.0</version>
+  <version>3.1-SNAPSHOT</version>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <java.version>11</java.version>
+    <java.version>17</java.version>
     <mainClass>com.tambapps.p2p.fandem.cl.Main</mainClass>
   </properties>
 
@@ -44,6 +44,7 @@
     <plugins>
       <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
+        <version>3.4.2</version>
         <configuration>
           <archive>
             <manifest>
