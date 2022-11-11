@@ -22,17 +22,27 @@ public abstract class FandemCommand implements TransferListener {
 
   @Override
   public void onTransferStarted(String fileName, long fileSize) {
-    System.out.format("\n%s %s", mode.ingString(), fileName).println();
-    System.out.format(mode.progressFormat(), "0kb",
-        FileUtils.toFileSize(fileSize));
+    String verb = switch (mode) {
+      case SEND -> "Sending";
+      case RECEIVE -> "Receiving";
+    };
+    System.out.format("\n%s %s", verb, fileName).println();
+    System.out.print(progressString(0L, fileSize));
   }
 
   @Override
   public void onProgressUpdate(String fileName, int progress, long bytesProcessed,
                                long totalBytes) {
-    System.out.format(mode.progressFormat(),
+    System.out.print(progressString(bytesProcessed, totalBytes));
+  }
+
+  private String progressString(long bytesProcessed, long totalBytes) {
+    String verb = switch (mode) {
+      case SEND -> "Sent";
+      case RECEIVE -> "Received";
+    };
+    return "\r%s %s / %s".formatted(verb,
         FileUtils.toFileSize(bytesProcessed),
         FileUtils.toFileSize(totalBytes));
   }
-
 }
