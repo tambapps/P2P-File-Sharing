@@ -4,7 +4,7 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import com.tambapps.p2p.fandem.Fandem;
 import com.tambapps.p2p.fandem.SenderPeer;
-import com.tambapps.p2p.fandem.cl.Mode;
+import com.tambapps.p2p.fandem.cl.FandemMode;
 import com.tambapps.p2p.fandem.cl.Receiver;
 import com.tambapps.p2p.fandem.cl.command.converter.ExistingFileConverter;
 import com.tambapps.p2p.fandem.util.FileUtils;
@@ -30,7 +30,7 @@ public class ReceiveCommand extends FandemCommand {
     private File downloadDirectory = new File(System.getProperty("user.dir"));
 
     public ReceiveCommand() {
-        super(Mode.RECEIVE);
+        super(FandemMode.RECEIVE);
     }
 
     @Override

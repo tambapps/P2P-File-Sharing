@@ -1,12 +1,13 @@
 package com.tambapps.p2p.fandem.cl;
 
-import static com.tambapps.p2p.fandem.cl.Mode.RECEIVE;
-import static com.tambapps.p2p.fandem.cl.Mode.SEND;
+import static com.tambapps.p2p.fandem.cl.FandemMode.RECEIVE;
+import static com.tambapps.p2p.fandem.cl.FandemMode.SEND;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
 import com.tambapps.p2p.fandem.Fandem;
 import com.tambapps.p2p.fandem.cl.command.Arguments;
+import com.tambapps.p2p.fandem.cl.command.FandemCommand;
 import com.tambapps.p2p.fandem.cl.command.SendCommand;
 import com.tambapps.p2p.fandem.cl.command.ReceiveCommand;
 
@@ -43,17 +44,11 @@ public class Main {
 			return;
 		}
 
-		Mode mode = Mode.valueOf(command.toUpperCase());
-		switch (mode) {
-			case RECEIVE -> receiveCommand.execute();
-			case SEND -> {
-				// TODO replace this by custom validation
-				if (sendCommand.getFiles().size() > 10) {
-					System.out.println("You cannot send more than 10 files at once");
-					return;
-				}
-				sendCommand.execute();
-			}
-		}
+		FandemCommand fandemCommand = switch (FandemMode.fromCommandName(command)) {
+			case RECEIVE -> receiveCommand;
+			case SEND -> sendCommand;
+		};
+		fandemCommand.execute();
 	}
+
 }

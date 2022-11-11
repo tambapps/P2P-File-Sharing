@@ -1,6 +1,8 @@
 package com.tambapps.p2p.fandem.cl;
 
-public enum Mode {
+import java.util.Locale;
+
+public enum FandemMode {
   SEND {
     @Override public String pastTense() {
       return "Sent";
@@ -30,5 +32,9 @@ public enum Mode {
 
   public String commandName() {
     return name().toLowerCase();
+  }
+
+  public static FandemMode fromCommandName(String name) {
+    return valueOf(name.toUpperCase(Locale.ENGLISH));
   }
 }

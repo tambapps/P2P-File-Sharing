@@ -1,16 +1,15 @@
 package com.tambapps.p2p.fandem.cl.command;
 
-import com.tambapps.p2p.fandem.cl.Mode;
+import com.tambapps.p2p.fandem.cl.FandemMode;
 import com.tambapps.p2p.fandem.util.FileUtils;
 import com.tambapps.p2p.fandem.util.TransferListener;
 import com.tambapps.p2p.speer.Peer;
 
 public abstract class FandemCommand implements TransferListener {
 
+  private final FandemMode mode;
 
-  private final Mode mode;
-
-  public FandemCommand(Mode mode) {
+  public FandemCommand(FandemMode mode) {
     this.mode = mode;
   }
 

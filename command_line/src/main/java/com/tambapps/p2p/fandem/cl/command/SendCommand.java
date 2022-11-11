@@ -4,7 +4,7 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 
 import com.tambapps.p2p.fandem.Fandem;
-import com.tambapps.p2p.fandem.cl.Mode;
+import com.tambapps.p2p.fandem.cl.FandemMode;
 import com.tambapps.p2p.fandem.cl.Sender;
 import com.tambapps.p2p.fandem.cl.command.converter.AddressConverter;
 import com.tambapps.p2p.fandem.cl.command.converter.RealFileConverter;
@@ -38,7 +38,7 @@ public class SendCommand extends FandemCommand {
     private int timeout = 90 * 1000;
 
     public SendCommand() {
-        super(Mode.SEND);
+        super(FandemMode.SEND);
     }
 
     @Override
