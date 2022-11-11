@@ -6,12 +6,9 @@ You can download the apps [here](https://tambapps-portfolio.herokuapp.com/fandem
 
 ## P2P Library
 
-This is the library I built, used by both the Android app and the Desktop app. It is because of this library that we can also share files between android and desktop.
+This is the library I built, used by all the apps (Android, command-line and Desktop). 
+It is because of this library that we can also share files between android and desktop.
 
-It was previously implemented in Kotlin. If you are more familiar with the old implementation, you can consult
-the [legacy branch](https://github.com/tambapps/P2P-File-Sharing/tree/legacy).
-
-Now it uses my [speer](https://github.com/tambapps/speer) library, a general purpose P2P library in Java.
 
 ## Android app
 
@@ -34,10 +31,9 @@ This project only works if the two devices are on the same local network.
 This allows peers to communicate between them, without any intermediate server. Your data
 goes from the sender, directly to the receiver
 
-### Peer discovery
+### Automatic peer discovery
 The receiver can detect sending peers automatically. This is implemented with
 UDP multicast:
 
 The receiver register to a multicast address group, and the sender sends its peer data periodically 
-to that group, with UDP packet. This is much faster than with TCP, where we would have to try to connect to
-every IP on the local network.
+to that group, using UDP packet.
