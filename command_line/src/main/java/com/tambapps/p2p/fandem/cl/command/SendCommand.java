@@ -9,7 +9,6 @@ import com.tambapps.p2p.fandem.cl.FandemMode;
 import com.tambapps.p2p.fandem.cl.Sender;
 import com.tambapps.p2p.fandem.cl.command.converter.AddressConverter;
 import com.tambapps.p2p.fandem.cl.command.converter.RealFileConverter;
-import com.tambapps.p2p.fandem.cl.exception.SendingException;
 import com.tambapps.p2p.speer.util.PeerUtils;
 
 import java.io.File;
@@ -73,8 +72,6 @@ public class SendCommand extends FandemCommand {
         System.out.println();
         System.out.println("Transfer was cancelled.");
       }
-    } catch (SendingException e) {
-      System.out.println(e.getMessage());
     } catch (SocketTimeoutException e) {
       System.out.println("No connection was made, canceling transfer");
     } catch (IOException e) {

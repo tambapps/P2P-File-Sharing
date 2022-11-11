@@ -6,7 +6,6 @@ import com.tambapps.p2p.fandem.SenderPeer;
 import com.tambapps.p2p.fandem.model.SendingFileData;
 import com.tambapps.p2p.fandem.util.TransferListener;
 import com.tambapps.p2p.speer.Peer;
-import com.tambapps.p2p.fandem.cl.exception.SendingException;
 import com.tambapps.p2p.speer.datagram.service.PeriodicMulticastService;
 
 import java.io.Closeable;
@@ -55,7 +54,7 @@ public class Sender implements Closeable {
     }
   }
 
-  public static Sender create(InetAddress address, int port, int timeout, TransferListener listener) throws SendingException {
+  public static Sender create(InetAddress address, int port, int timeout, TransferListener listener) {
     ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
     return new Sender(new FileSender(Peer.of(address, port), listener, timeout), Fandem.multicastService(executor));
   }
