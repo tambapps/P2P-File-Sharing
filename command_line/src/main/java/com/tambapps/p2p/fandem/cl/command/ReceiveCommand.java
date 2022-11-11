@@ -26,7 +26,7 @@ public class ReceiveCommand extends FandemCommand {
   @Parameter(names = {"-p", "-peer"}, description = "the sending peer (in peer notation or hexString)", converter = PeerConverter.class)
   private Peer peer;
 
-  @Parameter(names = {"-d", "--download"}, description = "the file/directory where the file will be downloaded",
+  @Parameter(names = {"-d", "--download-path"}, description = "the file/directory where the file will be downloaded",
       converter = ExistingFileConverter.class)
   private File downloadFile = new File(System.getProperty("user.dir"));
 
@@ -36,13 +36,13 @@ public class ReceiveCommand extends FandemCommand {
 
   @Override
   public void execute() {
-    Peer peer = this.peer != null ? this.peer : seekSendingPeer();
-    if (peer == null) {
+    Peer sendingPeer = this.peer != null ? this.peer : seekSendingPeer();
+    if (sendingPeer == null) {
       // seek may have been cancelled, or an IO exception could have occured
       return;
     }
-    Receiver receiver = new Receiver(peer, downloadFile, this);
-    System.out.println("Connecting to " + peer);
+    Receiver receiver = new Receiver(sendingPeer, downloadFile, this);
+    System.out.println("Connecting to " + sendingPeer);
     try {
       List<File> files = receiver.receive();
       System.out.println();

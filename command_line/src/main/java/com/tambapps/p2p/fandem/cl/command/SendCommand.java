@@ -26,7 +26,7 @@ public class SendCommand extends FandemCommand {
       converter = RealFileConverter.class)
   private List<File> files;
 
-  @Parameter(names = "-ip", description = "the ip used to send (optional)",
+  @Parameter(names = {"-i", "--ip"}, description = "the ip address used to send (optional)",
       converter = AddressConverter.class)
   private InetAddress ip = null;
 

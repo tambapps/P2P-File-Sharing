@@ -39,7 +39,7 @@ public class MainIntegrationTest {
 				.collect(Collectors.toList());
 
 		new Thread(() -> FandemCommandLine.main(
-				"send %s -ip=%s -p=8081".formatted(String.join(" ", filePaths), IP_ADDRESS)
+				"send %s --ip=%s -p=8081".formatted(String.join(" ", filePaths), IP_ADDRESS)
 						.split(" "))).start();
 		Thread.sleep(1000);
 
