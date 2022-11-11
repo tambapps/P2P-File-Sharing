@@ -1,15 +1,24 @@
 package com.tambapps.p2p.fandem.cl;
 
-import java.util.Locale;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
+import java.util.Arrays;
+
+import static com.tambapps.p2p.fandem.cl.FandemCommandLine.RECEIVE_COMMAND;
+import static com.tambapps.p2p.fandem.cl.FandemCommandLine.SEND_COMMAND;
+
+@AllArgsConstructor
 public enum FandemMode {
-  SEND, RECEIVE;
+  SEND(SEND_COMMAND), RECEIVE(RECEIVE_COMMAND);
 
-  public String commandName() {
-    return name().toLowerCase();
-  }
+  @Getter
+  private final String commandName;
 
-  public static FandemMode fromCommandName(String name) {
-    return valueOf(name.toUpperCase(Locale.ENGLISH));
+  public static FandemMode fromCommandName(String commandName) {
+    return Arrays.stream(values())
+        .filter(c -> c.getCommandName().equals(commandName))
+        .findFirst()
+        .get();
   }
 }

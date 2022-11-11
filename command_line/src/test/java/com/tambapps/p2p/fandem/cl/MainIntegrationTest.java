@@ -23,12 +23,12 @@ public class MainIntegrationTest {
 
 	@Test
 	public void transferTest() throws Exception {
-		test(() -> Main.main("receive -d=%s -peer=%s:8081".formatted(OUTPUT_DIRECTORY, IP_ADDRESS).split(" ")));
+		test(() -> FandemCommandLine.main("receive -d=%s -peer=%s:8081".formatted(OUTPUT_DIRECTORY, IP_ADDRESS).split(" ")));
 	}
 
 	@Test
 	public void transferTestHexString() throws Exception {
-		test(() -> Main.main("receive -d=%s -peer=%s".formatted(OUTPUT_DIRECTORY, IP_ADDRESS_HEX_STRING).split(" ")));
+		test(() -> FandemCommandLine.main("receive -d=%s -peer=%s".formatted(OUTPUT_DIRECTORY, IP_ADDRESS_HEX_STRING).split(" ")));
 	}
 
 	private void test(Runnable receiveRunnable) throws Exception {
@@ -38,7 +38,7 @@ public class MainIntegrationTest {
 						.getFile())
 				.collect(Collectors.toList());
 
-		new Thread(() -> Main.main(
+		new Thread(() -> FandemCommandLine.main(
 				"send %s -ip=%s -p=8081".formatted(String.join(" ", filePaths), IP_ADDRESS)
 						.split(" "))).start();
 		Thread.sleep(1000);
