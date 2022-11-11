@@ -57,19 +57,19 @@ public class Main implements TransferListener {
 			jCommander.parse(args);
 		} catch (ParameterException e) {
 			System.out.println("Error: " + e.getMessage());
-			printHelp(jCommander);
+			jCommander.usage();
 			return;
 		}
 
 		if (arguments.getHelp()) {
-			printHelp(jCommander);
+			jCommander.usage();
 			return;
 		}
 
 		String command = jCommander.getParsedCommand();
 		if (command == null) {
 			System.out.println("You must enter a command");
-			printHelp(jCommander);
+			jCommander.usage();
 			return;
 		}
 
@@ -203,11 +203,6 @@ public class Main implements TransferListener {
 		System.out.format(mode.progressFormat(),
 				FileUtils.toFileSize(bytesProcessed),
 				FileUtils.toFileSize(totalBytes));
-	}
-
-	private static void printHelp(JCommander jCommander) {
-		jCommander.usage(SEND.commandName());
-		jCommander.usage(RECEIVE.commandName());
 	}
 
 }
