@@ -20,7 +20,7 @@ The receiver connects to this server and then the transfer occurs.
 The sender also sends the checksum of the file so that the receiver will verify if the received file is not corrupted
 
 ## How to install
-This library uses my [speer](https://github.com/tambapps/speer) library. You'll need to install it first. Then run (from `p2p_library/)
+You can install it using maven
 
 ```shell
 mvn install

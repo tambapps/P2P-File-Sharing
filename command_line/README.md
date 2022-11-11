@@ -39,10 +39,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
-- You must have installed [speer](https://github.com/tambapps/speer) and the [p2p_library](https://github.com/tambapps/P2P-File-Sharing/blob/master/p2p_library/README.md)
-- The two devices used for the file transfer must be connected to the same network (same WI-FI).
-
-The two components used for the file transfer must be connected to the same wifi. Public WIFIs don't work for these transfers.
+The two devices used for the file transfer must be connected to the same network (same WI-FI).
 
 ### Installing
 You can run this app from your IDE or generate the jar file by running (from `command_line/`)
