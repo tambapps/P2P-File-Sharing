@@ -15,7 +15,6 @@
   <description>Fandem desktop app</description>
 
   <properties>
-    <fandem.version>${project.version}</fandem.version>
     <spring-boot.version>2.5.0</spring-boot.version>
     <java.version>16</java.version>
     <maven.compiler.source>16</maven.compiler.source>
@@ -27,6 +26,7 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter</artifactId>
+      <version>${spring-boot.version}</version>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -56,7 +56,7 @@
     <dependency>
       <groupId>com.tambapps.p2p.fandem</groupId>
       <artifactId>fandem</artifactId>
-      <version>${fandem.version}</version>
+      <version>${project.version}</version>
     </dependency>
   </dependencies>
 
