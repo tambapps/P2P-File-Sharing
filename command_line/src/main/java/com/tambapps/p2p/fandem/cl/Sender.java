@@ -18,6 +18,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
 public class Sender implements Closeable {
@@ -62,17 +63,15 @@ public class Sender implements Closeable {
     }
   }
 
-  public static Sender create(ScheduledExecutorService executor, SendCommand sendCommand,
+  public static Sender create(SendCommand sendCommand,
       TransferListener listener)
       throws SendingException {
+    ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
     // extract the sender peer
     InetAddress address = sendCommand.getIp()
         .orElseThrow(() ->
             new SendingException("Couldn't get ip address (are you connected to the internet?)"));
     int port = sendCommand.getPort().orElseGet(() -> PeerUtils.getAvailablePort(address, SenderPeer.DEFAULT_PORT));
-    if (sendCommand.getFiles().size() > 10) {
-      throw new SendingException("You cannot send more than 10 files at once");
-    }
     return new Sender(Peer.of(address, port), Fandem.multicastService(executor), sendCommand.getTimeout(), listener);
   }
 
@@ -82,6 +81,6 @@ public class Sender implements Closeable {
 
   @Override
   public void close() {
-    greeterService.stop();
+    greeterService.stop(true);
   }
 }

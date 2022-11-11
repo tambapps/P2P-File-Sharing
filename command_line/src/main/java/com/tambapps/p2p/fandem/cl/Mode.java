@@ -2,33 +2,33 @@ package com.tambapps.p2p.fandem.cl;
 
 public enum Mode {
   SEND {
-    @Override String pastTense() {
+    @Override public String pastTense() {
       return "Sent";
     }
 
-    @Override String ingString() {
+    @Override public String ingString() {
       return "Sending";
     }
   }, RECEIVE {
-    @Override String pastTense() {
+    @Override public String pastTense() {
       return "Received";
     }
 
-    @Override String ingString() {
+    @Override public String ingString() {
       return "Receiving";
     }
   };
 
   // couldn't find a better name
-  abstract String ingString();
+  public abstract String ingString();
 
-  abstract String pastTense();
+  public abstract String pastTense();
 
-  String progressFormat() {
+  public String progressFormat() {
     return "\r" + pastTense() + " %s / %s";
   }
 
-  String commandName() {
+  public String commandName() {
     return name().toLowerCase();
   }
 }
