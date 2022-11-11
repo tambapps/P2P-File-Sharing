@@ -45,7 +45,7 @@ public class FileReceiver extends FileSharer {
     return recordingFileProvider.getFiles();
   }
 
-  // just for Android 11+ :( ?? but whyyyy?????
+  // just for Android 11+ :(, because Android deprecated the use of Java File class
   public void receiveFrom(Peer peer, OutputStreamProvider outputStreamProvider) throws IOException {
     try (PeerConnection connection = PeerConnection.from(peer, handshake)) {
       connectionReference.set(connection);
