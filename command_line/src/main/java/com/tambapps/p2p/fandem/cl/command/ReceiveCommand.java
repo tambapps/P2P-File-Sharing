@@ -27,7 +27,7 @@ public class ReceiveCommand extends FandemCommand {
 
   @Parameter(names = {"-d", "--download"}, description = "the file/directory where the file will be downloaded",
       converter = ExistingFileConverter.class)
-  private File downloadDirectory = new File(System.getProperty("user.dir"));
+  private File downloadFile = new File(System.getProperty("user.dir"));
 
   public ReceiveCommand() {
     super(FandemMode.RECEIVE);
@@ -37,9 +37,10 @@ public class ReceiveCommand extends FandemCommand {
   public void execute() {
     Peer peer = this.peer != null ? this.peer : seekSendingPeer();
     if (peer == null) {
+      // seek may have been cancelled, or an IO exception could have occured
       return;
     }
-    Receiver receiver = new Receiver(peer, downloadDirectory, this);
+    Receiver receiver = new Receiver(peer, downloadFile, this);
     System.out.println("Connecting to " + peer);
     try {
       List<File> files = receiver.receive();
@@ -48,7 +49,7 @@ public class ReceiveCommand extends FandemCommand {
           files.stream()
               .map(File::getName)
               .collect(Collectors.joining(", ")));
-      System.out.println("Directory: " + downloadDirectory.getAbsolutePath());
+      System.out.println("Directory: " + getDownloadDirectory().getAbsolutePath());
     } catch (HandshakeFailException e) {
       System.out.println("Error while communicating with other peer: " + e.getMessage());
     } catch (IOException e) {
@@ -83,7 +84,7 @@ public class ReceiveCommand extends FandemCommand {
                 senderPeer.getDeviceName(),
                 senderPeer.getFiles()
                     .stream()
-                    .map(f -> String.format("%s (%s)", f.getFileName(), FileUtils.toFileSize(f.getFileSize())))
+                    .map(f -> "%s (%s)".formatted(f.getFileName(), FileUtils.toFileSize(f.getFileSize())))
                     .collect(Collectors.joining("\n- ", "- ", "")))
             .println();
         switch (scanner.nextLine().toLowerCase().charAt(0)) {
@@ -96,5 +97,9 @@ public class ReceiveCommand extends FandemCommand {
         }
       }
     }
+  }
+
+  private File getDownloadDirectory() {
+      return downloadFile.isDirectory() ? downloadFile : downloadFile.getParentFile();
   }
 }

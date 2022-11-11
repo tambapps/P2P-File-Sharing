@@ -19,7 +19,7 @@ public class ExistingFileConverter implements IStringConverter<File> {
       throw new ParameterException("Unexpected error: " + e.getMessage());
     }
     if (!file.exists()) {
-      throw new ParameterException(String.format("File with path '%s' doesn't exists", filePath));
+      throw new ParameterException("File with path '%s' doesn't exists".formatted(filePath));
     }
     validate(file);
     return file;

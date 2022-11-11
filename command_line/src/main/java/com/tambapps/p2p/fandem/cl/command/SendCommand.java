@@ -4,6 +4,7 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 
 import com.tambapps.p2p.fandem.Fandem;
+import com.tambapps.p2p.fandem.SenderPeer;
 import com.tambapps.p2p.fandem.cl.FandemMode;
 import com.tambapps.p2p.fandem.cl.Sender;
 import com.tambapps.p2p.fandem.cl.command.converter.AddressConverter;
@@ -17,7 +18,6 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Parameters(separators = "=", commandDescription = "Send file to another peer")
@@ -48,7 +48,19 @@ public class SendCommand extends FandemCommand {
       System.exit(1);
       return;
     }
-    try (Sender sender = Sender.create(this, this)) {
+
+    InetAddress address;
+    int port;
+    try {
+      address = this.ip != null ? this.ip : PeerUtils.getPrivateNetworkIpAddress();
+      port = this.port != null ? this.port : PeerUtils.getAvailablePort(address, SenderPeer.DEFAULT_PORT);
+    } catch (IOException e) {
+      System.out.println("Error while looking for address/port to use: " + e.getMessage());
+      System.exit(1);
+      return;
+    }
+
+    try (Sender sender = Sender.create(address, port, timeout, this)) {
       try {
         System.out.println("Will send files " + files.stream().map(File::getName).collect(
             Collectors.joining(", ")));
@@ -70,19 +82,4 @@ public class SendCommand extends FandemCommand {
     }
   }
 
-  public List<File> getFiles() {
-    return files;
-  }
-
-  public Optional<InetAddress> getIp() {
-    return Optional.ofNullable(ip != null ? ip : PeerUtils.getPrivateNetworkIpAddressOrNull());
-  }
-
-  public Optional<Integer> getPort() {
-    return Optional.ofNullable(port);
-  }
-
-  public int getTimeout() {
-    return timeout;
-  }
 }

@@ -14,7 +14,7 @@ import com.tambapps.p2p.fandem.cl.command.ReceiveCommand;
 public class Main {
 
   public static void main(String[] args) {
-    System.out.println("Fandem command line " + Fandem.VERSION);
+    System.out.println("Fandem command-line " + Fandem.VERSION);
     Arguments arguments = new Arguments();
     ReceiveCommand receiveCommand = new ReceiveCommand();
     SendCommand sendCommand = new SendCommand();

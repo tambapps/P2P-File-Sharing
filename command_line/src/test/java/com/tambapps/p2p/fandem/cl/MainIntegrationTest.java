@@ -23,12 +23,12 @@ public class MainIntegrationTest {
 
 	@Test
 	public void transferTest() throws Exception {
-		test(() -> Main.main(String.format("receive -d=%s -peer=%s:8081", OUTPUT_DIRECTORY, IP_ADDRESS).split(" ")));
+		test(() -> Main.main("receive -d=%s -peer=%s:8081".formatted(OUTPUT_DIRECTORY, IP_ADDRESS).split(" ")));
 	}
 
 	@Test
 	public void transferTestHexString() throws Exception {
-		test(() -> Main.main(String.format("receive -d=%s -peer=%s", OUTPUT_DIRECTORY, IP_ADDRESS_HEX_STRING).split(" ")));
+		test(() -> Main.main("receive -d=%s -peer=%s".formatted(OUTPUT_DIRECTORY, IP_ADDRESS_HEX_STRING).split(" ")));
 	}
 
 	private void test(Runnable receiveRunnable) throws Exception {
@@ -39,7 +39,7 @@ public class MainIntegrationTest {
 				.collect(Collectors.toList());
 
 		new Thread(() -> Main.main(
-				String.format("send %s -ip=%s -p=8081", String.join(" ", filePaths), IP_ADDRESS)
+				"send %s -ip=%s -p=8081".formatted(String.join(" ", filePaths), IP_ADDRESS)
 						.split(" "))).start();
 		Thread.sleep(1000);
 

@@ -17,6 +17,10 @@ public class SenderPeer extends Peer {
   String deviceName;
   List<? extends FileData> files;
 
+  public static SenderPeer of(Peer peer, String deviceName, List<? extends FileData> files) {
+    return new SenderPeer(peer.getAddress(), peer.getPort(), deviceName, files);
+  }
+
   public SenderPeer(InetAddress ip, int port, String deviceName, List<? extends FileData> files) {
     super(ip, port);
     this.deviceName = deviceName;

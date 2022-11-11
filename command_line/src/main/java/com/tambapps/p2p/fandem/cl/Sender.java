@@ -6,10 +6,8 @@ import com.tambapps.p2p.fandem.SenderPeer;
 import com.tambapps.p2p.fandem.model.SendingFileData;
 import com.tambapps.p2p.fandem.util.TransferListener;
 import com.tambapps.p2p.speer.Peer;
-import com.tambapps.p2p.fandem.cl.command.SendCommand;
 import com.tambapps.p2p.fandem.cl.exception.SendingException;
 import com.tambapps.p2p.speer.datagram.service.PeriodicMulticastService;
-import com.tambapps.p2p.speer.util.PeerUtils;
 
 import java.io.Closeable;
 import java.io.File;
@@ -23,18 +21,12 @@ import java.util.concurrent.ScheduledExecutorService;
 
 public class Sender implements Closeable {
 
-  private static final String DESKTOP_NAME = getDesktopName();
-
-  private final Peer peer;
   private final PeriodicMulticastService<List<SenderPeer>> greeterService;
-
   private final FileSender fileSender;
 
-  private Sender(Peer peer, PeriodicMulticastService<List<SenderPeer>> greeterService, int timeout,
-                 TransferListener listener) {
-    this.peer = peer;
+  private Sender(FileSender fileSender, PeriodicMulticastService<List<SenderPeer>> greeterService) {
+    this.fileSender = fileSender;
     this.greeterService = greeterService;
-    this.fileSender = new FileSender(peer, listener, timeout);
   }
 
   public void send(List<File> files) throws IOException {
@@ -42,7 +34,7 @@ public class Sender implements Closeable {
     for (File file : files) {
       fileData.add(SendingFileData.fromFile(file));
     }
-    greeterService.setData(List.of(new SenderPeer(peer.getAddress(), peer.getPort(), DESKTOP_NAME, fileData)));
+    greeterService.setData(List.of(SenderPeer.of(getPeer(), getDesktopName(), fileData)));
     greeterService.start(1000L);
     fileSender.sendFiles(files);
   }
@@ -63,18 +55,13 @@ public class Sender implements Closeable {
     }
   }
 
-  public static Sender create(SendCommand sendCommand, TransferListener listener) throws SendingException {
+  public static Sender create(InetAddress address, int port, int timeout, TransferListener listener) throws SendingException {
     ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-    // extract the sender peer
-    InetAddress address = sendCommand.getIp()
-        .orElseThrow(() ->
-            new SendingException("Couldn't get ip address (are you connected to the internet?)"));
-    int port = sendCommand.getPort().orElseGet(() -> PeerUtils.getAvailablePort(address, SenderPeer.DEFAULT_PORT));
-    return new Sender(Peer.of(address, port), Fandem.multicastService(executor), sendCommand.getTimeout(), listener);
+    return new Sender(new FileSender(Peer.of(address, port), listener, timeout), Fandem.multicastService(executor));
   }
 
   public Peer getPeer() {
-    return peer;
+    return fileSender.getPeer();
   }
 
   @Override

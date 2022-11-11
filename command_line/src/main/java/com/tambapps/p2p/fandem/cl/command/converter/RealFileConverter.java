@@ -9,7 +9,7 @@ public class RealFileConverter extends ExistingFileConverter {
   @Override
   protected void validate(File file) {
     if (!file.isFile()) {
-      throw new ParameterException(String.format("%s isn't a file", file.getName()));
+      throw new ParameterException("%s isn't a file".formatted(file.getName()));
     }
   }
 
