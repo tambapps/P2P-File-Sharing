@@ -3,11 +3,12 @@ package com.tambapps.p2p.fandem.cl.command;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import com.tambapps.p2p.fandem.Fandem;
+import com.tambapps.p2p.fandem.FileReceiver;
 import com.tambapps.p2p.fandem.SenderPeer;
 import com.tambapps.p2p.fandem.cl.FandemMode;
-import com.tambapps.p2p.fandem.cl.Receiver;
 import com.tambapps.p2p.fandem.cl.command.converter.ExistingFileConverter;
 import com.tambapps.p2p.fandem.cl.command.converter.PeerConverter;
+import com.tambapps.p2p.fandem.util.FileProvider;
 import com.tambapps.p2p.fandem.util.FileUtils;
 import com.tambapps.p2p.speer.Peer;
 import com.tambapps.p2p.speer.datagram.DatagramSupplier;
@@ -36,15 +37,19 @@ public class ReceiveCommand extends FandemCommand {
 
   @Override
   public void execute() {
-    Peer sendingPeer = this.peer != null ? this.peer : seekSendingPeer();
-    if (sendingPeer == null) {
+    Peer senderPeer = this.peer != null ? this.peer : seekSendingPeer();
+    if (senderPeer == null) {
       // seek may have been cancelled, or an IO exception could have occured
       return;
     }
-    Receiver receiver = new Receiver(sendingPeer, downloadFile, this);
-    System.out.println("Connecting to " + sendingPeer);
+    System.out.println("Connecting to " + senderPeer);
     try {
-      List<File> files = receiver.receive();
+      FileReceiver fileReceiver = new FileReceiver(this);
+      FileProvider fileProvider = downloadFile.isDirectory()
+          ? FileUtils.availableFileInDirectoryProvider(downloadFile)
+          : (ignored) -> FileUtils.newAvailableFile(downloadFile.getParentFile(), downloadFile.getName());
+
+      List<File> files = fileReceiver.receiveFrom(senderPeer, fileProvider);
       System.out.println();
       System.out.println("Received successfully files " +
           files.stream()

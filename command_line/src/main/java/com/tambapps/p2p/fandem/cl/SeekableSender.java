@@ -18,12 +18,12 @@ import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
-public class Sender implements Closeable {
+public class SeekableSender implements Closeable {
 
   private final PeriodicMulticastService<List<SenderPeer>> greeterService;
   private final FileSender fileSender;
 
-  private Sender(FileSender fileSender, PeriodicMulticastService<List<SenderPeer>> greeterService) {
+  private SeekableSender(FileSender fileSender, PeriodicMulticastService<List<SenderPeer>> greeterService) {
     this.fileSender = fileSender;
     this.greeterService = greeterService;
   }
@@ -54,9 +54,9 @@ public class Sender implements Closeable {
     }
   }
 
-  public static Sender create(InetAddress address, int port, int timeout, TransferListener listener) {
+  public static SeekableSender create(InetAddress address, int port, int timeout, TransferListener listener) {
     ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-    return new Sender(new FileSender(Peer.of(address, port), listener, timeout), Fandem.multicastService(executor));
+    return new SeekableSender(new FileSender(Peer.of(address, port), listener, timeout), Fandem.multicastService(executor));
   }
 
   public Peer getPeer() {

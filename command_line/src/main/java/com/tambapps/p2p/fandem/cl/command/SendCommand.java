@@ -6,7 +6,7 @@ import com.beust.jcommander.Parameters;
 import com.tambapps.p2p.fandem.Fandem;
 import com.tambapps.p2p.fandem.SenderPeer;
 import com.tambapps.p2p.fandem.cl.FandemMode;
-import com.tambapps.p2p.fandem.cl.Sender;
+import com.tambapps.p2p.fandem.cl.SeekableSender;
 import com.tambapps.p2p.fandem.cl.command.converter.AddressConverter;
 import com.tambapps.p2p.fandem.cl.command.converter.RealFileConverter;
 import com.tambapps.p2p.speer.util.PeerUtils;
@@ -59,7 +59,7 @@ public class SendCommand extends FandemCommand {
       return;
     }
 
-    try (Sender sender = Sender.create(address, port, timeout, this)) {
+    try (SeekableSender sender = SeekableSender.create(address, port, timeout, this)) {
       try {
         System.out.println("Will send files " + files.stream().map(File::getName).collect(
             Collectors.joining(", ")));
