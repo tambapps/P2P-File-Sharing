@@ -32,6 +32,12 @@ public class SeekableSender implements Closeable {
     this.greeterService = greeterService;
   }
 
+  /**
+   * Starts the ServerSocket to send files and multicasts data about server and files
+   *
+   * @param files the files to send
+   * @throws IOException in case of I/O error
+   */
   public void send(List<File> files) throws IOException {
     List<SendingFileData> fileData = new ArrayList<>();
     for (File file : files) {
