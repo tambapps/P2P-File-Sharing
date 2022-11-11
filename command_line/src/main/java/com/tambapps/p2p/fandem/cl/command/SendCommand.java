@@ -8,7 +8,7 @@ import com.tambapps.p2p.fandem.SenderPeer;
 import com.tambapps.p2p.fandem.cl.FandemMode;
 import com.tambapps.p2p.fandem.cl.SeekableSender;
 import com.tambapps.p2p.fandem.cl.command.converter.AddressConverter;
-import com.tambapps.p2p.fandem.cl.command.converter.RealFileConverter;
+import com.tambapps.p2p.fandem.cl.command.converter.NormalFileConverter;
 import com.tambapps.p2p.speer.util.PeerUtils;
 
 import java.io.File;
@@ -19,11 +19,14 @@ import java.net.SocketTimeoutException;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * The command to receive files
+ */
 @Parameters(separators = "=", commandDescription = "Send file to another peer")
 public class SendCommand extends FandemCommand {
 
   @Parameter(description = "path of the file to send", required = true,
-      converter = RealFileConverter.class)
+      converter = NormalFileConverter.class)
   private List<File> files;
 
   @Parameter(names = {"-i", "--ip"}, description = "the ip address used to send (optional)",

@@ -21,6 +21,9 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.stream.Collectors;
 
+/**
+ * The command to send files
+ */
 @Setter
 @Parameters(separators = "=", commandDescription = "Receive file from another peer. If no peer is provided, the program will look for it")
 public class ReceiveCommand extends FandemCommand {

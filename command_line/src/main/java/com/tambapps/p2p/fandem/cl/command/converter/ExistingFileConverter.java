@@ -5,9 +5,13 @@ import com.beust.jcommander.ParameterException;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
+import java.net.InetAddress;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 
+/**
+ * Converts {@link String} to {@link File}, checking that the file/directory exists
+ */
 public class ExistingFileConverter implements IStringConverter<File> {
 
   @Override

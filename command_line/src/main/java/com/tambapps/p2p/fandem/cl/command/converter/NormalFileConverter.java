@@ -4,7 +4,11 @@ import com.beust.jcommander.ParameterException;
 
 import java.io.File;
 
-public class RealFileConverter extends ExistingFileConverter {
+
+/**
+ * Converts {@link String} to {@link File}, checking that the file is a normal file
+ */
+public class NormalFileConverter extends ExistingFileConverter {
 
   @Override
   protected void validate(File file) {

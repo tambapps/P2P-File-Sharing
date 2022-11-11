@@ -8,6 +8,9 @@ import java.util.Arrays;
 import static com.tambapps.p2p.fandem.cl.FandemCommandLine.RECEIVE_COMMAND;
 import static com.tambapps.p2p.fandem.cl.FandemCommandLine.SEND_COMMAND;
 
+/**
+ * Enum representing the 'mode' of the command: SEND or RECEIVE.
+ */
 @AllArgsConstructor
 public enum FandemMode {
   SEND(SEND_COMMAND), RECEIVE(RECEIVE_COMMAND);

@@ -18,6 +18,10 @@ import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
+/**
+ * Class allowing to send files by starting a ServerSocket. It also UDP multicasts the server's port and address,
+ * allowing this sender to be seekable.
+ */
 public class SeekableSender implements Closeable {
 
   private final PeriodicMulticastService<List<SenderPeer>> greeterService;

@@ -6,6 +6,9 @@ import com.beust.jcommander.ParameterException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
+/**
+ * Converts {@link String} to {@link InetAddress}
+ */
 public class AddressConverter implements IStringConverter<InetAddress> {
   @Override
   public InetAddress convert(String value) {
