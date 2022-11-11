@@ -7,7 +7,7 @@ import com.tambapps.p2p.fandem.Fandem;
 import com.tambapps.p2p.fandem.cl.Mode;
 import com.tambapps.p2p.fandem.cl.Sender;
 import com.tambapps.p2p.fandem.cl.command.converter.AddressConverter;
-import com.tambapps.p2p.fandem.cl.command.converter.ExistingFileConverter;
+import com.tambapps.p2p.fandem.cl.command.converter.RealFileConverter;
 import com.tambapps.p2p.fandem.cl.exception.SendingException;
 import com.tambapps.p2p.speer.util.PeerUtils;
 
@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 public class SendCommand extends FandemCommand {
 
     @Parameter(description = "path of the file to send", required = true,
-        converter = ExistingFileConverter.class)
+        converter = RealFileConverter.class)
     private List<File> files;
 
     @Parameter(names = "-ip", description = "the ip used to send (optional)",
@@ -43,6 +43,11 @@ public class SendCommand extends FandemCommand {
 
     @Override
     public void execute() {
+        if (files.size() > 10) {
+            System.out.println("You cannot send more than 10 files at once");
+            System.exit(1);
+            return;
+        }
         try (Sender sender = Sender.create(this, this)) {
             try {
                 System.out.println("Will send files " + files.stream().map(File::getName).collect(

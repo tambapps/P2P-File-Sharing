@@ -39,10 +39,6 @@ public class FileReceiver extends FileSharer {
     this.bufferSize = bufferSize;
   }
 
-  public List<File> receiveInDirectory(Peer peer, File directory) throws IOException {
-    return receiveFrom(peer, (FileProvider) (name -> new File(directory, name)));
-  }
-
   public List<File> receiveFrom(Peer peer, FileProvider fileProvider) throws IOException {
     RecordingFileProvider recordingFileProvider = new RecordingFileProvider(fileProvider);
     receiveFrom(peer, recordingFileProvider.toOutputStreamProvider());

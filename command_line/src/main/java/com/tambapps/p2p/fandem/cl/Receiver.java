@@ -1,6 +1,7 @@
 package com.tambapps.p2p.fandem.cl;
 
 import com.tambapps.p2p.fandem.FileReceiver;
+import com.tambapps.p2p.fandem.util.FileProvider;
 import com.tambapps.p2p.fandem.util.FileUtils;
 import com.tambapps.p2p.fandem.util.TransferListener;
 import com.tambapps.p2p.speer.Peer;
@@ -22,9 +23,10 @@ public class Receiver {
   }
 
   public List<File> receive() throws IOException {
-    return downloadFile.isDirectory() ? fileReceiver.receiveFrom(senderPeer,
-        FileUtils.availableFileInDirectoryProvider(downloadFile)) :
-        fileReceiver.receiveInDirectory(senderPeer, downloadFile);
+    FileProvider fileProvider = downloadFile.isDirectory()
+        ? FileUtils.availableFileInDirectoryProvider(downloadFile)
+        : (ignored) -> FileUtils.newAvailableFile(downloadFile.getParentFile(), downloadFile.getName());
+    return fileReceiver.receiveFrom(senderPeer, fileProvider);
   }
 
 }

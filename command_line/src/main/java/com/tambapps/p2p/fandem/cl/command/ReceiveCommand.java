@@ -2,11 +2,11 @@ package com.tambapps.p2p.fandem.cl.command;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
-import com.beust.jcommander.converters.FileConverter;
 import com.tambapps.p2p.fandem.Fandem;
 import com.tambapps.p2p.fandem.SenderPeer;
 import com.tambapps.p2p.fandem.cl.Mode;
 import com.tambapps.p2p.fandem.cl.Receiver;
+import com.tambapps.p2p.fandem.cl.command.converter.ExistingFileConverter;
 import com.tambapps.p2p.fandem.util.FileUtils;
 import com.tambapps.p2p.speer.Peer;
 import com.tambapps.p2p.speer.datagram.DatagramSupplier;
@@ -25,8 +25,8 @@ public class ReceiveCommand extends FandemCommand {
     @Parameter(names = {"-p", "-peer"}, description = "the sending peer (in peer notation or hexString)", converter = PeerConverter.class)
     private Peer peer;
 
-    @Parameter(names = {"-d", "--downloadDir"}, description = "the directory where the file will be downloaded",
-    converter = FileConverter.class)
+    @Parameter(names = {"-d", "--download"}, description = "the file/directory where the file will be downloaded",
+    converter = ExistingFileConverter.class)
     private File downloadDirectory = new File(System.getProperty("user.dir"));
 
     public ReceiveCommand() {
