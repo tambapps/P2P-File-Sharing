@@ -2,8 +2,8 @@ package com.tambapps.p2p.fandem.cl;
 
 import com.tambapps.p2p.fandem.Fandem;
 import com.tambapps.p2p.fandem.cl.command.ReceiveCommand;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.io.ByteArrayInputStream;
@@ -18,8 +18,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 public class MainIntegrationTest {
@@ -41,7 +41,7 @@ public class MainIntegrationTest {
 	}
 
 	// run these test individually (weird but when we run all test, this ne fails)
-	@Ignore("Can't run it with only one computer since broadcasting")
+	@Disabled("Can't run it with only one computer since broadcasting")
 	@Test
 	public void transferWithSniffTest() throws Exception {
 		System.setIn(new ByteArrayInputStream("y\n".getBytes()));
@@ -80,9 +80,9 @@ public class MainIntegrationTest {
 
 		for (File originFile : originFiles) {
 			File downloadedFile = new File(OUTPUT_DIRECTORY, originFile.getName());
-			assertTrue("Didn't downloaded file", downloadedFile.exists());
-			assertEquals("Content of received file differs from origin file",
-					Files.readString(originFile.toPath()), Files.readString(downloadedFile.toPath()));
+			assertTrue(downloadedFile.exists(), "Didn't downloaded file");
+			assertEquals(Files.readString(originFile.toPath()), Files.readString(downloadedFile.toPath()),
+					"Content of received file differs from origin file");
 			assertTrue(downloadedFile.delete());
 		}
 	}
