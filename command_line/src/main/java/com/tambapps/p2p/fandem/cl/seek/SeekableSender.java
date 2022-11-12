@@ -1,4 +1,4 @@
-package com.tambapps.p2p.fandem.cl;
+package com.tambapps.p2p.fandem.cl.seek;
 
 import com.tambapps.p2p.fandem.Fandem;
 import com.tambapps.p2p.fandem.FileSender;

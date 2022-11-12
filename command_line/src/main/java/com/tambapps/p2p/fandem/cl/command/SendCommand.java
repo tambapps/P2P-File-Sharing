@@ -5,7 +5,7 @@ import com.beust.jcommander.Parameters;
 
 import com.tambapps.p2p.fandem.Fandem;
 import com.tambapps.p2p.fandem.SenderPeer;
-import com.tambapps.p2p.fandem.cl.SeekableSender;
+import com.tambapps.p2p.fandem.cl.seek.SeekableSender;
 import com.tambapps.p2p.fandem.cl.command.converter.AddressConverter;
 import com.tambapps.p2p.fandem.cl.command.converter.NormalFileConverter;
 import com.tambapps.p2p.speer.util.PeerUtils;
