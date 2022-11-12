@@ -65,8 +65,10 @@ public class SendCommand extends FandemCommand {
 
     try (SeekableSender sender = SeekableSender.create(address, port, timeout, this)) {
       try {
-        System.out.println("Will send files " + files.stream().map(File::getName).collect(
-            Collectors.joining(", ")));
+        if (files.size() > 1) {
+          System.out.println("Will send files " + files.stream().map(File::getName).collect(
+              Collectors.joining(", ")));
+        }
         System.out.format("Waiting for a connection on %s (hex string %s)", sender.getPeer(), Fandem.toHexString(sender.getPeer()))
             .println();
         sender.send(files);

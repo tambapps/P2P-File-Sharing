@@ -55,11 +55,10 @@ public class ReceiveCommand extends FandemCommand {
 
       List<File> files = fileReceiver.receiveFrom(senderPeer, fileProvider);
       System.out.println();
-      System.out.println("Received successfully files " +
-          files.stream()
-              .map(File::getName)
-              .collect(Collectors.joining(", ")));
-      System.out.println("Directory: " + getDownloadDirectory().getAbsolutePath());
+      System.out.format("Received successfully file(s) %s in %s", files.stream()
+          .map(File::getName)
+          .collect(Collectors.joining(", ")), getDownloadDirectory().getAbsolutePath())
+          .println();
     } catch (HandshakeFailException e) {
       System.out.println("Error while communicating with other peer: " + e.getMessage());
     } catch (IOException e) {
