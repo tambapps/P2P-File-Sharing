@@ -43,7 +43,7 @@ public class ReceiveCommand extends FandemCommand {
   public void execute() {
     Peer senderPeer = this.peer != null ? this.peer : seekSendingPeer();
     if (senderPeer == null) {
-      // seek may have been cancelled, or an IO exception could have occured
+      // seek may have been cancelled, or an IO exception could have occurred
       return;
     }
     System.out.println("Connecting to " + senderPeer);
@@ -51,7 +51,8 @@ public class ReceiveCommand extends FandemCommand {
       FileReceiver fileReceiver = new FileReceiver(this);
       FileProvider fileProvider = downloadFile.isDirectory()
           ? FileUtils.availableFileInDirectoryProvider(downloadFile)
-          : (ignored) -> FileUtils.newAvailableFile(downloadFile.getParentFile(), downloadFile.getName());
+          // if downloadFile is a file, we will save on it, or an available file with similar name if it already exists
+          : (__) -> FileUtils.newAvailableFile(downloadFile.getParentFile(), downloadFile.getName());
 
       List<File> files = fileReceiver.receiveFrom(senderPeer, fileProvider);
       System.out.println();
@@ -68,23 +69,19 @@ public class ReceiveCommand extends FandemCommand {
   }
 
   private Peer seekSendingPeer() {
-    System.out.println("Looking for a sending peer...");
-    try (Scanner scanner = new Scanner(System.in)) {
-      return seekSendingPeer(scanner);
-    }
-  }
-
-  private SenderPeer seekSendingPeer(Scanner scanner) {
-    try (DatagramSupplier<List<SenderPeer>> senderPeersSupplier = Fandem.senderPeersSupplier()) {
+    System.out.println("Looking for a sender...");
+    try (Scanner scanner = new Scanner(System.in);
+        DatagramSupplier<List<SenderPeer>> senderPeersSupplier = Fandem.senderPeersSupplier()) {
       return proposePeer(scanner, senderPeersSupplier);
     } catch (IOException e) {
-      System.out.println("Couldn't start seeking peers: " + e.getMessage());
+      System.out.println("Couldn't seek senders: " + e.getMessage());
       System.exit(1);
       return null;
     }
   }
 
-  private SenderPeer proposePeer(Scanner scanner, DatagramSupplier<List<SenderPeer>> senderPeersSupplier) throws IOException {
+  private SenderPeer proposePeer(Scanner scanner,
+      DatagramSupplier<List<SenderPeer>> senderPeersSupplier) throws IOException {
     while (true) {
       List<SenderPeer> senderPeers = senderPeersSupplier.get();
       for (SenderPeer senderPeer : senderPeers) {
