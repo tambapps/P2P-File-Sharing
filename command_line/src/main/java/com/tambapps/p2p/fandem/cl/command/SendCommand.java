@@ -71,7 +71,7 @@ public class SendCommand extends FandemCommand {
         }
         System.out.format("Waiting for a connection on %s (hex string %s)", sender.getPeer(), Fandem.toHexString(sender.getPeer()))
             .println();
-        sender.send(files);
+        sender.startSendServer(files);
         System.out.println();
         System.out.println("File(s) were successfully sent");
       } catch (SocketException e) {

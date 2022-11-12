@@ -43,7 +43,7 @@ public class SeekableSender implements Closeable {
    * @param files the files to send
    * @throws IOException in case of I/O error
    */
-  public void send(List<File> files) throws IOException {
+  public void startSendServer(List<File> files) throws IOException {
     List<SendingFileData> fileData = new ArrayList<>();
     for (File file : files) {
       fileData.add(SendingFileData.fromFile(file));
