@@ -22,9 +22,9 @@ public class FandemCommandLine {
   public static final String SEND_COMMAND = "send";
   public static final String RECEIVE_COMMAND = "receive";
 
-  private final Map<FandemMode, FandemCommand> commandMap = Map.of(
-      RECEIVE, new ReceiveCommand(),
-      SEND, new SendCommand()
+  private final Map<String, FandemCommand> commandMap = Map.of(
+      RECEIVE.getCommandName(), new ReceiveCommand(),
+      SEND.getCommandName(), new SendCommand()
   );
 
   @Parameter(names = {"-h", "--help"}, help = true)
@@ -58,13 +58,13 @@ public class FandemCommandLine {
       return;
     }
 
-    FandemCommand fandemCommand = commandMap.get(FandemMode.fromCommandName(command));
+    FandemCommand fandemCommand = commandMap.get(command);
     fandemCommand.execute();
   }
 
   private JCommander newCommander() {
     JCommander.Builder builder = JCommander.newBuilder();
-    commandMap.forEach((mode, command) -> builder.addCommand(mode.getCommandName(), command));
+    commandMap.forEach(builder::addCommand);
     return builder
         .addObject(this)
         .build();
