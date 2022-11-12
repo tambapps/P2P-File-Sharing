@@ -30,8 +30,8 @@ public class FandemCommandLine {
   public void run(String[] args) {
     System.out.println("Fandem command-line " + Fandem.VERSION);
     Map<String, FandemCommand> commandMap = Map.of(
-        SEND_COMMAND, new ReceiveCommand(),
-        RECEIVE_COMMAND, new SendCommand()
+        RECEIVE_COMMAND, new ReceiveCommand(),
+        SEND_COMMAND, new SendCommand()
     );
     JCommander jCommander = newCommander(commandMap);
 
