@@ -32,6 +32,11 @@ public class SeekableSender implements Closeable {
     this.greeterService = greeterService;
   }
 
+  public static SeekableSender create(InetAddress address, int port, int timeout, TransferListener listener) {
+    ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+    return new SeekableSender(new FileSender(Peer.of(address, port), listener, timeout), Fandem.multicastService(executor));
+  }
+
   /**
    * Starts the ServerSocket to send files and multicasts data about server and files
    *
@@ -62,11 +67,6 @@ public class SeekableSender implements Closeable {
     } catch (UnknownHostException ex) {
       return System.getProperty("user.name") + " Desktop";
     }
-  }
-
-  public static SeekableSender create(InetAddress address, int port, int timeout, TransferListener listener) {
-    ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-    return new SeekableSender(new FileSender(Peer.of(address, port), listener, timeout), Fandem.multicastService(executor));
   }
 
   public Peer getPeer() {
