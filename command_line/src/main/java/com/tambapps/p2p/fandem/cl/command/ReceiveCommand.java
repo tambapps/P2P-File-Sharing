@@ -5,7 +5,6 @@ import com.beust.jcommander.Parameters;
 import com.tambapps.p2p.fandem.Fandem;
 import com.tambapps.p2p.fandem.FileReceiver;
 import com.tambapps.p2p.fandem.SenderPeer;
-import com.tambapps.p2p.fandem.cl.FandemMode;
 import com.tambapps.p2p.fandem.cl.command.converter.ExistingFileConverter;
 import com.tambapps.p2p.fandem.cl.command.converter.PeerConverter;
 import com.tambapps.p2p.fandem.util.FileProvider;
@@ -27,6 +26,8 @@ import java.util.stream.Collectors;
 @Setter
 @Parameters(separators = "=", commandDescription = "Receive file from another peer. If no peer is provided, the program will look for it")
 public class ReceiveCommand extends FandemCommand {
+
+  private static final String TEXT_PROPERTIES_FILE = "receive_text.properties";
   @Parameter(names = {"-p", "-peer"}, description = "the sending peer (in peer notation or hexString)", converter = PeerConverter.class)
   private Peer peer;
 
@@ -35,7 +36,7 @@ public class ReceiveCommand extends FandemCommand {
   private File downloadFile = new File(System.getProperty("user.dir"));
 
   public ReceiveCommand() {
-    super(FandemMode.RECEIVE);
+    super(TEXT_PROPERTIES_FILE);
   }
 
   @Override

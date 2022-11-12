@@ -2,8 +2,6 @@ package com.tambapps.p2p.fandem.cl;
 
 import static com.tambapps.p2p.fandem.cl.FandemCommandLine.RECEIVE_COMMAND;
 import static com.tambapps.p2p.fandem.cl.FandemCommandLine.SEND_COMMAND;
-import static com.tambapps.p2p.fandem.cl.FandemMode.RECEIVE;
-import static com.tambapps.p2p.fandem.cl.FandemMode.SEND;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
@@ -22,11 +20,6 @@ public class FandemCommandLine {
   public static final String SEND_COMMAND = "send";
   public static final String RECEIVE_COMMAND = "receive";
 
-  private final Map<String, FandemCommand> commandMap = Map.of(
-      RECEIVE.getCommandName(), new ReceiveCommand(),
-      SEND.getCommandName(), new SendCommand()
-  );
-
   @Parameter(names = {"-h", "--help"}, help = true)
   private boolean help;
 
@@ -36,7 +29,11 @@ public class FandemCommandLine {
 
   public void run(String[] args) {
     System.out.println("Fandem command-line " + Fandem.VERSION);
-    JCommander jCommander = newCommander();
+    Map<String, FandemCommand> commandMap = Map.of(
+        SEND_COMMAND, new ReceiveCommand(),
+        RECEIVE_COMMAND, new SendCommand()
+    );
+    JCommander jCommander = newCommander(commandMap);
 
     try {
       jCommander.parse(args);
@@ -62,7 +59,7 @@ public class FandemCommandLine {
     fandemCommand.execute();
   }
 
-  private JCommander newCommander() {
+  private JCommander newCommander(Map<String, FandemCommand> commandMap) {
     JCommander.Builder builder = JCommander.newBuilder();
     commandMap.forEach(builder::addCommand);
     return builder

@@ -1,16 +1,26 @@
 package com.tambapps.p2p.fandem.cl.command;
 
-import com.tambapps.p2p.fandem.cl.FandemMode;
 import com.tambapps.p2p.fandem.util.FileUtils;
 import com.tambapps.p2p.fandem.util.TransferListener;
 import com.tambapps.p2p.speer.Peer;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
+
 public abstract class FandemCommand implements TransferListener {
 
-  private final FandemMode mode;
+  private final Properties textProperties;
 
-  public FandemCommand(FandemMode mode) {
-    this.mode = mode;
+
+  public FandemCommand(String propertiesFileName) {
+    this.textProperties = new Properties();
+    try (InputStream inputStream = FandemCommand.class.getResourceAsStream("/" + propertiesFileName)) {
+      textProperties.load(inputStream);
+    } catch (IOException e) {
+      System.err.println("Error while attempting to read properties: " + e.getMessage());
+      System.exit(1);
+    }
   }
 
   public abstract void execute();
@@ -22,11 +32,7 @@ public abstract class FandemCommand implements TransferListener {
 
   @Override
   public void onTransferStarted(String fileName, long fileSize) {
-    String verb = switch (mode) {
-      case SEND -> "Sending";
-      case RECEIVE -> "Receiving";
-    };
-    System.out.format("\n%s %s", verb, fileName).println();
+    System.out.format(textProperties.getProperty("file_processed"), fileName).println();
     System.out.print(progressString(0L, fileSize));
   }
 
@@ -37,12 +43,9 @@ public abstract class FandemCommand implements TransferListener {
   }
 
   private String progressString(long bytesProcessed, long totalBytes) {
-    String verb = switch (mode) {
-      case SEND -> "Sent";
-      case RECEIVE -> "Received";
-    };
-    return "\r%s %s / %s".formatted(verb,
-        FileUtils.toFileSize(bytesProcessed),
-        FileUtils.toFileSize(totalBytes));
+    return textProperties.getProperty("percentage_processed")
+        .formatted(
+            FileUtils.toFileSize(bytesProcessed),
+            FileUtils.toFileSize(totalBytes));
   }
 }

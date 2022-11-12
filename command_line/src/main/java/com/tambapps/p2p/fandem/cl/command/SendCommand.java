@@ -5,7 +5,6 @@ import com.beust.jcommander.Parameters;
 
 import com.tambapps.p2p.fandem.Fandem;
 import com.tambapps.p2p.fandem.SenderPeer;
-import com.tambapps.p2p.fandem.cl.FandemMode;
 import com.tambapps.p2p.fandem.cl.SeekableSender;
 import com.tambapps.p2p.fandem.cl.command.converter.AddressConverter;
 import com.tambapps.p2p.fandem.cl.command.converter.NormalFileConverter;
@@ -25,6 +24,8 @@ import java.util.stream.Collectors;
 @Parameters(separators = "=", commandDescription = "Send file to another peer")
 public class SendCommand extends FandemCommand {
 
+  private static final String TEXT_PROPERTIES_FILE = "send_text.properties";
+
   @Parameter(description = "path of the file to send", required = true,
       converter = NormalFileConverter.class)
   private List<File> files;
@@ -40,7 +41,7 @@ public class SendCommand extends FandemCommand {
   private int timeout = 90 * 1000;
 
   public SendCommand() {
-    super(FandemMode.SEND);
+    super(TEXT_PROPERTIES_FILE);
   }
 
   @Override
