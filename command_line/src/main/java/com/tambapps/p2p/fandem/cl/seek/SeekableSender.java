@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.stream.Collectors;
 
 /**
  * Class allowing to send files by starting a ServerSocket. It also UDP multicasts the server's port and address,
@@ -43,11 +44,11 @@ public class SeekableSender implements Closeable {
    * @param files the files to send
    * @throws IOException in case of I/O error
    */
-  public void startSendServer(List<File> files) throws IOException {
-    List<SendingFileData> fileData = new ArrayList<>();
-    for (File file : files) {
-      fileData.add(SendingFileData.fromFile(file));
-    }
+  public void sendFiles(List<File> files) throws IOException {
+    List<SendingFileData> fileData = files.stream()
+        .map(SendingFileData::fromFile)
+        .collect(Collectors.toList());
+
     greeterService.setData(List.of(SenderPeer.of(getPeer(), getDesktopName(), fileData)));
     greeterService.start(1000L);
     fileSender.sendFiles(files);

@@ -30,14 +30,14 @@ public class SendCommand extends FandemCommand {
       converter = NormalFileConverter.class)
   private List<File> files;
 
-  @Parameter(names = {"-i", "--ip"}, description = "the ip address used to send (optional)",
+  @Parameter(names = {"-i", "--ip"}, description = "the ip address used to start the server socket (optional)",
       converter = AddressConverter.class)
   private InetAddress ip = null;
 
   @Parameter(names = {"-p", "--port"}, description = "the port used to send (optional)")
   private Integer port;
 
-  @Parameter(names = {"-t", "--timeout"}, description = "the port used to send (optional)")
+  @Parameter(names = {"-t", "--timeout"}, description = "the connection timeout (defaults to 1m30s)")
   private int timeout = 90 * 1000;
 
   public SendCommand() {
@@ -71,7 +71,7 @@ public class SendCommand extends FandemCommand {
         }
         System.out.format("Waiting for a connection on %s (hex string %s)", sender.getPeer(), Fandem.toHexString(sender.getPeer()))
             .println();
-        sender.startSendServer(files);
+        sender.sendFiles(files);
         System.out.println();
         System.out.println("File(s) were successfully sent");
       } catch (SocketException e) {

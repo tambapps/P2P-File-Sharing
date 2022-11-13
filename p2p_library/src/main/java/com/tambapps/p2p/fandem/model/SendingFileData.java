@@ -27,14 +27,18 @@ public class SendingFileData extends FileData {
     return inputStreamIoSupplier.get();
   }
 
-  public static SendingFileData fromFile(File file) throws IOException {
+  public static SendingFileData fromFile(File file) {
     return fromFile(file, true);
   }
 
-  public static SendingFileData fromFile(File file, boolean withChecksum) throws IOException {
+  public static SendingFileData fromFile(File file, boolean withChecksum) {
     String checksum;
     if (withChecksum) {
-      checksum = FileUtils.computeChecksum(file);
+      try {
+        checksum = FileUtils.computeChecksum(file);
+      } catch (IOException e) {
+        throw new RuntimeException("Failed to compute file checksum", e);
+      }
     } else {
       checksum = null;
     }
