@@ -96,5 +96,6 @@
     <string name="start_hotspot">Start hotspot</string>
     <string name="lets_get_started">Let\'s get started!</string>
     <string name="no_more_than_n_files">You cannot send more than 10 files at once</string>
+    <string name="title_activity_send">SendActivity</string>
 
 </resources>

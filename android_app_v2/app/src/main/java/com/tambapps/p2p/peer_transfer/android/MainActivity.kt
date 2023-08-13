@@ -1,5 +1,6 @@
 package com.tambapps.p2p.peer_transfer.android
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -23,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -31,6 +33,7 @@ import com.tambapps.p2p.fandem.Fandem
 import com.tambapps.p2p.peer_transfer.android.ui.theme.BlueOcean
 import com.tambapps.p2p.peer_transfer.android.ui.theme.Cyan
 import com.tambapps.p2p.peer_transfer.android.ui.theme.FandemAndroidTheme
+import com.tambapps.p2p.peer_transfer.android.ui.theme.gradientBrush
 import com.tambapps.p2p.peer_transfer.android.ui.theme.mainTextStyle
 import java.util.Locale
 
@@ -48,23 +51,18 @@ class MainActivity : ComponentActivity() {
 @Composable
 @Preview(showBackground = true)
 fun MainView() {
+  val context = LocalContext.current
   // A surface container using the 'background' color from the theme
   Surface(modifier = Modifier
     .fillMaxSize()
-    .background(
-      brush = Brush.verticalGradient(
-        listOf(
-          BlueOcean,
-          Cyan
-        )
-      )
-    ), color = Color.Transparent) {
+    .background(brush = gradientBrush), color = Color.Transparent) {
     Column {
       header()
     }
-    Box(modifier = Modifier.fillMaxWidth().fillMaxHeight()) {
+    Box(modifier = Modifier.fillMaxSize()) {
       Column(modifier = Modifier.align(Alignment.Center)) {
         mainButton(textResId = R.string.send_file) {
+          context.startActivity(Intent(context, SendActivity::class.java))
         }
         mainButton(textResId = R.string.receive_file) {
         }

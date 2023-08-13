@@ -13,6 +13,11 @@
         android:theme="@style/Theme.FandemAndroid"
         tools:targetApi="31">
         <activity
+            android:name=".SendActivity"
+            android:exported="false"
+            android:label="@string/title_activity_send"
+            android:theme="@style/Theme.FandemAndroid" />
+        <activity
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
