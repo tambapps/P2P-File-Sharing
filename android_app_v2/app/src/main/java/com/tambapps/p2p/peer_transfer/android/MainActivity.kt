@@ -22,7 +22,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -30,13 +29,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.tambapps.p2p.fandem.Fandem
-import com.tambapps.p2p.peer_transfer.android.ui.theme.BlueOcean
-import com.tambapps.p2p.peer_transfer.android.ui.theme.Cyan
 import com.tambapps.p2p.peer_transfer.android.ui.theme.FandemAndroidTheme
 import com.tambapps.p2p.peer_transfer.android.ui.theme.gradientBrush
 import com.tambapps.p2p.peer_transfer.android.ui.theme.mainTextStyle
+import dagger.hilt.android.AndroidEntryPoint
 import java.util.Locale
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)

@@ -8,7 +8,6 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
-import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -30,31 +29,54 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.app.ActivityCompat
+import com.tambapps.p2p.fandem.Fandem
+import com.tambapps.p2p.peer_transfer.android.service.FandemService
 import com.tambapps.p2p.peer_transfer.android.ui.theme.FandemAndroidTheme
 import com.tambapps.p2p.peer_transfer.android.ui.theme.gradientBrush
 import com.tambapps.p2p.peer_transfer.android.util.hasPermission
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.IOException
+import javax.inject.Inject
 
 const val ANY_CONTENT_TYPE = "*/*"
 
+@AndroidEntryPoint
 class SendActivity : ComponentActivity() {
+
+  @Inject lateinit var fandemService: FandemService
+
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
 
     setContent {
       FandemAndroidTheme {
-        SendView()
+        SendView(fandemService)
       }
     }
   }
 }
 
-@Preview(showBackground = true)
 @Composable
-fun SendView() {
+fun SendView(fandemService: FandemService) {
   val context = LocalContext.current as Activity
-  val pickFileLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetMultipleContents()) {
-    Toast.makeText(context, "TODO", Toast.LENGTH_SHORT).show()
+  val pickFileLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetMultipleContents()) { uris ->
+    if (uris.isEmpty()) {
+      Toast.makeText(context, "No file was selected", Toast.LENGTH_SHORT).show()
+      return@rememberLauncherForActivityResult
+    }
+    CoroutineScope(Dispatchers.IO).launch {
+      val peer = try {
+        Fandem.findAvailableSendingPeer()
+      } catch (e: IOException) {
+        withContext(Dispatchers.Main) { Toast.makeText(context, context.getString(R.string.couldn_get_ip_address), Toast.LENGTH_SHORT).show() }
+        null
+      } ?: return@launch
+      fandemService.sendFiles(peer, uris)
+    }
   }
 
   // request permission and then pick file
@@ -80,7 +102,7 @@ fun SendView() {
         onClick = {
           if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
             && !context.hasPermission(permission = POST_NOTIFICATIONS)) {
-            // TODO there is a problem with that when permission is denied
+            // TODO request permission in onboarding instead
             requestPermissionLauncher.launch(POST_NOTIFICATIONS)
           } else {
             pickFileLauncher.launch(ANY_CONTENT_TYPE)
