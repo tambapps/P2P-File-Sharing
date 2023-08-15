@@ -50,8 +50,8 @@ abstract class FandemWorker(appContext: Context, params: WorkerParameters) : Cor
     totalBytes: Long
   ) {
     val now = System.currentTimeMillis()
-    if (progress < 100 && now - notificationLastUpdated >= 1_000L) {
-      // notifying every 1s because if it happened more frequently some notifs could be ignored
+    if (progress < 100 && now - notificationLastUpdated >= 500L) {
+      // notifying every 0.5s because if it happened more frequently some notifs could be ignored
       notificationLastUpdated = now
       suspendNotify(progress = progress,
         bigText = FileUtils.toFileSize(bytesProcessed) + "/ " + FileUtils.toFileSize(totalBytes))
