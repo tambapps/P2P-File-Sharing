@@ -82,3 +82,8 @@ dependencies {
 kapt {
     correctErrorTypes true
 }
+
+// fix for kapt bug. See https://stackoverflow.com/questions/75109742/how-to-configure-kapt-to-generate-java17-java-stubs-in-android-gradle-build-file
+kotlin {
+    jvmToolchain(8)
+}

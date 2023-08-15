@@ -75,7 +75,7 @@ fun SendView(fandemService: FandemService) {
         withContext(Dispatchers.Main) { Toast.makeText(context, context.getString(R.string.couldn_get_ip_address), Toast.LENGTH_SHORT).show() }
         null
       } ?: return@launch
-      fandemService.sendFiles(peer, uris)
+      fandemService.sendFiles(context.contentResolver, peer, uris)
     }
   }
 
@@ -100,7 +100,7 @@ fun SendView(fandemService: FandemService) {
       FloatingActionButton(modifier = Modifier.size(128.dp),
         shape = RoundedCornerShape(128.dp),
         onClick = {
-          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
+          if (false && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
             && !context.hasPermission(permission = POST_NOTIFICATIONS)) {
             // TODO request permission in onboarding instead
             requestPermissionLauncher.launch(POST_NOTIFICATIONS)

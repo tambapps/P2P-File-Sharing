@@ -6,9 +6,11 @@ import android.os.Build
 import android.util.Log
 import android.widget.Toast
 import androidx.hilt.work.HiltWorker
+import androidx.work.ForegroundInfo
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.tambapps.p2p.fandem.Fandem
+import com.tambapps.p2p.fandem.FileSender
 import com.tambapps.p2p.fandem.SenderPeer
 import com.tambapps.p2p.fandem.model.SendingFileData
 import com.tambapps.p2p.fandem.util.FileUtils
@@ -18,7 +20,6 @@ import com.tambapps.p2p.speer.datagram.MulticastDatagramPeer
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import java.io.IOException
-import java.net.NetworkInterface
 import java.util.concurrent.Executors
 
 @HiltWorker
@@ -52,13 +53,14 @@ class SendFileWorker @AssistedInject constructor(@Assisted appContext: Context,
       if (fileCount == 0) return Result.failure()
 
       val files = mutableListOf<SendingFileData>()
+      Log.i(TAG, "Computing checksums")
       for (i in 0 until fileCount) {
         val fileName = fileNames[i]
-        val fileUri = fileUris[i]
+        val fileUri = Uri.parse(fileUris[i])
         val fileSize = fileSizes[i]
-        val checksum = FileUtils.computeChecksum(applicationContext.contentResolver.openInputStream(Uri.parse(fileUri)))
+        val checksum = FileUtils.computeChecksum(applicationContext.contentResolver.openInputStream(fileUri))
         files.add(SendingFileData(fileName, fileSize, checksum) {
-          TODO()
+          applicationContext.contentResolver.openInputStream(fileUri)
         })
       }
       senderPeersMulticastService.data = listOf(
@@ -68,6 +70,7 @@ class SendFileWorker @AssistedInject constructor(@Assisted appContext: Context,
           deviceName,
           files
         ))
+      Log.i(TAG, "Starting multicasting at $peer")
       try {
         // the senderPeersMulticastService will close this peer when stopping
         val datagramPeer = MulticastDatagramPeer(senderPeersMulticastService.port)
@@ -85,7 +88,9 @@ class SendFileWorker @AssistedInject constructor(@Assisted appContext: Context,
         ).show()
       }
 
-      TODO("Start File Sender")
+      val fileSender = FileSender(peer) // TODO listener arg
+      fileSender.send(files)
+      return Result.success()
     } finally {
       try {
         senderPeersMulticastService.stop()
@@ -94,8 +99,10 @@ class SendFileWorker @AssistedInject constructor(@Assisted appContext: Context,
         Log.e(TAG, "Error while closing worker resources", e)
       }
     }
-    TODO("Not yet implemented")
   }
 
+  override fun getForegroundInfo(): ForegroundInfo {
+    return super.getForegroundInfo()
+  }
 
 }
