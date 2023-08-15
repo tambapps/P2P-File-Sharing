@@ -93,7 +93,12 @@ class SendFileWorker @AssistedInject constructor(@Assisted appContext: Context,
       val fileSender = FileSender(peer,  this, SOCKET_TIMEOUT)
       try {
         fileSender.send(files)
-        notify(endNotif = true, title = getString(R.string.transfer_complete), text = getString(R.string.success_send, fileNames.joinToString(separator = "\n- ", prefix = "- ")))
+
+        if (fileCount > 1) {
+          notify(endNotif = true, title = getString(R.string.transfer_complete), bigText = getString(R.string.success_send_many, fileNames.joinToString(separator = "\n- ", prefix = "- ")))
+        } else {
+          notify(endNotif = true, title = getString(R.string.transfer_complete), text = getString(R.string.success_send, fileNames.first()))
+        }
       } catch (e: HandshakeFailException) {
         notify(endNotif = true, title = getString(R.string.couldnt_start), text = e.message)
       } catch (e: SocketException) {

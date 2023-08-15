@@ -25,7 +25,7 @@
     <string name="couldnt_find_file">The file couldn\'t be found</string>
     <string name="coudlnt_send">The file selected couldn\'t be sent</string>
     <string name="error_occured">An error occurred during the transfer: %s</string>
-    <string name="success_send">The following file(s) were successfully sent\n%s</string>
+    <string name="success_send_many">The following files were successfully sent %s</string>
     <string name="transfer_complete">Transfer completed</string>
     <string name="transfer_canceled">Transfer canceled</string>
     <string name="receveiving_connected">Receiving\n%s</string>
@@ -98,5 +98,6 @@
     <string name="no_more_than_n_files">You cannot send more than 10 files at once</string>
     <string name="title_activity_send" translatable="false">SendActivity</string>
     <string name="sending_file">Sending %s</string>
+    <string name="success_send">%s was successfully sent</string>
 
 </resources>

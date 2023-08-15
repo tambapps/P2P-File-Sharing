@@ -37,7 +37,7 @@
     <string name="sending_connected">Envoi\n%s</string>
     <string name="service_started">Service commencé. Vous pouvez voir le progrès dans la barre de notification</string>
     <string name="success_received">Le(s) fichier(s) suivant ont été reçu(s) avec succès\n%s</string>
-    <string name="success_send">Le(s) fichier(s) suivant ont été envoyé(s) avec succès\n%s</string>
+    <string name="success_send_many">Les fichiers suivant ont été envoyés avec succès\n%s</string>
     <string name="transfer_canceled">Trasfert annulé</string>
     <string name="transfer_complete">Transfert fini avec succès</string>
     <string name="waiting_connection">En attente d\'une connexion</string>
@@ -96,5 +96,6 @@
     <string name="nar_description">Pour transférer des fichiers, les 2 appareils doivent être connectés au même Wi-Fi, on un appareil doit partager ses données avec l\'autre.</string>
     <string name="no_more_than_n_files">Vous ne pouvez pas envoyer plus de 10 fichiers en une fois</string>
     <string name="sending_file">Envoi de %s</string>
+    <string name="success_send">%s a été envoyé avec succès</string>
 
 </resources>
