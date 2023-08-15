@@ -44,7 +44,7 @@ class SendFileWorker @AssistedInject constructor(@Assisted appContext: Context,
   private val senderPeersMulticastService = Fandem.multicastService(scheduledExecutorService)
   private lateinit var fileNames: Array<String>
 
-  override fun doTransfer(): Result {
+  override suspend fun doTransfer(): Result {
     try {
       val peerString = inputData.getString(PEER_KEY) ?: return Result.failure()
       val peer = Peer.parse(peerString)
@@ -90,7 +90,6 @@ class SendFileWorker @AssistedInject constructor(@Assisted appContext: Context,
         Log.e(TAG, "Error while starting multicasting")
       }
       notify(title = getString(R.string.waiting_connection), text = getString(R.string.waiting_connection_message, Fandem.toHexString(peer)))
-
       val fileSender = FileSender(peer,  this, SOCKET_TIMEOUT)
       try {
         fileSender.send(files)
@@ -119,8 +118,12 @@ class SendFileWorker @AssistedInject constructor(@Assisted appContext: Context,
     }
   }
 
+  override fun onTransferStarted(fileName: String?, fileSize: Long) {
+    suspendNotify(title = getString(R.string.sending_file, fileNames))
+  }
+
   override fun onConnected(selfPeer: Peer?, remotePeer: Peer?) {
-    notify(bigText = getString(
+    suspendNotify(bigText = getString(
       R.string.sending_connected,
       fileNames.joinToString(separator = "\n- ", prefix = "- ")
     ))

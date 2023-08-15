@@ -13,12 +13,16 @@ import androidx.work.WorkerParameters
 import com.tambapps.p2p.fandem.util.FileUtils
 import com.tambapps.p2p.fandem.util.TransferListener
 import com.tambapps.p2p.peer_transfer.android.ui.theme.NotifSmallIconColor
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 abstract class FandemWorker(appContext: Context, params: WorkerParameters) : CoroutineWorker(appContext, params),
   TransferListener {
 
   companion object {
-    protected const val SOCKET_TIMEOUT = 1000 * 60 * 2 //in ms
+    const val SOCKET_TIMEOUT = 1000 * 60 * 2 //in ms
   }
 
   protected abstract val smallIcon: Int
@@ -26,7 +30,9 @@ abstract class FandemWorker(appContext: Context, params: WorkerParameters) : Cor
   private val notificationId = id.hashCode()
 
   private val notificationManager = appContext.getSystemService(NotificationManager::class.java)
+  @Volatile
   private lateinit var notifBuilder: NotificationCompat.Builder
+  private var notificationLastUpdated = System.currentTimeMillis()
 
   final override suspend fun doWork(): Result {
     val notificationManager = applicationContext.getSystemService(NotificationManager::class.java)
@@ -35,21 +41,20 @@ abstract class FandemWorker(appContext: Context, params: WorkerParameters) : Cor
     return doTransfer()
   }
 
-  abstract fun doTransfer(): Result
+  abstract suspend fun doTransfer(): Result
 
-  override fun onTransferStarted(fileName: String?, fileSize: Long) {
-
-  }
   override fun onProgressUpdate(
     fileName: String,
     progress: Int,
     bytesProcessed: Long,
     totalBytes: Long
   ) {
-    if (progress < 100) {
-      notify(progress= progress, bigText = FileUtils.toFileSize(bytesProcessed) + "/ " + FileUtils.toFileSize(
-        totalBytes
-      ))
+    val now = System.currentTimeMillis()
+    if (progress < 100 && now - notificationLastUpdated >= 1_000L) {
+      notificationLastUpdated = now
+      suspendNotify(progress = progress,
+        bigText = FileUtils.toFileSize(bytesProcessed) + "/ " + FileUtils.toFileSize(totalBytes))
+
     }
   }
 
@@ -57,7 +62,7 @@ abstract class FandemWorker(appContext: Context, params: WorkerParameters) : Cor
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O || channelExists(notificationManager)) return
     val channel =
       NotificationChannel(javaClass.name, javaClass.name, NotificationManager.IMPORTANCE_DEFAULT)
-    channel.description = "notifications for " + javaClass.name
+    channel.description = "File sending notifications"
     channel.enableLights(false)
     notificationManager.createNotificationChannel(channel)
   }
@@ -77,7 +82,12 @@ abstract class FandemWorker(appContext: Context, params: WorkerParameters) : Cor
     return notifBuilder
   }
 
-  fun notify(title: String? = null, text: String? = null, bigText: String? = null, progress: Int? = null, endNotif: Boolean = false) {
+  fun suspendNotify(title: String? = null, text: String? = null, bigText: String? = null, progress: Int? = null, endNotif: Boolean = false) {
+    CoroutineScope(Dispatchers.Default).launch {
+      notify(title, text, bigText, progress, endNotif)
+    }
+  }
+  suspend fun notify(title: String? = null, text: String? = null, bigText: String? = null, progress: Int? = null, endNotif: Boolean = false) {
     if (endNotif) {
       notifBuilder.clearActions()
       notifBuilder.setStyle(null)
@@ -87,12 +97,16 @@ abstract class FandemWorker(appContext: Context, params: WorkerParameters) : Cor
         .setContentTitle("")
         .setProgress(0, 0, false)
     }
+    if (text != null && bigText == null) notifBuilder.setStyle(null)
+    if (bigText != null && text == null) notifBuilder.setContentText(null)
     if (title != null) notifBuilder.setContentTitle(title)
     if (text != null) notifBuilder.setContentText(text)
     if (bigText != null) notifBuilder.setStyle(NotificationCompat.BigTextStyle().bigText(bigText))
     if (progress != null) notifBuilder.setProgress(100, progress, false).setOngoing(true)
     else notifBuilder.setProgress(0, 0, false).setOngoing(false)
-    notificationManager.notify(notificationId, notifBuilder.build())
+    withContext(Dispatchers.Main) {
+      notificationManager.notify(notificationId, notifBuilder.build())
+    }
   }
 
   protected fun getString(resId: Int) = applicationContext.getString(resId)
