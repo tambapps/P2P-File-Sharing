@@ -4,28 +4,30 @@ import android.content.Context
 import android.net.Uri
 import android.os.Build
 import android.util.Log
-import android.widget.Toast
 import androidx.hilt.work.HiltWorker
-import androidx.work.ForegroundInfo
-import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.tambapps.p2p.fandem.Fandem
 import com.tambapps.p2p.fandem.FileSender
 import com.tambapps.p2p.fandem.SenderPeer
 import com.tambapps.p2p.fandem.model.SendingFileData
 import com.tambapps.p2p.fandem.util.FileUtils
+import com.tambapps.p2p.peer_transfer.android.R
 import com.tambapps.p2p.peer_transfer.android.util.NetworkUtils
 import com.tambapps.p2p.speer.Peer
 import com.tambapps.p2p.speer.datagram.MulticastDatagramPeer
+import com.tambapps.p2p.speer.exception.HandshakeFailException
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
+import java.io.FileNotFoundException
 import java.io.IOException
+import java.net.SocketException
+import java.net.SocketTimeoutException
 import java.util.concurrent.Executors
 
 @HiltWorker
 class SendFileWorker @AssistedInject constructor(@Assisted appContext: Context,
                                                  @Assisted workerParams: WorkerParameters
-): Worker(appContext, workerParams) {
+): FandemWorker(appContext, workerParams) {
 
   companion object {
     const val PEER_KEY = "pk"
@@ -35,16 +37,20 @@ class SendFileWorker @AssistedInject constructor(@Assisted appContext: Context,
     const val FILE_SIZES_KEY  = "fs"
   }
 
+  override val smallIcon = R.drawable.upload_little
+  override val largeIcon = R.drawable.upload2
+
   private val scheduledExecutorService = Executors.newSingleThreadScheduledExecutor()
   private val senderPeersMulticastService = Fandem.multicastService(scheduledExecutorService)
+  private lateinit var fileNames: Array<String>
 
-  override fun doWork(): Result {
+  override fun doTransfer(): Result {
     try {
       val peerString = inputData.getString(PEER_KEY) ?: return Result.failure()
       val peer = Peer.parse(peerString)
       val deviceName = Build.MANUFACTURER + " " + Build.MODEL
 
-      val fileNames = inputData.getStringArray(FILE_NAMES_KEY) ?: return Result.failure()
+      fileNames = inputData.getStringArray(FILE_NAMES_KEY) ?: return Result.failure()
       val fileUris = inputData.getStringArray(FILE_URIS_KEY) ?: return Result.failure()
       val fileSizes = inputData.getLongArray(FILE_SIZES_KEY) ?: return Result.failure()
 
@@ -81,15 +87,27 @@ class SendFileWorker @AssistedInject constructor(@Assisted appContext: Context,
         }
         senderPeersMulticastService.start(datagramPeer, 1000L)
       } catch (e: IOException) {
-        Toast.makeText(
-          applicationContext,
-          "Couldn't communicate sender key. The receiver will have to enter it manually",
-          Toast.LENGTH_LONG
-        ).show()
+        Log.e(TAG, "Error while starting multicasting")
       }
+      notify(title = getString(R.string.waiting_connection), text = getString(R.string.waiting_connection_message, Fandem.toHexString(peer)))
 
-      val fileSender = FileSender(peer) // TODO listener arg
-      fileSender.send(files)
+      val fileSender = FileSender(peer,  this, SOCKET_TIMEOUT)
+      try {
+        fileSender.send(files)
+        notify(endNotif = true, title = getString(R.string.transfer_complete), text = getString(R.string.success_send, fileNames.joinToString(separator = "\n- ", prefix = "- ")))
+      } catch (e: HandshakeFailException) {
+        notify(endNotif = true, title = getString(R.string.couldnt_start), text = e.message)
+      } catch (e: SocketException) {
+        // probably a cancel
+        notify(endNotif = true, title = getString(R.string.transfer_canceled))
+      } catch (e: SocketTimeoutException) {
+        notify(endNotif = true, title = getString(R.string.transfer_canceled), text = getString(R.string.connection_timeout))
+      } catch (e: FileNotFoundException) {
+        notify(endNotif = true, title = getString(R.string.transfer_aborted), text = getString(R.string.couldnt_find_file))
+      } catch (e: Exception) {
+        Log.e(TAG, "An unexpected error occurred while sending file", e)
+        notify(endNotif = true, title = getString(R.string.transfer_aborted), bigText = getString(R.string.error_occured, e.message ?: "<no message>"))
+      }
       return Result.success()
     } finally {
       try {
@@ -101,8 +119,10 @@ class SendFileWorker @AssistedInject constructor(@Assisted appContext: Context,
     }
   }
 
-  override fun getForegroundInfo(): ForegroundInfo {
-    return super.getForegroundInfo()
+  override fun onConnected(selfPeer: Peer?, remotePeer: Peer?) {
+    notify(bigText = getString(
+      R.string.sending_connected,
+      fileNames.joinToString(separator = "\n- ", prefix = "- ")
+    ))
   }
-
 }

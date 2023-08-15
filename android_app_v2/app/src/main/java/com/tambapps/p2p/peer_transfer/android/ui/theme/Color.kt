@@ -11,3 +11,6 @@ val PurpleGrey40 = Color(0xFF625b71)
 val Pink40 = Color(0xFF7D5260)
 val Cyan = Color(0xFF43cea2)
 val BlueOcean = Color(0xFF185a9d)
+
+
+val NotifSmallIconColor = Color(0xFF185a9d)
