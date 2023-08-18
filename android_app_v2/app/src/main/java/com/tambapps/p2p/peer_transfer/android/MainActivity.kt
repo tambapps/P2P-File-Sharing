@@ -64,6 +64,7 @@ fun MainView() {
           context.startActivity(Intent(context, SendActivity::class.java))
         }
         MainButton(textResId = R.string.receive_file) {
+          context.startActivity(Intent(context, ReceiveActivity::class.java))
         }
       }
     }

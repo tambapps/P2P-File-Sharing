@@ -104,5 +104,6 @@
     <string name="notifications_not_enabled">Notifications are not enabled</string>
     <string name="enable">enable</string>
     <string name="no_progress_without_notifs">Without notifications you won\'t be able to follow the progress of the transfer</string>
+    <string name="title_activity_receive">ReceiveActivity</string>
 
 </resources>
