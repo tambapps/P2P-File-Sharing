@@ -2,8 +2,13 @@ package com.tambapps.p2p.peer_transfer.android
 
 import android.Manifest.permission.POST_NOTIFICATIONS
 import android.app.Activity
+import android.app.AlertDialog
+import android.content.DialogInterface
+import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -26,7 +31,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.tambapps.p2p.fandem.Fandem
@@ -41,6 +45,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.IOException
 import javax.inject.Inject
+
 
 const val ANY_CONTENT_TYPE = "*/*"
 
@@ -79,16 +84,6 @@ fun SendView(fandemService: FandemService) {
     }
   }
 
-  // request permission and then pick file
-  val requestPermissionLauncher = rememberLauncherForActivityResult(
-    ActivityResultContracts.RequestPermission()
-  ) { isGranted: Boolean ->
-    if (isGranted) {
-      pickFileLauncher.launch(ANY_CONTENT_TYPE)
-    } else {
-      Toast.makeText(context, R.string.permissions_not_granted, Toast.LENGTH_SHORT).show()
-    }
-  }
   Surface(modifier = Modifier
     .fillMaxSize()
     .background(brush = gradientBrush), color = Color.Transparent) {
@@ -100,10 +95,22 @@ fun SendView(fandemService: FandemService) {
       FloatingActionButton(modifier = Modifier.size(128.dp),
         shape = RoundedCornerShape(128.dp),
         onClick = {
-          if (false && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
+          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
             && !context.hasPermission(permission = POST_NOTIFICATIONS)) {
-            // TODO request permission in onboarding instead
-            requestPermissionLauncher.launch(POST_NOTIFICATIONS)
+            AlertDialog.Builder(context)
+              .setTitle("Notifications are not enabled")
+              .setMessage("Without notifications you won't be able to follow the progress of the transfer")
+              .setPositiveButton("enable") { dialogInterface: DialogInterface, i: Int ->
+                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                val uri = Uri.fromParts("package", context.packageName, null)
+                intent.data = uri
+                context.startActivity(intent)
+              }
+              .setNeutralButton("cancel", null)
+              .setNegativeButton("continue") { dialogInterface: DialogInterface, i: Int ->
+                pickFileLauncher.launch(ANY_CONTENT_TYPE)
+              }
+              .show()
           } else {
             pickFileLauncher.launch(ANY_CONTENT_TYPE)
           }
