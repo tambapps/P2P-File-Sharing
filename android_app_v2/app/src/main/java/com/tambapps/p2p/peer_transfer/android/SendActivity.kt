@@ -57,7 +57,6 @@ import kotlinx.coroutines.withContext
 import java.io.IOException
 import javax.inject.Inject
 
-
 const val ANY_CONTENT_TYPE = "*/*"
 
 @AndroidEntryPoint
@@ -128,23 +127,23 @@ fun SendView(fandemService: FandemService, viewModel: SendViewModel = viewModel(
           .padding(horizontal = 8.dp), text = stringResource(id = R.string.pick_a_file_to_send), fontSize = 24.sp)
       }
       Spacer(modifier = Modifier.weight(1f))
-      if (peerState.value == null) {
+      if (peer == null) {
         FloatingActionButton(modifier = Modifier.size(128.dp),
           shape = RoundedCornerShape(128.dp),
           onClick = {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
               && !context.hasPermission(permission = POST_NOTIFICATIONS)) {
               AlertDialog.Builder(context)
-                .setTitle("Notifications are not enabled")
-                .setMessage("Without notifications you won't be able to follow the progress of the transfer")
-                .setPositiveButton("enable") { dialogInterface: DialogInterface, i: Int ->
+                .setTitle(R.string.notifications_not_enabled)
+                .setMessage(R.string.no_progress_without_notifs)
+                .setPositiveButton(R.string.enable) { dialogInterface: DialogInterface, i: Int ->
                   val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
                   val uri = Uri.fromParts("package", context.packageName, null)
                   intent.data = uri
                   context.startActivity(intent)
                 }
-                .setNeutralButton("cancel", null)
-                .setNegativeButton("continue") { dialogInterface: DialogInterface, i: Int ->
+                .setNeutralButton(R.string.cancel, null)
+                .setNegativeButton(R.string.continuer) { dialogInterface: DialogInterface, i: Int ->
                   pickFileLauncher.launch(ANY_CONTENT_TYPE)
                 }
                 .show()
@@ -155,8 +154,6 @@ fun SendView(fandemService: FandemService, viewModel: SendViewModel = viewModel(
           Image(painter = painterResource(id = R.drawable.folder), contentDescription = "folder",
             modifier = Modifier.size(80.dp))
         }
-      } else {
-
       }
       Spacer(modifier = Modifier.weight(1f))
     }

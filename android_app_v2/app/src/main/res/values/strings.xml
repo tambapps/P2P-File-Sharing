@@ -100,5 +100,9 @@
     <string name="sending_file">Sending %s</string>
     <string name="success_send">%s was successfully sent</string>
     <string name="transfer_started_consult_notif">Transfer will start with peer key %s\n\nConsult your notifications to follow the progress</string>
+    <string name="continuer">continue</string>
+    <string name="notifications_not_enabled">Notifications are not enabled</string>
+    <string name="enable">enable</string>
+    <string name="no_progress_without_notifs">Without notifications you won\'t be able to follow the progress of the transfer</string>
 
 </resources>

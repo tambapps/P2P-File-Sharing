@@ -56,14 +56,14 @@ fun MainView() {
     .fillMaxSize()
     .background(brush = gradientBrush), color = Color.Transparent) {
     Column {
-      header()
+      Header()
     }
     Box(modifier = Modifier.fillMaxSize()) {
       Column(modifier = Modifier.align(Alignment.Center)) {
-        mainButton(textResId = R.string.send_file) {
+        MainButton(textResId = R.string.send_file) {
           context.startActivity(Intent(context, SendActivity::class.java))
         }
-        mainButton(textResId = R.string.receive_file) {
+        MainButton(textResId = R.string.receive_file) {
         }
       }
     }
@@ -71,7 +71,7 @@ fun MainView() {
 }
 
 @Composable
-fun header() {
+fun Header() {
   Row(horizontalArrangement = Arrangement.SpaceBetween,
     verticalAlignment = Alignment.CenterVertically,
     modifier = Modifier
@@ -88,7 +88,7 @@ fun header() {
 
 
 @Composable
-fun mainButton(textResId: Int, onClick: () -> Unit) {
+fun MainButton(textResId: Int, onClick: () -> Unit) {
   Box(
     Modifier
       .fillMaxWidth()
