@@ -97,5 +97,6 @@
     <string name="no_more_than_n_files">Vous ne pouvez pas envoyer plus de 10 fichiers en une fois</string>
     <string name="sending_file">Envoi de %s</string>
     <string name="success_send">%s a été envoyé avec succès</string>
+    <string name="transfer_started_consult_notif">Le transfert va commencer avec la clé %s\n\nConsultez vos notifications pour suivre le progrès</string>
 
 </resources>

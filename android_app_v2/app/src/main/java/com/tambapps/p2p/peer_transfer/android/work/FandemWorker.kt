@@ -62,7 +62,7 @@ abstract class FandemWorker(appContext: Context, params: WorkerParameters) : Cor
   private fun createNotificationChannelIfNeeded(notificationManager: NotificationManager) {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O || channelExists(notificationManager)) return
     val channel =
-      NotificationChannel(javaClass.name, javaClass.name, NotificationManager.IMPORTANCE_DEFAULT)
+      NotificationChannel(javaClass.name, "Transfer notifications", NotificationManager.IMPORTANCE_DEFAULT)
     channel.description = "File sending notifications"
     channel.enableLights(false)
     notificationManager.createNotificationChannel(channel)
@@ -97,13 +97,13 @@ abstract class FandemWorker(appContext: Context, params: WorkerParameters) : Cor
         .setContentText("")
         .setContentTitle("")
         .setProgress(0, 0, false)
-    }
+    } else notifBuilder.setOngoing(true)
     if (text != null && bigText == null) notifBuilder.setStyle(null)
     if (bigText != null && text == null) notifBuilder.setContentText(null)
     if (title != null) notifBuilder.setContentTitle(title)
     if (text != null) notifBuilder.setContentText(text)
     if (bigText != null) notifBuilder.setStyle(NotificationCompat.BigTextStyle().bigText(bigText))
-    if (progress != null) notifBuilder.setProgress(100, progress, false).setOngoing(true)
+    if (progress != null) notifBuilder.setProgress(100, progress, false)
     else notifBuilder.setProgress(0, 0, false).setOngoing(false)
     withContext(Dispatchers.Main) {
       notificationManager.notify(notificationId, notifBuilder.build())
