@@ -48,27 +48,9 @@ class SendFileWorker @AssistedInject constructor(@Assisted appContext: Context,
     try {
       val peerString = inputData.getString(PEER_KEY) ?: return Result.failure()
       val peer = Peer.parse(peerString)
+
+      val files = parseFileData() ?: return Result.failure()
       val deviceName = Build.MANUFACTURER + " " + Build.MODEL
-
-      fileNames = inputData.getStringArray(FILE_NAMES_KEY) ?: return Result.failure()
-      val fileUris = inputData.getStringArray(FILE_URIS_KEY) ?: return Result.failure()
-      val fileSizes = inputData.getLongArray(FILE_SIZES_KEY) ?: return Result.failure()
-
-      if (fileNames.size != fileUris.size || fileUris.size != fileSizes.size) return Result.failure()
-      val fileCount = fileNames.size
-      if (fileCount == 0) return Result.failure()
-
-      val files = mutableListOf<SendingFileData>()
-      Log.i(TAG, "Computing checksums")
-      for (i in 0 until fileCount) {
-        val fileName = fileNames[i]
-        val fileUri = Uri.parse(fileUris[i])
-        val fileSize = fileSizes[i]
-        val checksum = FileUtils.computeChecksum(applicationContext.contentResolver.openInputStream(fileUri))
-        files.add(SendingFileData(fileName, fileSize, checksum) {
-          applicationContext.contentResolver.openInputStream(fileUri)
-        })
-      }
       senderPeersMulticastService.data = listOf(
         SenderPeer(
           peer.address,
@@ -93,8 +75,7 @@ class SendFileWorker @AssistedInject constructor(@Assisted appContext: Context,
       val fileSender = FileSender(peer,  this, SOCKET_TIMEOUT)
       try {
         fileSender.send(files)
-
-        if (fileCount > 1) {
+        if (files.size > 1) {
           notify(endNotif = true, title = getString(R.string.transfer_complete), bigText = getString(R.string.success_send_many, fileNames.joinToString(separator = "\n- ", prefix = "- ")))
         } else {
           notify(endNotif = true, title = getString(R.string.transfer_complete), text = getString(R.string.success_send, fileNames.first()))
@@ -132,5 +113,28 @@ class SendFileWorker @AssistedInject constructor(@Assisted appContext: Context,
       R.string.sending_connected,
       fileNames.joinToString(separator = "\n- ", prefix = "- ")
     ))
+  }
+
+  private fun parseFileData(): List<SendingFileData>? {
+    fileNames = inputData.getStringArray(FILE_NAMES_KEY) ?: return null
+    val fileUris = inputData.getStringArray(FILE_URIS_KEY) ?: return null
+    val fileSizes = inputData.getLongArray(FILE_SIZES_KEY) ?: return null
+
+    if (fileNames.size != fileUris.size || fileUris.size != fileSizes.size) return null
+    val fileCount = fileNames.size
+    if (fileCount == 0) return null
+
+    val files = mutableListOf<SendingFileData>()
+    Log.i(TAG, "Computing checksums")
+    for (i in 0 until fileCount) {
+      val fileName = fileNames[i]
+      val fileUri = Uri.parse(fileUris[i])
+      val fileSize = fileSizes[i]
+      val checksum = FileUtils.computeChecksum(applicationContext.contentResolver.openInputStream(fileUri))
+      files.add(SendingFileData(fileName, fileSize, checksum) {
+        applicationContext.contentResolver.openInputStream(fileUri)
+      })
+    }
+    return files
   }
 }
