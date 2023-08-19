@@ -60,7 +60,7 @@ import javax.inject.Inject
 const val ANY_CONTENT_TYPE = "*/*"
 
 @AndroidEntryPoint
-class SendActivity : ComponentActivity() {
+class SendActivity : TransferActivity() {
 
   @Inject lateinit var fandemWorkService: FandemWorkService
 

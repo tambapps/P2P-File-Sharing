@@ -38,7 +38,7 @@ import java.util.Locale
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class ReceiveActivity : ComponentActivity() {
+class ReceiveActivity : TransferActivity() {
 
   @Inject
   lateinit var fandemWorkService: FandemWorkService
