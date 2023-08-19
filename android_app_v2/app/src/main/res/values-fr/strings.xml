@@ -102,5 +102,6 @@
     <string name="notifications_not_enabled">Les notifications ne sont pas activés</string>
     <string name="enable">activer</string>
     <string name="no_progress_without_notifs">Sans notifications vous ne pourrez suivre le progrès du transfert</string>
+    <string name="peer_key">Clé expediteur</string>
 
 </resources>

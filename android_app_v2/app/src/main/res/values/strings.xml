@@ -105,5 +105,6 @@
     <string name="enable">enable</string>
     <string name="no_progress_without_notifs">Without notifications you won\'t be able to follow the progress of the transfer</string>
     <string name="title_activity_receive">ReceiveActivity</string>
+    <string name="peer_key">Peer key</string>
 
 </resources>
