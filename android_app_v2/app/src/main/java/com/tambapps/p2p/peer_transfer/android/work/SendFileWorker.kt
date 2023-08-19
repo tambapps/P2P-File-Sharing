@@ -30,7 +30,6 @@ class SendFileWorker @AssistedInject constructor(@Assisted appContext: Context,
 ): FandemWorker(appContext, workerParams) {
 
   companion object {
-    const val PEER_KEY = "pk"
     const val TAG = "SendFileWorker"
     const val FILE_NAMES_KEY  = "fn"
     const val FILE_URIS_KEY  = "fu"
@@ -105,10 +104,12 @@ class SendFileWorker @AssistedInject constructor(@Assisted appContext: Context,
   }
 
   override fun onTransferStarted(fileName: String, fileSize: Long) {
+    Log.i(TAG, "Sending $fileName (${FileUtils.toFileSize(fileSize)})")
     suspendNotify(title = getString(R.string.sending_file, fileName))
   }
 
   override fun onConnected(selfPeer: Peer?, remotePeer: Peer?) {
+    Log.i(TAG, "Connected to peer $remotePeer (using $selfPeer)")
     suspendNotify(bigText = getString(
       R.string.sending_connected,
       fileNames.joinToString(separator = "\n- ", prefix = "- ")
@@ -130,9 +131,9 @@ class SendFileWorker @AssistedInject constructor(@Assisted appContext: Context,
       val fileName = fileNames[i]
       val fileUri = Uri.parse(fileUris[i])
       val fileSize = fileSizes[i]
-      val checksum = FileUtils.computeChecksum(applicationContext.contentResolver.openInputStream(fileUri))
+      val checksum = FileUtils.computeChecksum(contentResolver.openInputStream(fileUri))
       files.add(SendingFileData(fileName, fileSize, checksum) {
-        applicationContext.contentResolver.openInputStream(fileUri)
+        contentResolver.openInputStream(fileUri)
       })
     }
     return files

@@ -1,6 +1,7 @@
 package com.tambapps.p2p.peer_transfer.android
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -26,12 +27,22 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.tambapps.p2p.fandem.Fandem
+import com.tambapps.p2p.peer_transfer.android.service.FandemWorkService
 import com.tambapps.p2p.peer_transfer.android.ui.theme.FandemAndroidTheme
 import com.tambapps.p2p.peer_transfer.android.ui.theme.gradientBrush
 import com.tambapps.p2p.speer.Peer
+import com.tambapps.p2p.speer.util.PeerUtils
+import dagger.hilt.android.AndroidEntryPoint
+import java.io.IOException
 import java.util.Locale
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class ReceiveActivity : ComponentActivity() {
+
+  @Inject
+  lateinit var fandemWorkService: FandemWorkService
+
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     setContent {
@@ -54,7 +65,9 @@ class ReceiveActivity : ComponentActivity() {
 
               val showDialog = remember { mutableStateOf(false) }
               if (showDialog.value) {
-                TextInputDialog(onPositiveClick = { hexCode: String ->
+                TextInputDialog(
+                  initialValue = getPeerKeyPrefix(),
+                  onPositiveClick = { hexCode: String ->
                   if (Fandem.isCorrectPeerKey(hexCode)) {
                     startReceiving(Fandem.parsePeerFromHexString(hexCode))
                     return@TextInputDialog null
@@ -74,7 +87,19 @@ class ReceiveActivity : ComponentActivity() {
       }
     }
   }
-}
-fun startReceiving(peer: Peer) {
-  // TODO
+
+  private fun startReceiving(peer: Peer) {
+    fandemWorkService.startReceiveFileWork(peer)
+    Toast.makeText(applicationContext, getString(R.string.service_started), Toast.LENGTH_LONG).show()
+  }
+
+  private fun getPeerKeyPrefix(): String? {
+    val key: String = try {
+      Fandem.toHexString(PeerUtils.getPrivateNetworkIpAddress())
+    } catch (e: IOException) {
+      return null
+    }
+    // subtract the last octet
+    return key.substring(0, key.length - 2)
+  }
 }

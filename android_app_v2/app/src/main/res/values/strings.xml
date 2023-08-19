@@ -28,8 +28,8 @@
     <string name="success_send_many">The following files were successfully sent %s</string>
     <string name="transfer_complete">Transfer completed</string>
     <string name="transfer_canceled">Transfer canceled</string>
-    <string name="receveiving_connected">Receiving\n%s</string>
-    <string name="success_received">The following file(s) were successfully received\n%s</string>
+    <string name="receiving_connected">Receiving %s</string>
+    <string name="success_received">The following file(s) were successfully received in your Download folder\n%s</string>
     <string name="incomplete_transfer">The file couldn\'t be downloaded entirely. You should delete it.</string>
     <string name="error_incomplete">An error occurred during the transfer: %s. The file couldn\'t be downloaded entirely. You should delete it.</string>
     <string name="connection_timeout">Connection timeout</string>
@@ -37,7 +37,7 @@
     <string name="connecting_to">connecting to %s</string>
     <string name="permissions_not_granted">You didn\'t grant write permissions</string>
     <string name="no">no</string>
-    <string name="service_started">Service started. You can see the progress in the notification bar</string>
+    <string name="service_started">Transfer started. You can see the progress in the notification bar</string>
     <string name="couldnt_get_file">Couldn\'t get file, sending canceled</string>
     <string name="couldnt_get_size_of_file">Error: couldn\'t get size of file</string>
     <string name="couldn_get_name_file">Error: couldn\'t get name of file</string>

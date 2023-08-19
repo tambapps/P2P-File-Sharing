@@ -22,12 +22,14 @@ abstract class FandemWorker(appContext: Context, params: WorkerParameters) : Cor
   TransferListener {
 
   companion object {
+    const val PEER_KEY = "pk"
     const val SOCKET_TIMEOUT = 1000 * 60 * 2 //in ms
   }
 
   protected abstract val smallIcon: Int
   protected abstract val largeIcon: Int
   private val notificationId = id.hashCode()
+  val contentResolver = appContext.contentResolver
 
   private val notificationManager = appContext.getSystemService(NotificationManager::class.java)
   @Volatile

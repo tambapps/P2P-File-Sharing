@@ -26,12 +26,13 @@ import androidx.compose.ui.window.Dialog
 
 @Composable
 fun TextInputDialog(
+  initialValue: String? = null,
   // returns the error text if any
   onPositiveClick: (String) -> String?,
   dialogDismisser: () -> Unit,
 ) {
   val errorTextState = remember { mutableStateOf<String?>(null) }
-  val textState = remember { mutableStateOf("") }
+  val textState = remember { mutableStateOf(initialValue ?: "") }
   Dialog({}) {
     Surface(shape = MaterialTheme.shapes.medium) {
       Column {

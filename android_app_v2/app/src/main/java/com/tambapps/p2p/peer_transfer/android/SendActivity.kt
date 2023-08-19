@@ -44,7 +44,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.tambapps.p2p.fandem.Fandem
-import com.tambapps.p2p.peer_transfer.android.service.FandemService
+import com.tambapps.p2p.peer_transfer.android.service.FandemWorkService
 import com.tambapps.p2p.peer_transfer.android.ui.theme.FandemAndroidTheme
 import com.tambapps.p2p.peer_transfer.android.ui.theme.gradientBrush
 import com.tambapps.p2p.peer_transfer.android.util.hasPermission
@@ -62,14 +62,14 @@ const val ANY_CONTENT_TYPE = "*/*"
 @AndroidEntryPoint
 class SendActivity : ComponentActivity() {
 
-  @Inject lateinit var fandemService: FandemService
+  @Inject lateinit var fandemWorkService: FandemWorkService
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
 
     setContent {
       FandemAndroidTheme {
-        SendView(fandemService)
+        SendView(fandemWorkService)
       }
     }
   }
@@ -79,7 +79,7 @@ class SendViewModel: ViewModel() {
   val peer = MutableLiveData<Peer?>()
 }
 @Composable
-fun SendView(fandemService: FandemService, viewModel: SendViewModel = viewModel()) {
+fun SendView(fandemWorkService: FandemWorkService, viewModel: SendViewModel = viewModel()) {
   val context = LocalContext.current as Activity
   val pickFileLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetMultipleContents()) { uris ->
     if (uris.isEmpty()) {
@@ -94,7 +94,7 @@ fun SendView(fandemService: FandemService, viewModel: SendViewModel = viewModel(
         null
       } ?: return@launch
       viewModel.peer.postValue(peer)
-      fandemService.sendFiles(context.contentResolver, peer, uris)
+      fandemWorkService.startSendFileWork(context.contentResolver, peer, uris)
     }
   }
   val peerState = viewModel.peer.observeAsState()
