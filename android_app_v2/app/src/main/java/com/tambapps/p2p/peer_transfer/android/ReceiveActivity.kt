@@ -1,5 +1,6 @@
 package com.tambapps.p2p.peer_transfer.android
 
+import android.app.AlertDialog
 import android.net.wifi.WifiManager
 import android.os.Bundle
 import android.util.Log
@@ -7,22 +8,22 @@ import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,10 +34,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.tambapps.p2p.fandem.Fandem
 import com.tambapps.p2p.fandem.SenderPeer
+import com.tambapps.p2p.fandem.model.FileData
 import com.tambapps.p2p.fandem.util.FileUtils
 import com.tambapps.p2p.peer_transfer.android.service.AndroidSenderPeersReceiverService
 import com.tambapps.p2p.peer_transfer.android.service.FandemWorkService
@@ -49,6 +50,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.io.IOException
 import java.util.Locale
+import java.util.stream.Collectors
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -86,10 +88,27 @@ class ReceiveActivity : TransferActivity(),
               } else {
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
                   items(sendingPeersState) { peer ->
-                    Column(modifier = Modifier.padding(start = 10.dp, top = 4.dp, bottom = 4.dp)) {
-                      Text(text = peer.deviceName, fontSize = 18.sp, modifier = Modifier.padding(bottom = 8.dp))
-                      Text(text = if (peer.files.size == 1) peer.files.first().fileName else peer.files.joinToString(separator = "\n- ", prefix = "- ", transform = { it.fileName }), fontSize = 16.sp, modifier = Modifier.padding(bottom = 4.dp))
-                      Text(text = FileUtils.toFileSize(peer.files.sumOf { it.fileSize }), fontSize = 16.sp, modifier = Modifier.padding(bottom = 8.dp))
+                    Column(modifier = Modifier
+                      .fillMaxWidth()
+                      .clickable {
+                        val message =
+                          getString(R.string.alert_receive_file_message,
+                            peer.files.joinToString(separator = "\n- ", prefix = "- ", transform = { it.fileName })) + "\n" + getString(R.string.in_download_folder)
+                        AlertDialog.Builder(this@ReceiveActivity)
+                          .setTitle(peer.deviceName)
+                          .setMessage(message)
+                          .setPositiveButton(R.string.yes) { dialog, which ->
+                            startReceiving(peer)
+                          }
+                          .setNeutralButton(R.string.no, null)
+                          .show()
+                      }) {
+                      Spacer(modifier = Modifier.padding(top = 4.dp))
+                      val paddingStart = 10.dp
+                      Text(text = peer.deviceName, fontSize = 18.sp, modifier = Modifier.padding(start = paddingStart, bottom = 8.dp))
+                      Text(text = if (peer.files.size == 1) peer.files.first().fileName else peer.files.joinToString(separator = "\n- ", prefix = "- ", transform = { it.fileName }), fontSize = 16.sp, modifier = Modifier.padding(start = paddingStart, bottom = 4.dp))
+                      Text(text = FileUtils.toFileSize(peer.files.sumOf { it.fileSize }), fontSize = 16.sp, modifier = Modifier.padding(start = paddingStart, bottom = 8.dp))
+                      Spacer(modifier = Modifier.padding(bottom = 4.dp))
                     }
                   }
                 }
@@ -142,6 +161,7 @@ class ReceiveActivity : TransferActivity(),
   private fun startReceiving(peer: Peer) {
     fandemWorkService.startReceiveFileWork(peer)
     Toast.makeText(applicationContext, getString(R.string.service_started), Toast.LENGTH_LONG).show()
+    finish()
   }
 
   private fun getPeerKeyPrefix(): String? {
