@@ -45,7 +45,7 @@ abstract class TransferActivity: ComponentActivity() {
     startActivity(intent)
   }
 
-  private fun isNetworkConfigured(): Boolean {
+  protected fun isNetworkConfigured(): Boolean {
     val wifiManager = getSystemService(WIFI_SERVICE) as WifiManager
     return NetworkUtils.isHotspotEnabled(this) || wifiManager.isWifiEnabled && NetworkUtils.isNetworkConnected(
       this

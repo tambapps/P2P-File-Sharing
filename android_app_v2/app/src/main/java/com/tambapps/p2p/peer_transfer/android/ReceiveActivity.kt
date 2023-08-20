@@ -1,6 +1,8 @@
 package com.tambapps.p2p.peer_transfer.android
 
+import android.net.wifi.WifiManager
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -13,12 +15,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -33,10 +38,12 @@ import androidx.lifecycle.ViewModel
 import com.tambapps.p2p.fandem.Fandem
 import com.tambapps.p2p.fandem.SenderPeer
 import com.tambapps.p2p.fandem.util.FileUtils
+import com.tambapps.p2p.peer_transfer.android.service.AndroidSenderPeersReceiverService
 import com.tambapps.p2p.peer_transfer.android.service.FandemWorkService
 import com.tambapps.p2p.peer_transfer.android.ui.theme.FandemAndroidTheme
 import com.tambapps.p2p.peer_transfer.android.ui.theme.gradientBrush
 import com.tambapps.p2p.speer.Peer
+import com.tambapps.p2p.speer.datagram.service.MulticastReceiverService
 import com.tambapps.p2p.speer.util.PeerUtils
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -45,14 +52,20 @@ import java.util.Locale
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class ReceiveActivity : TransferActivity() {
+class ReceiveActivity : TransferActivity(),
+  MulticastReceiverService.DiscoveryListener<List<SenderPeer>> {
 
+  companion object {
+    const val TAG = "ReceiveActivity"
+  }
   @Inject
   lateinit var fandemWorkService: FandemWorkService
+  private lateinit var peerSniffer: AndroidSenderPeersReceiverService
   private val viewModel: ReceiveViewModel by viewModels()
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
+    peerSniffer = AndroidSenderPeersReceiverService(getSystemService(WifiManager::class.java), this)
     setContent {
       FandemAndroidTheme {
         // A surface container using the 'background' color from the theme
@@ -65,16 +78,14 @@ class ReceiveActivity : TransferActivity() {
               .fillMaxWidth()
               .height(2.dp))
             Box(modifier = Modifier.weight(1f)) {
-              val sendingPeersState = viewModel.sendingPeers.observeAsState()
-              val sendingPeers = sendingPeersState.value
-              if (sendingPeers.isNullOrEmpty()) {
+              val sendingPeersState = viewModel.sendingPeers
+              if (sendingPeersState.isEmpty()) {
                 Text(text = stringResource(id = R.string.loading_sending_peers), modifier = Modifier
                   .align(Alignment.Center)
                   .padding(bottom = 40.dp), fontSize = 22.sp)
               } else {
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
-                  items(sendingPeers.size) { position ->
-                    val peer = sendingPeers[position]
+                  items(sendingPeersState) { peer ->
                     Column(modifier = Modifier.padding(start = 10.dp, top = 4.dp, bottom = 4.dp)) {
                       Text(text = peer.deviceName, fontSize = 18.sp, modifier = Modifier.padding(bottom = 8.dp))
                       Text(text = if (peer.files.size == 1) peer.files.first().fileName else peer.files.joinToString(separator = "\n- ", prefix = "- ", transform = { it.fileName }), fontSize = 16.sp, modifier = Modifier.padding(bottom = 4.dp))
@@ -115,6 +126,19 @@ class ReceiveActivity : TransferActivity() {
     }
   }
 
+  override fun onResume() {
+    super.onResume()
+    if (isNetworkConfigured() && !peerSniffer.isRunning()) {
+      peerSniffer.start()
+    }
+  }
+
+  override fun onPause() {
+    if (peerSniffer.isRunning) {
+      peerSniffer.stop()
+    }
+    super.onPause()
+  }
   private fun startReceiving(peer: Peer) {
     fandemWorkService.startReceiveFileWork(peer)
     Toast.makeText(applicationContext, getString(R.string.service_started), Toast.LENGTH_LONG).show()
@@ -129,9 +153,33 @@ class ReceiveActivity : TransferActivity() {
     // subtract the last octet
     return key.substring(0, key.length - 2)
   }
+
+  override fun onDestroy() {
+    super.onDestroy()
+    peerSniffer.stopWithExecutor()
+  }
+
+  override fun onDiscovery(discoveredData: List<SenderPeer>?) {
+    if (discoveredData != null) {
+      Log.i(TAG, "Found sending peers $discoveredData")
+      viewModel.postNewPeers(discoveredData)
+    }
+  }
+
+  override fun onError(e: IOException?) {
+    Log.e(TAG, "Error while sniffing peers", e)
+  }
 }
 
 @HiltViewModel
 class ReceiveViewModel @Inject constructor(): ViewModel() {
-  val sendingPeers = MutableLiveData<MutableList<SenderPeer>>(mutableListOf())
+  fun postNewPeers(discoveredData: List<SenderPeer>) {
+    for (potentialPeer in discoveredData) {
+      if (!sendingPeers.contains(potentialPeer)) {
+        sendingPeers.add(potentialPeer)
+      }
+    }
+  }
+
+  val sendingPeers = mutableStateListOf<SenderPeer>()
 }
