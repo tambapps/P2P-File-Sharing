@@ -48,6 +48,9 @@ import com.tambapps.p2p.speer.datagram.service.MulticastReceiverService
 import com.tambapps.p2p.speer.util.PeerUtils
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.io.IOException
 import java.util.Locale
 import javax.inject.Inject
@@ -202,15 +205,16 @@ class ReceiveActivity : TransferActivity(),
 
   override fun onError(e: IOException?) {
     Log.e(TAG, "Error while sniffing peers", e)
-    viewModel.sniffingPeers.value = false
-    AlertDialog.Builder(this)
-      .setTitle(R.string.network_error)
-      .setMessage(e?.message ?: getString(R.string.no_internet))
-      .setNeutralButton("ok", null)
-      .setPositiveButton(R.string.retry) { dialogInterface: DialogInterface, i: Int ->
-        startSniffing()
-      }
-
+    CoroutineScope(Dispatchers.Main).launch {
+      viewModel.sniffingPeers.value = false
+      AlertDialog.Builder(this@ReceiveActivity)
+        .setTitle(R.string.network_error)
+        .setMessage(e?.message ?: getString(R.string.no_internet))
+        .setNeutralButton("ok", null)
+        .setPositiveButton(R.string.retry) { dialogInterface: DialogInterface, i: Int ->
+          startSniffing()
+        }
+    }
   }
 }
 
