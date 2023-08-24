@@ -37,6 +37,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
@@ -93,7 +94,7 @@ class HelpActivity : ComponentActivity() {
               Column(modifier = Modifier
                 .verticalScroll(state)
                 .fillMaxSize()
-                .padding(horizontal = 8.dp, vertical = 8.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                .padding(horizontal = 8.dp, vertical = 16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                 if (index == 0) {
                   HelpPage()
                 } else {
@@ -124,6 +125,8 @@ fun HelpPage() {
     pop()
   }
   val uriHandler = LocalUriHandler.current
+  Text(text = stringResource(id = R.string.welcome_to_fandem), fontWeight = FontWeight.Bold, fontSize = 18.sp)
+  Spacer(modifier = Modifier.size(width = 1.dp, height = 16.dp))
   PageText(text = annotatedString, onClick = { offset ->
     annotatedString.getStringAnnotations(tag = fandemLinkTag, start = offset, end = offset).firstOrNull()?.let {
       uriHandler.openUri(it.item)
