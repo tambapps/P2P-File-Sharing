@@ -8,7 +8,6 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,14 +22,12 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -42,7 +39,7 @@ import com.tambapps.p2p.fandem.util.FileUtils
 import com.tambapps.p2p.peer_transfer.android.service.AndroidSenderPeersReceiverService
 import com.tambapps.p2p.peer_transfer.android.service.FandemWorkService
 import com.tambapps.p2p.peer_transfer.android.ui.theme.FandemAndroidTheme
-import com.tambapps.p2p.peer_transfer.android.ui.theme.gradientBrush
+import com.tambapps.p2p.peer_transfer.android.ui.theme.FandemSurface
 import com.tambapps.p2p.speer.Peer
 import com.tambapps.p2p.speer.datagram.service.MulticastReceiverService
 import com.tambapps.p2p.speer.util.PeerUtils
@@ -73,9 +70,7 @@ class ReceiveActivity : TransferActivity(),
     setContent {
       FandemAndroidTheme {
         // A surface container using the 'background' color from the theme
-        Surface(modifier = Modifier
-          .fillMaxSize()
-          .background(brush = gradientBrush), color = Color.Transparent) {
+        FandemSurface {
           Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
             Text(text = stringResource(id = R.string.select_peer), textAlign = TextAlign.Center, fontSize = 22.sp, modifier = Modifier.padding(top = 20.dp, bottom = 10.dp))
             val progressBarModifier = Modifier

@@ -4,7 +4,7 @@
     <string name="tab_text_2">Send file</string>
     <string name="tab_text_3">Receive file</string>
     <string name="help_title">Welcome to Fandem</string>
-    <string name="help_description">\t\t\t\tThis app allows to send/receive files from another device in Peer to Peer (P2P), with mobile\'s data. P2P means that the data transferred goes directly from one device to another, without any intermediate server.\n\nTo be able to transfer files, both devices needs to be connected to the same Wi-Fi, or one device must share its data (hotspot) to the other.\n\nTo assure a transfer without problems, please make sure that <b>both devices have the latest version of the app</b>\n\nFandem is an open-source project. You can consult the source code <a href="https://github.com/tambapps/P2P-File-Sharing">here</a></string>
+    <string name="help_description">\t\t\t\tThis app allows to send/receive files from another device in Peer to Peer (P2P), with mobile\'s data. P2P means that the data transferred goes directly from one device to another, without any intermediate server.\n\nTo be able to transfer files, both devices needs to be connected to the same Wi-Fi, or one device must share its data (hotspot) to the other.\n\nTo assure a transfer without problems, please make sure that <b>both devices have the latest version of the app</b>\n\nFandem is an open-source project. You can consult the source code</string>
     <string name="receive_description">\t\t\t\tTo receive files, go to the receive screen, Wait for the app to find the sender peer. Once the sender is found, the transfer can start. You can consult the progress on the notification created.</string>
     <string name="send_description">\t\t\t\tTo send a files, pick one by clicking on the button. Once it is done, a key will be displayed on the screen, you can eventually provide it to the receiving device but the receiver should be able to detect your device without it.\nAfter the receiving peer will have found your device, the transfer will start. All files are downloaded in your \'Download\' folder.\nYou can the see the progress on the notification created</string>
     <string name="pick_a_file_to_send">Pick a file to send</string>
@@ -107,5 +107,8 @@
     <string name="title_activity_receive" translatable="false">ReceiveActivity</string>
     <string name="peer_key">Peer key</string>
     <string name="retry">Retry</string>
+    <string name="title_activity_help" translatable="false">HelpActivity</string>
+    <string name="rewatch_intro">Re-watch intro</string>
+    <string name="here">here</string>
 
 </resources>

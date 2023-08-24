@@ -1,0 +1,141 @@
+@file:OptIn(ExperimentalFoundationApi::class)
+
+package com.tambapps.p2p.peer_transfer.android
+
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.ClickableText
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
+import androidx.compose.material3.TabRowDefaults
+import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.tambapps.p2p.peer_transfer.android.ui.theme.FandemAndroidTheme
+import com.tambapps.p2p.peer_transfer.android.ui.theme.FandemSurface
+import kotlinx.coroutines.launch
+
+class HelpActivity : ComponentActivity() {
+  override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    setContent {
+      FandemAndroidTheme {
+        // A surface container using the 'background' color from the theme
+        val tabData = listOf(R.string.tab_text_1, R.string.tab_text_2, R.string.tab_text_3)
+        val contentRes = listOf(R.string.help_description, R.string.send_description, R.string.receive_description)
+        FandemSurface {
+          Column(modifier = Modifier.fillMaxSize()) {
+            val pagerState = rememberPagerState()
+            TabRow(
+              selectedTabIndex = pagerState.currentPage,
+              divider = {
+                Spacer(modifier =Modifier.height(5.dp))
+              },
+              containerColor = Color.Transparent,
+              indicator = { tabPositions ->
+                TabRowDefaults.Indicator(
+                  modifier =
+                  Modifier.tabIndicatorOffset(tabPositions[pagerState.currentPage]),
+                  height = 5.dp,
+                  color = Color.White
+                )
+              },
+              modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+            ) {
+              val scope = rememberCoroutineScope()
+              tabData.forEachIndexed { index, s ->
+                Tab(selected = pagerState.currentPage == index,
+                  onClick = {
+                    scope.launch {
+                      pagerState.animateScrollToPage(index)
+                    }
+                  },
+                  text = {
+                    Text(text = stringResource(id = s))
+                  })
+              }
+            }
+            HorizontalPager(pageCount = tabData.size, state = pagerState) { index ->
+              val state = rememberScrollState()
+              Column(modifier = Modifier
+                .verticalScroll(state)
+                .fillMaxSize()
+                .padding(horizontal = 8.dp, vertical = 8.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                if (index == 0) {
+                  HelpPage()
+                } else {
+                  PageText(text = AnnotatedString(stringResource(id = contentRes[index])))
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun HelpPage() {
+  val context = LocalContext.current
+  val fandemLinkTag = "Fandem Github Link"
+  val annotatedString = buildAnnotatedString {
+    append(context.getString(R.string.help_description))
+    append(" ")
+
+    pushStringAnnotation(tag = fandemLinkTag, annotation = "https://github.com/tambapps/P2P-File-Sharing")
+    withStyle(style = SpanStyle(color = Color.Cyan, textDecoration = TextDecoration.Underline)) {
+      append(context.getString(R.string.here))
+    }
+    pop()
+  }
+  val uriHandler = LocalUriHandler.current
+  PageText(text = annotatedString, onClick = { offset ->
+    annotatedString.getStringAnnotations(tag = fandemLinkTag, start = offset, end = offset).firstOrNull()?.let {
+      uriHandler.openUri(it.item)
+    }
+  })
+  Spacer(modifier = Modifier.size(width = 1.dp, height = 32.dp))
+  Button(onClick = { /*TODO*/ }) {
+    Text(text = stringResource(id = R.string.rewatch_intro).uppercase())
+  }
+}
+
+@Composable
+fun PageText(text: AnnotatedString, onClick: (Int) -> Unit = {}) {
+  ClickableText(text = text, onClick = onClick, style = TextStyle.Default.copy(fontSize = 16.sp))
+}

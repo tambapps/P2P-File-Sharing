@@ -10,12 +10,10 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.widget.Toast
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -24,13 +22,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
@@ -46,7 +42,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.tambapps.p2p.fandem.Fandem
 import com.tambapps.p2p.peer_transfer.android.service.FandemWorkService
 import com.tambapps.p2p.peer_transfer.android.ui.theme.FandemAndroidTheme
-import com.tambapps.p2p.peer_transfer.android.ui.theme.gradientBrush
+import com.tambapps.p2p.peer_transfer.android.ui.theme.FandemSurface
 import com.tambapps.p2p.peer_transfer.android.util.hasPermission
 import com.tambapps.p2p.speer.Peer
 import dagger.hilt.android.AndroidEntryPoint
@@ -100,9 +96,7 @@ fun SendView(fandemWorkService: FandemWorkService, viewModel: SendViewModel = vi
   val peerState = viewModel.peer.observeAsState()
   val peer = peerState.value
 
-  Surface(modifier = Modifier
-    .fillMaxSize()
-    .background(brush = gradientBrush), color = Color.Transparent) {
+  FandemSurface {
 
     Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
       Spacer(modifier = Modifier.weight(1f))
