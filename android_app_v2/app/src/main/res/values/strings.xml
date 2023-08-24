@@ -50,6 +50,7 @@
     <string name="cancel">cancel</string>
     <string name="enter_peer_key_manually">Enter peer key manually</string>
     <string name="loading_sending_peers">Searching sending peers…</string>
+    <string name="peer_search_disabled">Peer search is disabled</string>
     <string name="select_peer">Select peer</string>
     <string name="send_service_canceled">Service was canceled due to timeout. Please try again</string>
     <string name="ask_write_permission_title">Grant write permission?</string>
@@ -103,7 +104,8 @@
     <string name="notifications_not_enabled">Notifications are not enabled</string>
     <string name="enable">enable</string>
     <string name="no_progress_without_notifs">Without notifications you won\'t be able to follow the progress of the transfer</string>
-    <string name="title_activity_receive">ReceiveActivity</string>
+    <string name="title_activity_receive" translatable="false">ReceiveActivity</string>
     <string name="peer_key">Peer key</string>
+    <string name="retry">Retry</string>
 
 </resources>

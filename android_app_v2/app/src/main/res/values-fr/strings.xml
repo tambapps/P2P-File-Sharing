@@ -102,5 +102,7 @@
     <string name="enable">activer</string>
     <string name="no_progress_without_notifs">Sans notifications vous ne pourrez suivre le progrès du transfert</string>
     <string name="peer_key">Clé expediteur</string>
+    <string name="peer_search_disabled">La recherche d\'appareil envoyeur est désactivée</string>
+    <string name="retry">Réessayer</string>
 
 </resources>
