@@ -1,6 +1,7 @@
 package com.tambapps.p2p.peer_transfer.android.configuration
 
 import android.content.Context
+import android.content.SharedPreferences
 import androidx.work.WorkManager
 import dagger.Module
 import dagger.Provides
@@ -18,4 +19,6 @@ class FandemAndroidConfiguration {
   fun workManager(@ApplicationContext context: Context): WorkManager {
     return WorkManager.getInstance(context)
   }
+
+  @Provides fun sharedPreferences(@ApplicationContext context: Context) = context.getSharedPreferences("app_preferences", Context.MODE_PRIVATE)
 }

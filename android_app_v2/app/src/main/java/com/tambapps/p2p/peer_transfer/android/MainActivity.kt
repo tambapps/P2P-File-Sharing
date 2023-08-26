@@ -1,6 +1,7 @@
 package com.tambapps.p2p.peer_transfer.android
 
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -26,6 +27,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.edit
 import com.tambapps.p2p.fandem.Fandem
 import com.tambapps.p2p.peer_transfer.android.ui.theme.FandemAndroidTheme
 import com.tambapps.p2p.peer_transfer.android.ui.theme.FandemSurface
@@ -34,11 +36,26 @@ import com.tambapps.p2p.peer_transfer.android.ui.theme.TextColor
 import com.tambapps.p2p.peer_transfer.android.ui.theme.mainTextStyle
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.Locale
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+  companion object {
+    const val FIRST_PREFERENCE_TIME_KEY = "first_time"
+  }
+
+  @Inject
+  lateinit var sharedPreferences: SharedPreferences
+
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
+    if (!sharedPreferences.contains(FIRST_PREFERENCE_TIME_KEY)) {
+      startActivity(Intent(this, OnBoardingActivity::class.java))
+      sharedPreferences.edit(commit = true) {
+        putBoolean(FIRST_PREFERENCE_TIME_KEY, true)
+      }
+    }
     setContent {
       FandemAndroidTheme {
         MainView()
