@@ -78,7 +78,7 @@
     <string name="select_file">Vous devrez choisir où sauvegarder le fichier</string>
     <string name="filename_invalid">le nom de fichier est invalide</string>
     <string name="welcome_to_fandem">Bienvenue sur Fandem</string>
-    <string name="welcome_des">Cette application permet de transférer rapidement des fichiers à un autre smartphone</string>
+    <string name="welcome_des">Cette application permet de transférer rapidement des fichiers à un autre appareil</string>
     <string name="p2p">Transfert Peer to Peer</string>
     <string name="same_wifi">Avec le Wi-Fi</string>
     <string name="hotspot">Ou avec le partage de données (point d\'accès)</string>
