@@ -43,6 +43,7 @@ import com.tambapps.p2p.fandem.Fandem
 import com.tambapps.p2p.peer_transfer.android.service.FandemWorkService
 import com.tambapps.p2p.peer_transfer.android.ui.theme.FandemAndroidTheme
 import com.tambapps.p2p.peer_transfer.android.ui.theme.FandemSurface
+import com.tambapps.p2p.peer_transfer.android.ui.theme.TextColor
 import com.tambapps.p2p.peer_transfer.android.util.hasPermission
 import com.tambapps.p2p.speer.Peer
 import dagger.hilt.android.AndroidEntryPoint
@@ -105,6 +106,7 @@ fun SendView(fandemWorkService: FandemWorkService, viewModel: SendViewModel = vi
         val peerKey = Fandem.toHexString(peerState.value)
         Text(text = stringResource(R.string.transfer_started_consult_notif, peerKey), fontSize = 24.sp,
           textAlign = TextAlign.Center,
+          color = TextColor,
           modifier = Modifier
             .weight(1f)
             .padding(horizontal = 8.dp)
@@ -118,7 +120,11 @@ fun SendView(fandemWorkService: FandemWorkService, viewModel: SendViewModel = vi
       } else {
         Text(modifier = Modifier
           .weight(1f)
-          .padding(horizontal = 8.dp), text = stringResource(id = R.string.pick_a_file_to_send), fontSize = 24.sp)
+          .padding(horizontal = 8.dp),
+          text = stringResource(id = R.string.pick_a_file_to_send),
+          fontSize = 24.sp,
+          color = TextColor
+        )
       }
       Spacer(modifier = Modifier.weight(1f))
       if (peer == null) {

@@ -40,6 +40,7 @@ import com.tambapps.p2p.peer_transfer.android.service.AndroidSenderPeersReceiver
 import com.tambapps.p2p.peer_transfer.android.service.FandemWorkService
 import com.tambapps.p2p.peer_transfer.android.ui.theme.FandemAndroidTheme
 import com.tambapps.p2p.peer_transfer.android.ui.theme.FandemSurface
+import com.tambapps.p2p.peer_transfer.android.ui.theme.TextColor
 import com.tambapps.p2p.speer.Peer
 import com.tambapps.p2p.speer.datagram.service.MulticastReceiverService
 import com.tambapps.p2p.speer.util.PeerUtils
@@ -72,7 +73,7 @@ class ReceiveActivity : TransferActivity(),
         // A surface container using the 'background' color from the theme
         FandemSurface {
           Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(text = stringResource(id = R.string.select_peer), textAlign = TextAlign.Center, fontSize = 22.sp, modifier = Modifier.padding(top = 20.dp, bottom = 10.dp))
+            Text(text = stringResource(id = R.string.select_peer), textAlign = TextAlign.Center, fontSize = 22.sp, color = TextColor, modifier = Modifier.padding(top = 20.dp, bottom = 10.dp))
             val progressBarModifier = Modifier
               .fillMaxWidth()
               .height(2.dp)
@@ -86,7 +87,7 @@ class ReceiveActivity : TransferActivity(),
               if (sendingPeersState.isEmpty()) {
                 Text(text = stringResource(id = if (peerSniffer.isRunning) R.string.loading_sending_peers else R.string.peer_search_disabled), modifier = Modifier
                   .align(Alignment.Center)
-                  .padding(bottom = 40.dp), fontSize = 22.sp, textAlign = TextAlign.Center)
+                  .padding(bottom = 40.dp), fontSize = 22.sp, textAlign = TextAlign.Center, color = TextColor)
               } else {
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
                   items(sendingPeersState) { peer ->
@@ -113,9 +114,9 @@ class ReceiveActivity : TransferActivity(),
                       }) {
                       Spacer(modifier = Modifier.padding(top = 4.dp))
                       val paddingStart = 10.dp
-                      Text(text = peer.deviceName, fontSize = 18.sp, modifier = Modifier.padding(start = paddingStart, bottom = 8.dp))
-                      Text(text = if (peer.files.size == 1) peer.files.first().fileName else peer.files.joinToString(separator = "\n- ", prefix = "- ", transform = { it.fileName }), fontSize = 16.sp, modifier = Modifier.padding(start = paddingStart, bottom = 4.dp))
-                      Text(text = FileUtils.toFileSize(peer.files.sumOf { it.fileSize }), fontSize = 16.sp, modifier = Modifier.padding(start = paddingStart, bottom = 8.dp))
+                      Text(text = peer.deviceName, fontSize = 18.sp, modifier = Modifier.padding(start = paddingStart, bottom = 8.dp), color = TextColor)
+                      Text(text = if (peer.files.size == 1) peer.files.first().fileName else peer.files.joinToString(separator = "\n- ", prefix = "- ", transform = { it.fileName }), fontSize = 16.sp, modifier = Modifier.padding(start = paddingStart, bottom = 4.dp), color = TextColor)
+                      Text(text = FileUtils.toFileSize(peer.files.sumOf { it.fileSize }), fontSize = 16.sp, modifier = Modifier.padding(start = paddingStart, bottom = 8.dp), color = TextColor)
                       Spacer(modifier = Modifier.padding(bottom = 4.dp))
                     }
                   }
@@ -126,7 +127,7 @@ class ReceiveActivity : TransferActivity(),
               .fillMaxWidth()
               .height(80.dp)
               .padding(10.dp)) {
-              Text(text = stringResource(id = R.string.or), fontSize = 20.sp, modifier = Modifier.weight(1f), textAlign = TextAlign.Center)
+              Text(text = stringResource(id = R.string.or), fontSize = 20.sp, modifier = Modifier.weight(1f), textAlign = TextAlign.Center, color = TextColor)
 
               val showDialog = remember { mutableStateOf(false) }
               if (showDialog.value) {
@@ -144,7 +145,7 @@ class ReceiveActivity : TransferActivity(),
               }
               Button(onClick = { showDialog.value = true }, modifier = Modifier
                 .weight(3f), shape = RoundedCornerShape(50)) {
-                Text(text = stringResource(id = R.string.enter_peer_key_manually).uppercase(Locale.getDefault()), fontSize = 18.sp, textAlign = TextAlign.Center)
+                Text(text = stringResource(id = R.string.enter_peer_key_manually).uppercase(Locale.getDefault()), fontSize = 18.sp, textAlign = TextAlign.Center, color = TextColor)
               }
             }
           }

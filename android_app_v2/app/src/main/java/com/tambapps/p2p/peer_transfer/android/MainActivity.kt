@@ -15,10 +15,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -27,6 +29,8 @@ import androidx.compose.ui.unit.dp
 import com.tambapps.p2p.fandem.Fandem
 import com.tambapps.p2p.peer_transfer.android.ui.theme.FandemAndroidTheme
 import com.tambapps.p2p.peer_transfer.android.ui.theme.FandemSurface
+import com.tambapps.p2p.peer_transfer.android.ui.theme.IconTintColor
+import com.tambapps.p2p.peer_transfer.android.ui.theme.TextColor
 import com.tambapps.p2p.peer_transfer.android.ui.theme.mainTextStyle
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.Locale
@@ -40,7 +44,6 @@ class MainActivity : ComponentActivity() {
         MainView()
       }
     }
-    if (true) startActivity(Intent(this, OnBoardingActivity::class.java))
   }
 }
 
@@ -74,11 +77,12 @@ fun Header() {
     modifier = Modifier
       .fillMaxWidth()
       .padding(start = 4.dp, end = 16.dp)) {
-    IconButton(onClick = { context.startActivity(Intent(context, HelpActivity::class.java)) }) {
-      Image(painter = painterResource(id = R.drawable.help), contentDescription = "help")
+    IconButton(onClick = { context.startActivity(Intent(context, HelpActivity::class.java)) }, colors = IconButtonDefaults.iconButtonColors(contentColor = IconTintColor)) {
+      Image(painter = painterResource(id = R.drawable.help), contentDescription = "help", colorFilter = ColorFilter.tint(IconTintColor))
     }
     Text(
-      text = "Fandem " + Fandem.VERSION
+      text = "Fandem " + Fandem.VERSION,
+      color = TextColor
     )
   }
 }
@@ -91,6 +95,6 @@ fun MainButton(textResId: Int, onClick: () -> Unit) {
       .fillMaxWidth()
       .height(150.dp)
       .clickable(onClick = onClick), contentAlignment = Alignment.Center) {
-    Text(text = stringResource(id = textResId).uppercase(Locale.getDefault()), style = mainTextStyle)
+    Text(text = stringResource(id = textResId).uppercase(Locale.getDefault()), style = mainTextStyle, color = TextColor)
   }
 }

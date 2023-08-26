@@ -47,6 +47,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.tambapps.p2p.peer_transfer.android.ui.theme.FandemAndroidTheme
 import com.tambapps.p2p.peer_transfer.android.ui.theme.FandemSurface
+import com.tambapps.p2p.peer_transfer.android.ui.theme.TextColor
 import kotlinx.coroutines.launch
 
 class HelpActivity : ComponentActivity() {
@@ -98,7 +99,7 @@ fun HelpTab(pagerState: PagerState, tabData: List<HelpPageData>) {
           }
         },
         text = {
-          Text(text = stringResource(id = data.titleRes))
+          Text(text = stringResource(id = data.titleRes), color = TextColor)
         })
     }
   }
@@ -137,7 +138,7 @@ fun HelpPage() {
     pop()
   }
   val uriHandler = LocalUriHandler.current
-  Text(text = stringResource(id = R.string.welcome_to_fandem), fontWeight = FontWeight.Bold, fontSize = 18.sp)
+  Text(text = stringResource(id = R.string.welcome_to_fandem), fontWeight = FontWeight.Bold, fontSize = 18.sp, color = TextColor)
   Spacer(modifier = Modifier.size(width = 1.dp, height = 16.dp))
   PageText(text = annotatedString, onClick = { offset ->
     annotatedString.getStringAnnotations(tag = fandemLinkTag, start = offset, end = offset).firstOrNull()?.let {
@@ -146,11 +147,11 @@ fun HelpPage() {
   })
   Spacer(modifier = Modifier.size(width = 1.dp, height = 32.dp))
   Button(onClick = { context.startActivity(Intent(context, OnBoardingActivity::class.java)) }) {
-    Text(text = stringResource(id = R.string.rewatch_intro).uppercase())
+    Text(text = stringResource(id = R.string.rewatch_intro).uppercase(), color = TextColor)
   }
 }
 
 @Composable
 fun PageText(text: AnnotatedString, onClick: (Int) -> Unit = {}) {
-  ClickableText(text = text, onClick = onClick, style = TextStyle.Default.copy(fontSize = 16.sp))
+  ClickableText(text = text, onClick = onClick, style = TextStyle.Default.copy(fontSize = 16.sp, color = TextColor))
 }
