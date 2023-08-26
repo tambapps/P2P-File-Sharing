@@ -20,5 +20,5 @@ class FandemAndroidConfiguration {
     return WorkManager.getInstance(context)
   }
 
-  @Provides fun sharedPreferences(@ApplicationContext context: Context) = context.getSharedPreferences("app_preferences", Context.MODE_PRIVATE)
+  @Provides fun sharedPreferences(@ApplicationContext context: Context): SharedPreferences = context.getSharedPreferences("app_preferences", Context.MODE_PRIVATE)
 }

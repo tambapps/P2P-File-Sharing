@@ -58,8 +58,7 @@ class HelpActivity : ComponentActivity() {
     super.onCreate(savedInstanceState)
     setContent {
       FandemAndroidTheme {
-        // A surface container using the 'background' color from the theme
-        val tabData = listOf(HelpPageData(R.string.tab_text_1, R.string.help_description), HelpPageData(R.string.tab_text_2, R.string.help_description), HelpPageData(R.string.tab_text_3, R.string.receive_description))
+        val tabData = listOf(HelpPageData(R.string.app_name, R.string.help_description), HelpPageData(R.string.tab_text_2, R.string.help_description), HelpPageData(R.string.tab_text_3, R.string.receive_description))
         FandemSurface {
           Column(modifier = Modifier.fillMaxSize()) {
             val pagerState = rememberPagerState()

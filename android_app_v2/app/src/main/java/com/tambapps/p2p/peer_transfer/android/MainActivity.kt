@@ -68,7 +68,6 @@ class MainActivity : ComponentActivity() {
 @Preview(showBackground = true)
 fun MainView() {
   val context = LocalContext.current
-  // A surface container using the 'background' color from the theme
   FandemSurface {
     Column {
       Header()
