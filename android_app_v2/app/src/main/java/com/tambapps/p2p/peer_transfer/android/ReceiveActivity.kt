@@ -1,8 +1,11 @@
 package com.tambapps.p2p.peer_transfer.android
 
+import android.Manifest
 import android.app.AlertDialog
+import android.content.Context
 import android.content.DialogInterface
 import android.net.wifi.WifiManager
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -20,9 +23,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,6 +39,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.app.ActivityCompat
 import androidx.lifecycle.ViewModel
 import com.tambapps.p2p.fandem.Fandem
 import com.tambapps.p2p.fandem.SenderPeer
@@ -40,6 +48,7 @@ import com.tambapps.p2p.peer_transfer.android.service.AndroidSenderPeersReceiver
 import com.tambapps.p2p.peer_transfer.android.service.FandemWorkService
 import com.tambapps.p2p.peer_transfer.android.ui.theme.FandemSurface
 import com.tambapps.p2p.peer_transfer.android.ui.theme.TextColor
+import com.tambapps.p2p.peer_transfer.android.util.hasPermission
 import com.tambapps.p2p.speer.Peer
 import com.tambapps.p2p.speer.datagram.service.MulticastReceiverService
 import com.tambapps.p2p.speer.util.PeerUtils
@@ -52,6 +61,9 @@ import java.io.IOException
 import java.util.Locale
 import javax.inject.Inject
 
+fun canReceiveFiles(context: Context) = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R || context.hasPermission(
+  Manifest.permission.WRITE_EXTERNAL_STORAGE)
+
 @AndroidEntryPoint
 class ReceiveActivity : TransferActivity(),
   MulticastReceiverService.DiscoveryListener<List<SenderPeer>> {
@@ -63,13 +75,20 @@ class ReceiveActivity : TransferActivity(),
   lateinit var fandemWorkService: FandemWorkService
   private lateinit var peerSniffer: AndroidSenderPeersReceiverService
   private val viewModel: ReceiveViewModel by viewModels()
+  private val showReceivePermissionDialogState = mutableStateOf(false)
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     peerSniffer = AndroidSenderPeersReceiverService(getSystemService(WifiManager::class.java), this)
+    if (!canReceiveFiles(this)) {
+      showReceivePermissionDialogState.value = true
+    }
     setContent {
       TransferActivityTheme {
         FandemSurface {
+          if (showReceivePermissionDialogState.value) {
+            ReceivePermissionDialog()
+          }
           Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
             Text(text = stringResource(id = R.string.select_peer), textAlign = TextAlign.Center, fontSize = 22.sp, color = TextColor, modifier = Modifier.padding(top = 20.dp, bottom = 10.dp))
             val progressBarModifier = Modifier
@@ -152,9 +171,51 @@ class ReceiveActivity : TransferActivity(),
     }
   }
 
+  @Composable
+  private fun ReceivePermissionDialog() {
+    AlertDialog(onDismissRequest = { showReceivePermissionDialogState.value = false },
+      title = {
+        Text(text = stringResource(id = R.string.ask_write_permission_title))
+      },
+      text = {
+        Text(text = stringResource(id = R.string.ask_write_permission_message))
+      },
+      confirmButton = {
+        DialogButton(
+          openDialogState = showReceivePermissionDialogState,
+          text = getString(R.string.yes),
+          onClick = { requestWritePermission() }
+        )
+      },
+      dismissButton = {
+        DialogButton(openDialogState = showReceivePermissionDialogState, text = getString(R.string.no))
+      })
+  }
+
+  @Composable
+  private fun DialogButton(
+    openDialogState: MutableState<Boolean>,
+    text: String,
+    onClick: () -> Unit = {},
+  ) {
+    TextButton(onClick = {
+      onClick.invoke()
+      openDialogState.value = false
+    }){
+      Text(text.uppercase(), textAlign = TextAlign.End)
+    }
+  }
+
+  private fun requestWritePermission() {
+    ActivityCompat.requestPermissions(
+      this, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+      88 // don't really care about the requestCode. Result doesn't need to be handled
+    )
+  }
   override fun onResume() {
     super.onResume()
-    if (isNetworkConfigured() && !peerSniffer.isRunning()) {
+    val canReceiveFiles = canReceiveFiles(this)
+    if (canReceiveFiles && isNetworkConfigured() && !peerSniffer.isRunning()) {
       startSniffing()
     }
   }
@@ -170,6 +231,10 @@ class ReceiveActivity : TransferActivity(),
     super.onPause()
   }
   private fun startReceiving(peer: Peer) {
+    if (!canReceiveFiles(this)) {
+      showReceivePermissionDialogState.value = true
+      return
+    }
     fandemWorkService.startReceiveFileWork(peer)
     Toast.makeText(applicationContext, getString(R.string.service_started), Toast.LENGTH_LONG).show()
     finish()
