@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.ClickableText
@@ -53,57 +54,67 @@ class HelpActivity : ComponentActivity() {
     setContent {
       FandemAndroidTheme {
         // A surface container using the 'background' color from the theme
-        val tabData = listOf(R.string.tab_text_1, R.string.tab_text_2, R.string.tab_text_3)
-        val contentRes = listOf(R.string.help_description, R.string.send_description, R.string.receive_description)
+        val tabData = listOf(HelpPageData(R.string.tab_text_1, R.string.help_description), HelpPageData(R.string.tab_text_2, R.string.help_description), HelpPageData(R.string.tab_text_3, R.string.receive_description))
         FandemSurface {
           Column(modifier = Modifier.fillMaxSize()) {
             val pagerState = rememberPagerState()
-            TabRow(
-              selectedTabIndex = pagerState.currentPage,
-              divider = {
-                Spacer(modifier =Modifier.height(5.dp))
-              },
-              containerColor = Color.Transparent,
-              indicator = { tabPositions ->
-                TabRowDefaults.Indicator(
-                  modifier =
-                  Modifier.tabIndicatorOffset(tabPositions[pagerState.currentPage]),
-                  height = 5.dp,
-                  color = Color.White
-                )
-              },
-              modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight()
-            ) {
-              val scope = rememberCoroutineScope()
-              tabData.forEachIndexed { index, s ->
-                Tab(selected = pagerState.currentPage == index,
-                  onClick = {
-                    scope.launch {
-                      pagerState.animateScrollToPage(index)
-                    }
-                  },
-                  text = {
-                    Text(text = stringResource(id = s))
-                  })
-              }
-            }
-            HorizontalPager(pageCount = tabData.size, state = pagerState) { index ->
-              val state = rememberScrollState()
-              Column(modifier = Modifier
-                .verticalScroll(state)
-                .fillMaxSize()
-                .padding(horizontal = 8.dp, vertical = 16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                if (index == 0) {
-                  HelpPage()
-                } else {
-                  PageText(text = AnnotatedString(stringResource(id = contentRes[index])))
-                }
-              }
-            }
+            HelpTab(pagerState, tabData)
+            HelpPager(pagerState = pagerState, tabData = tabData)
           }
         }
+      }
+    }
+  }
+}
+
+data class HelpPageData(val titleRes: Int, val messageRes: Int)
+@Composable
+fun HelpTab(pagerState: PagerState, tabData: List<HelpPageData>) {
+  TabRow(
+    selectedTabIndex = pagerState.currentPage,
+    divider = {
+      Spacer(modifier =Modifier.height(5.dp))
+    },
+    containerColor = Color.Transparent,
+    indicator = { tabPositions ->
+      TabRowDefaults.Indicator(
+        modifier =
+        Modifier.tabIndicatorOffset(tabPositions[pagerState.currentPage]),
+        height = 5.dp,
+        color = Color.White
+      )
+    },
+    modifier = Modifier
+      .fillMaxWidth()
+      .wrapContentHeight()
+  ) {
+    val scope = rememberCoroutineScope()
+    tabData.forEachIndexed { index, data ->
+      Tab(selected = pagerState.currentPage == index,
+        onClick = {
+          scope.launch {
+            pagerState.animateScrollToPage(index)
+          }
+        },
+        text = {
+          Text(text = stringResource(id = data.titleRes))
+        })
+    }
+  }
+}
+
+@Composable
+fun HelpPager(pagerState: PagerState, tabData: List<HelpPageData>) {
+  HorizontalPager(pageCount = tabData.size, state = pagerState) { index ->
+    val state = rememberScrollState()
+    Column(modifier = Modifier
+      .verticalScroll(state)
+      .fillMaxSize()
+      .padding(horizontal = 8.dp, vertical = 16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+      if (index == 0) {
+        HelpPage()
+      } else {
+        PageText(text = AnnotatedString(stringResource(id = tabData[index].messageRes)))
       }
     }
   }
