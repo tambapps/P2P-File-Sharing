@@ -1,5 +1,6 @@
 package com.tambapps.p2p.peer_transfer.android.configuration
 
+import android.app.NotificationManager
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.work.WorkManager
@@ -21,4 +22,5 @@ class FandemAndroidConfiguration {
   }
 
   @Provides fun sharedPreferences(@ApplicationContext context: Context): SharedPreferences = context.getSharedPreferences("app_preferences", Context.MODE_PRIVATE)
+  @Provides fun notificationManager(@ApplicationContext context: Context): NotificationManager = context.getSystemService(NotificationManager::class.java)
 }

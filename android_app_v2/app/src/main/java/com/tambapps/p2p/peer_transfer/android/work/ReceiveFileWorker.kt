@@ -27,14 +27,13 @@ import java.nio.channels.AsynchronousCloseException
 
 @HiltWorker
 class ReceiveFileWorker @AssistedInject constructor(@Assisted appContext: Context,
-                                                    @Assisted params: WorkerParameters) : FandemWorker(appContext, params), OutputStreamProvider {
+                                                    @Assisted params: WorkerParameters)
+  : FandemWorker(appContext, params, R.drawable.download, R.drawable.download2), OutputStreamProvider {
 
   private data class ReceivedFile(val fileName: String, val uri: Uri)
   companion object {
     const val TAG = "ReceiveFileWorker"
   }
-  override val smallIcon = R.drawable.download
-  override val largeIcon = R.drawable.download2
 
   private val receivedFiles = mutableListOf<ReceivedFile>()
 

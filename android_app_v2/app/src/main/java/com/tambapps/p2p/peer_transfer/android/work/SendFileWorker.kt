@@ -27,7 +27,7 @@ import java.util.concurrent.Executors
 @HiltWorker
 class SendFileWorker @AssistedInject constructor(@Assisted appContext: Context,
                                                  @Assisted workerParams: WorkerParameters
-): FandemWorker(appContext, workerParams) {
+): FandemWorker(appContext, workerParams, R.drawable.upload_little, R.drawable.upload2) {
 
   companion object {
     const val TAG = "SendFileWorker"
@@ -35,9 +35,6 @@ class SendFileWorker @AssistedInject constructor(@Assisted appContext: Context,
     const val FILE_URIS_KEY  = "fu"
     const val FILE_SIZES_KEY  = "fs"
   }
-
-  override val smallIcon = R.drawable.upload_little
-  override val largeIcon = R.drawable.upload2
 
   private val scheduledExecutorService = Executors.newSingleThreadScheduledExecutor()
   private val senderPeersMulticastService = Fandem.multicastService(scheduledExecutorService)
