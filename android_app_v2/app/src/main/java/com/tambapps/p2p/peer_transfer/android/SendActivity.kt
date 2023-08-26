@@ -65,7 +65,7 @@ class SendActivity : TransferActivity() {
     super.onCreate(savedInstanceState)
 
     setContent {
-      FandemAndroidTheme {
+      TransferActivityTheme {
         SendView(fandemWorkService)
       }
     }

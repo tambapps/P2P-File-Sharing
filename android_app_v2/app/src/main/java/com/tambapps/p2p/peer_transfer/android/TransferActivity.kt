@@ -1,39 +1,30 @@
 package com.tambapps.p2p.peer_transfer.android
 
-import android.app.AlertDialog
 import android.content.ComponentName
 import android.content.Intent
 import android.net.wifi.WifiManager
 import android.provider.Settings
 import androidx.activity.ComponentActivity
+import androidx.compose.foundation.layout.Column
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
+import com.tambapps.p2p.peer_transfer.android.ui.theme.FandemAndroidTheme
 import com.tambapps.p2p.peer_transfer.android.util.NetworkUtils
 
 abstract class TransferActivity: ComponentActivity() {
-  private var dialog: AlertDialog? = null
+
+  private val showNetworkDialogState = mutableStateOf(false)
 
   override fun onResume() {
     super.onResume()
-    checkCanShare()
-  }
-
-  private fun checkCanShare() {
-    if (!isNetworkConfigured()) {
-      dialog = AlertDialog.Builder(this)
-        .setTitle(getString(R.string.nar))
-        .setMessage(getString(R.string.nar_description))
-        .setNeutralButton(R.string.cancel) { dialog, which -> finish() }
-        .setPositiveButton(
-          getString(R.string.connect_to_wifi)
-        ) { dialog, which -> startActivity(Intent(Settings.ACTION_WIRELESS_SETTINGS)) }
-        .setNegativeButton(getString(R.string.start_hotspot)) { dialog, which -> turnOnHotspot() }
-        .setNeutralButton("ok", null)
-        .setCancelable(false)
-        .create()
-      dialog!!.show()
-    } else if (dialog != null) {
-      dialog!!.dismiss()
-      dialog = null
-    }
+    showNetworkDialogState.value = !isNetworkConfigured()
   }
 
   private fun turnOnHotspot() {
@@ -47,8 +38,48 @@ abstract class TransferActivity: ComponentActivity() {
 
   protected fun isNetworkConfigured(): Boolean {
     val wifiManager = getSystemService(WIFI_SERVICE) as WifiManager
-    return NetworkUtils.isHotspotEnabled(this) || wifiManager.isWifiEnabled && NetworkUtils.isNetworkConnected(
-      this
-    )
+    return NetworkUtils.isHotspotEnabled(this)
+        || wifiManager.isWifiEnabled && NetworkUtils.isNetworkConnected(this)
+  }
+
+  @Composable
+  protected fun TransferActivityTheme(content: @Composable () -> Unit) {
+    FandemAndroidTheme {
+      if (showNetworkDialogState.value) {
+        AlertDialog(onDismissRequest = { showNetworkDialogState.value = false },
+          title = {
+            Text(text = stringResource(id = R.string.nar))
+          },
+          text = {
+            Text(text = stringResource(id = R.string.nar_description))
+          },
+          confirmButton = {
+            Column(horizontalAlignment = Alignment.End) {
+              DialogButton(openDialogState = showNetworkDialogState, text = getString(R.string.connect_to_wifi), onClick = { startActivity(Intent(Settings.ACTION_WIRELESS_SETTINGS)) })
+              DialogButton(
+                openDialogState = showNetworkDialogState,
+                text = getString(R.string.start_hotspot),
+                onClick = { turnOnHotspot() }
+              )
+              DialogButton(openDialogState = showNetworkDialogState, text = "ok")
+            }
+          })
+      }
+      content.invoke()
+    }
+  }
+
+  @Composable
+  private fun DialogButton(
+    openDialogState: MutableState<Boolean>,
+    text: String,
+    onClick: () -> Unit = {},
+  ) {
+    TextButton(onClick = {
+      onClick.invoke()
+      openDialogState.value = false
+    }){
+      Text(text.uppercase(), textAlign = TextAlign.End)
+    }
   }
 }

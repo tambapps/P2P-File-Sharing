@@ -69,7 +69,7 @@ class ReceiveActivity : TransferActivity(),
     super.onCreate(savedInstanceState)
     peerSniffer = AndroidSenderPeersReceiverService(getSystemService(WifiManager::class.java), this)
     setContent {
-      FandemAndroidTheme {
+      TransferActivityTheme {
         // A surface container using the 'background' color from the theme
         FandemSurface {
           Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
