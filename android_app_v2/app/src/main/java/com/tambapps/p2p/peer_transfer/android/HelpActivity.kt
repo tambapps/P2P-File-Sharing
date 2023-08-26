@@ -8,6 +8,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.LayoutScopeMarker
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -30,6 +32,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -107,24 +110,28 @@ fun HelpTab(pagerState: PagerState, tabData: List<HelpPageData>) {
 
 @Composable
 fun HelpPager(pagerState: PagerState, tabData: List<HelpPageData>) {
-  HorizontalPager(pageCount = tabData.size, state = pagerState) { index ->
+  HorizontalPager(pageCount = tabData.size, state = pagerState,
+    verticalAlignment = Alignment.Top) { index ->
     val state = rememberScrollState()
-    Column(modifier = Modifier
-      .verticalScroll(state)
-      .fillMaxSize()
-      .padding(horizontal = 8.dp, vertical = 16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-      if (index == 0) {
-        HelpPage()
-      } else {
-        PageText(text = AnnotatedString(stringResource(id = tabData[index].messageRes)))
+    // we need 2 columns here. One is to fit the whole screen, the other is to enable scrolling in case of everfitting
+    // we can't have both on same column
+    Column(modifier = Modifier.fillMaxSize()
+      , horizontalAlignment = Alignment.CenterHorizontally) {
+      Column(modifier = Modifier.verticalScroll(state).padding(horizontal = 8.dp, vertical = 16.dp)) {
+        if (index == 0) {
+          HelpPage()
+        } else {
+          PageText(text = AnnotatedString(stringResource(id = tabData[index].messageRes)))
+        }
       }
     }
   }
 }
 
+@LayoutScopeMarker
 @Preview(showBackground = true)
 @Composable
-fun HelpPage() {
+fun ColumnScope.HelpPage() {
   val context = LocalContext.current
   val fandemLinkTag = "Fandem Github Link"
   val annotatedString = buildAnnotatedString {
@@ -138,7 +145,7 @@ fun HelpPage() {
     pop()
   }
   val uriHandler = LocalUriHandler.current
-  Text(text = stringResource(id = R.string.welcome_to_fandem), fontWeight = FontWeight.Bold, fontSize = 18.sp, color = TextColor)
+  Text(text = stringResource(id = R.string.welcome_to_fandem), fontWeight = FontWeight.Bold, fontSize = 18.sp, color = TextColor, modifier = Modifier.align(CenterHorizontally))
   Spacer(modifier = Modifier.size(width = 1.dp, height = 16.dp))
   PageText(text = annotatedString, onClick = { offset ->
     annotatedString.getStringAnnotations(tag = fandemLinkTag, start = offset, end = offset).firstOrNull()?.let {
@@ -146,7 +153,7 @@ fun HelpPage() {
     }
   })
   Spacer(modifier = Modifier.size(width = 1.dp, height = 32.dp))
-  Button(onClick = { context.startActivity(Intent(context, OnBoardingActivity::class.java)) }) {
+  Button(onClick = { context.startActivity(Intent(context, OnBoardingActivity::class.java)) }, modifier = Modifier.align(CenterHorizontally)) {
     Text(text = stringResource(id = R.string.rewatch_intro).uppercase(), color = TextColor)
   }
 }
