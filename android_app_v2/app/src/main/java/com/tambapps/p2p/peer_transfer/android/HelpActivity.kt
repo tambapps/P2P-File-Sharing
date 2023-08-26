@@ -2,6 +2,7 @@
 
 package com.tambapps.p2p.peer_transfer.android
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -144,7 +145,7 @@ fun HelpPage() {
     }
   })
   Spacer(modifier = Modifier.size(width = 1.dp, height = 32.dp))
-  Button(onClick = { /*TODO*/ }) {
+  Button(onClick = { context.startActivity(Intent(context, OnBoardingActivity::class.java)) }) {
     Text(text = stringResource(id = R.string.rewatch_intro).uppercase())
   }
 }

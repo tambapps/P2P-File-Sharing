@@ -40,6 +40,7 @@ class MainActivity : ComponentActivity() {
         MainView()
       }
     }
+    if (true) startActivity(Intent(this, OnBoardingActivity::class.java))
   }
 }
 

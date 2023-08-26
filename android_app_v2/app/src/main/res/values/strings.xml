@@ -110,5 +110,6 @@
     <string name="title_activity_help" translatable="false">HelpActivity</string>
     <string name="rewatch_intro">Re-watch intro</string>
     <string name="here">here</string>
+    <string name="title_activity_on_boarding">OnBoardingActivity</string>
 
 </resources>

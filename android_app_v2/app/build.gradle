@@ -37,6 +37,7 @@ android {
     }
     buildFeatures {
         compose true
+        viewBinding true
     }
     composeOptions {
         kotlinCompilerExtensionVersion '1.4.3'
@@ -59,9 +60,9 @@ dependencies {
 
     implementation 'androidx.work:work-runtime-ktx:2.8.1'
 
-    // viewpager and tablayout
-   // implementation "com.google.accompanist:accompanist-pager:0.13.0"
-   // implementation "com.google.accompanist:accompanist-pager-indicators:0.13.0"
+    // for OnBoardingActivity
+    implementation 'androidx.viewpager2:viewpager2:1.0.0'
+    implementation 'me.relex:circleindicator:2.1.6'
 
     implementation 'androidx.core:core-ktx:1.10.1'
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.1'
