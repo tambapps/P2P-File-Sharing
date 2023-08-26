@@ -2,7 +2,6 @@ package com.tambapps.p2p.peer_transfer.android.work
 
 import android.content.ContentValues
 import android.content.Context
-import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
@@ -30,12 +29,11 @@ class ReceiveFileWorker @AssistedInject constructor(@Assisted appContext: Contex
                                                     @Assisted params: WorkerParameters)
   : FandemWorker(appContext, params, R.drawable.download, R.drawable.download2), OutputStreamProvider {
 
-  private data class ReceivedFile(val fileName: String, val uri: Uri)
   companion object {
     const val TAG = "ReceiveFileWorker"
   }
 
-  private val receivedFiles = mutableListOf<ReceivedFile>()
+  private val receivedFileNames = mutableListOf<String>()
 
   override suspend fun doTransfer(): Result {
     val peerString = inputData.getString(PEER_KEY) ?: return Result.failure()
@@ -45,8 +43,13 @@ class ReceiveFileWorker @AssistedInject constructor(@Assisted appContext: Contex
     try {
       val fileReceiver = FileReceiver(this)
       fileReceiver.receiveFrom(peer, this)
-      notify(endNotif = true, title = getString(R.string.transfer_complete), bigText = getString(R.string.success_received,
-        receivedFiles.joinToString(transform = { it.fileName}, separator = "\n- ", prefix = "- ")))
+      if (receivedFileNames.size > 1) {
+        notify(endNotif = true, title = getString(R.string.transfer_complete), bigText = getString(R.string.success_received_many,
+          receivedFileNames.joinToString(separator = "\n- ", prefix = "- ")))
+      } else {
+        notify(endNotif = true, title = getString(R.string.transfer_complete), bigText = getString(R.string.success_received,
+          receivedFileNames.firstOrNull() ?: "<no name>"))
+      }
 
     } catch (e: HandshakeFailException) {
       notify(endNotif = true, title = getString(R.string.couldnt_start), text = e.message)
@@ -80,12 +83,13 @@ class ReceiveFileWorker @AssistedInject constructor(@Assisted appContext: Contex
       // doesn't seem to be required values.put(MediaStore.MediaColumns.MIME_TYPE, mimeType);
       values.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
       val uri = contentResolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values)!!
-      receivedFiles.add(ReceivedFile(fileName, uri))
+      receivedFileNames.add(fileName)
       contentResolver.openOutputStream(uri)!!
     } else {
       val downloadDir =
         Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
       val file = FileUtils.newAvailableFile(downloadDir, fileName)
+      receivedFileNames.add(file.name)
       FileOutputStream(file)
     }
   }

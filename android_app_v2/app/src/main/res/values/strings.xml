@@ -28,7 +28,8 @@
     <string name="transfer_complete">Transfer completed</string>
     <string name="transfer_canceled">Transfer canceled</string>
     <string name="receiving_connected">Receiving %s</string>
-    <string name="success_received">The following file(s) were successfully received in your Download folder\n%s</string>
+    <string name="success_received_many">The following file(s) were successfully received in your Download folder\n%s</string>
+    <string name="success_received">%s was saved in your Download folder</string>
     <string name="incomplete_transfer">The file couldn\'t be downloaded entirely. You should delete it.</string>
     <string name="error_incomplete">An error occurred during the transfer: %s. The file couldn\'t be downloaded entirely. You should delete it.</string>
     <string name="connection_timeout">Connection timeout</string>

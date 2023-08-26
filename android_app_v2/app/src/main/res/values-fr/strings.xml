@@ -36,7 +36,8 @@
     <string name="receiving_connected">Réception de %s</string>
     <string name="sending_connected">Envoi\n%s</string>
     <string name="service_started">Le transfert a commencé. Vous pouvez voir le progrès dans la barre de notification</string>
-    <string name="success_received">Le(s) fichier(s) suivant ont été reçu(s) avec succès dans votre dossier Téléchargements\n%s</string>
+    <string name="success_received_many">Le(s) fichier(s) suivant ont été reçu(s) avec succès dans votre dossier Téléchargements\n%s</string>
+    <string name="success_received">%s a été reçu dans votre dossier Téléchargements (Download)</string>
     <string name="success_send_many">Les fichiers suivant ont été envoyés avec succès\n%s</string>
     <string name="transfer_canceled">Trasfert annulé</string>
     <string name="transfer_complete">Transfert fini avec succès</string>
