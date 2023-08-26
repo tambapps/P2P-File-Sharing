@@ -4,5 +4,6 @@
     <style name="Theme.FandemAndroid" parent="android:Theme.Material.Light.NoActionBar">
         <item name="android:navigationBarColor">#43cea2</item>
         <item name="android:statusBarColor">#185a9d</item>
+        <item name="android:colorAccent">#ff0</item>
     </style>
 </resources>

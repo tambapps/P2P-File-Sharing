@@ -5,6 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
 val Cyan = Color(0xFF43cea2)
+val FabColor = Color(0xFF00495F)
 val BlueOcean = Color(0xFF185a9d)
 val ColorPrimary = Color(0xFF3F51B5)
 val NotifSmallIconColor = Color(0xFF185a9d)

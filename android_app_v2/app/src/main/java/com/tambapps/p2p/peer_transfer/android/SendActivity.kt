@@ -41,7 +41,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.tambapps.p2p.fandem.Fandem
 import com.tambapps.p2p.peer_transfer.android.service.FandemWorkService
-import com.tambapps.p2p.peer_transfer.android.ui.theme.FandemAndroidTheme
+import com.tambapps.p2p.peer_transfer.android.ui.theme.FabColor
 import com.tambapps.p2p.peer_transfer.android.ui.theme.FandemSurface
 import com.tambapps.p2p.peer_transfer.android.ui.theme.TextColor
 import com.tambapps.p2p.peer_transfer.android.util.hasPermission
@@ -98,7 +98,6 @@ fun SendView(fandemWorkService: FandemWorkService, viewModel: SendViewModel = vi
   val peer = peerState.value
 
   FandemSurface {
-
     Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
       Spacer(modifier = Modifier.weight(1f))
       if (peer != null) {
@@ -130,6 +129,7 @@ fun SendView(fandemWorkService: FandemWorkService, viewModel: SendViewModel = vi
       if (peer == null) {
         FloatingActionButton(modifier = Modifier.size(128.dp),
           shape = RoundedCornerShape(128.dp),
+          containerColor = FabColor,
           onClick = {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
               && !context.hasPermission(permission = POST_NOTIFICATIONS)) {

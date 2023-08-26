@@ -38,7 +38,6 @@ import com.tambapps.p2p.fandem.SenderPeer
 import com.tambapps.p2p.fandem.util.FileUtils
 import com.tambapps.p2p.peer_transfer.android.service.AndroidSenderPeersReceiverService
 import com.tambapps.p2p.peer_transfer.android.service.FandemWorkService
-import com.tambapps.p2p.peer_transfer.android.ui.theme.FandemAndroidTheme
 import com.tambapps.p2p.peer_transfer.android.ui.theme.FandemSurface
 import com.tambapps.p2p.peer_transfer.android.ui.theme.TextColor
 import com.tambapps.p2p.speer.Peer
