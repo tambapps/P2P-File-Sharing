@@ -22,7 +22,7 @@ class FandemWorkService @Inject constructor(private val workManager: WorkManager
                                             private val notificationManager: NotificationManager) {
 
   fun startSendFileWork(contentResolver: ContentResolver, peer: Peer, uris: List<Uri>) {
-    // need to be done BEFORE creating work
+    // needs to be done BEFORE creating work
     createWorkNotificationChannelIfNeeded()
 
     val fileData = uris.map {
@@ -48,6 +48,9 @@ class FandemWorkService @Inject constructor(private val workManager: WorkManager
   }
 
   fun startReceiveFileWork(peer: Peer) {
+    // need to be done BEFORE creating work
+    createWorkNotificationChannelIfNeeded()
+
     val workRequest = OneTimeWorkRequestBuilder<ReceiveFileWorker>()
       .setInputData(Data.Builder()
         .putString(FandemWorker.PEER_KEY, peer.toString())
