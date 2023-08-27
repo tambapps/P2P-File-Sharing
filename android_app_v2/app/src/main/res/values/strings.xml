@@ -111,5 +111,6 @@
     <string name="here">here</string>
     <string name="title_activity_on_boarding">OnBoardingActivity</string>
     <string name="sniff_error">Error while searching for sending peers</string>
+    <string name="communication_impossible">Couldn\'t communicate with other peer</string>
 
 </resources>

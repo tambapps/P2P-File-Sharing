@@ -56,7 +56,11 @@ class ReceiveFileWorker @AssistedInject constructor(@Assisted appContext: Contex
     } catch (e: CorruptedFileException) {
       notify(endNotif = true, title = getString(R.string.corrupted_file), text = e.message)
     } catch (e: SocketException) {
-      notify(endNotif = true, title = getString(R.string.transfer_canceled), bigText = getString(R.string.incomplete_transfer))
+      if (receivedFileNames.isEmpty()) {
+        notify(endNotif = true, title = getString(R.string.transfer_canceled), bigText = getString(R.string.communication_impossible))
+      } else {
+        notify(endNotif = true, title = getString(R.string.transfer_canceled), bigText = getString(R.string.incomplete_transfer))
+      }
     } catch (e: SocketTimeoutException) {
       notify(endNotif = true, title = getString(R.string.transfer_aborted), text = getString(R.string.connection_timeout))
     } catch (e: AsynchronousCloseException) {

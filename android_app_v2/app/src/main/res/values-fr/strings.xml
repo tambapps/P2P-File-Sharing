@@ -107,5 +107,6 @@
     <string name="rewatch_intro">Revoir l\'intro</string>
     <string name="here">ici</string>
     <string name="sniff_error">Erreur lors de la recherche d\'appareil envoyeur</string>
+    <string name="communication_impossible">Communication avec l\'appareil envoyeur impossible</string>
 
 </resources>
