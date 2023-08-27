@@ -30,7 +30,6 @@
     <string name="error_occured">Une erreur est survenue pendant le transfert</string>
     <string name="error_incomplete">Une erreur est survenue pendant le transfert. Le fichier n\'a pas pu être téléchargé complètement. Veuillez le supprimer</string>
     <string name="incomplete_transfer">Ce fichier n\'a pas été téléchargé entièrement. Vous devriez le supprimer</string>
-    <string name="network_error">Erreur réseau: Envoi impossible</string>
     <string name="no">non</string>
     <string name="permissions_not_granted">Vous n\'avez pas donné les permissions</string>
     <string name="receiving_connected">Réception de %s</string>
@@ -107,5 +106,6 @@
     <string name="retry">Réessayer</string>
     <string name="rewatch_intro">Revoir l\'intro</string>
     <string name="here">ici</string>
+    <string name="sniff_error">Erreur lors de la recherche d\'appareil envoyeur</string>
 
 </resources>

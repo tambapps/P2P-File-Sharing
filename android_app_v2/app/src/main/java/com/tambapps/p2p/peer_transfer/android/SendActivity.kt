@@ -2,29 +2,34 @@ package com.tambapps.p2p.peer_transfer.android
 
 import android.Manifest.permission.POST_NOTIFICATIONS
 import android.app.Activity
-import android.app.AlertDialog
-import android.content.DialogInterface
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.widget.Toast
+import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
@@ -44,6 +49,7 @@ import com.tambapps.p2p.peer_transfer.android.service.FandemWorkService
 import com.tambapps.p2p.peer_transfer.android.ui.theme.FabColor
 import com.tambapps.p2p.peer_transfer.android.ui.theme.FandemSurface
 import com.tambapps.p2p.peer_transfer.android.ui.theme.TextColor
+import com.tambapps.p2p.peer_transfer.android.util.DialogButton
 import com.tambapps.p2p.peer_transfer.android.util.hasPermission
 import com.tambapps.p2p.speer.Peer
 import dagger.hilt.android.AndroidEntryPoint
@@ -127,26 +133,17 @@ fun SendView(fandemWorkService: FandemWorkService, viewModel: SendViewModel = vi
       }
       Spacer(modifier = Modifier.weight(1f))
       if (peer == null) {
+        val showDialogState = remember { mutableStateOf(false) }
+        if (showDialogState.value) {
+          NotificationDialog(showDialogState, context, pickFileLauncher)
+        }
         FloatingActionButton(modifier = Modifier.size(128.dp),
           shape = RoundedCornerShape(128.dp),
           containerColor = FabColor,
           onClick = {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
               && !context.hasPermission(permission = POST_NOTIFICATIONS)) {
-              AlertDialog.Builder(context)
-                .setTitle(R.string.notifications_not_enabled)
-                .setMessage(R.string.no_progress_without_notifs)
-                .setPositiveButton(R.string.enable) { dialogInterface: DialogInterface, i: Int ->
-                  val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-                  val uri = Uri.fromParts("package", context.packageName, null)
-                  intent.data = uri
-                  context.startActivity(intent)
-                }
-                .setNeutralButton(R.string.cancel, null)
-                .setNegativeButton(R.string.continuer) { dialogInterface: DialogInterface, i: Int ->
-                  pickFileLauncher.launch(ANY_CONTENT_TYPE)
-                }
-                .show()
+              showDialogState.value = true
             } else {
               pickFileLauncher.launch(ANY_CONTENT_TYPE)
             }
@@ -158,5 +155,35 @@ fun SendView(fandemWorkService: FandemWorkService, viewModel: SendViewModel = vi
       Spacer(modifier = Modifier.weight(1f))
     }
   }
+}
+
+@Composable
+private fun NotificationDialog(
+  showDialogState: MutableState<Boolean>,
+  context: Activity,
+  pickFileLauncher: ManagedActivityResultLauncher<String, List<@JvmSuppressWildcards Uri>>
+) {
+  AlertDialog(
+    title = {
+      Text(text = stringResource(id = R.string.notifications_not_enabled))
+    },
+    text = {
+      Text(text = stringResource(id = R.string.no_progress_without_notifs))
+    },
+    onDismissRequest = { showDialogState.value = false },
+    confirmButton = {
+      Row(horizontalArrangement = Arrangement.SpaceAround) {
+        DialogButton(openDialogState = showDialogState, text = stringResource(id = R.string.continuer),
+          onClick = { pickFileLauncher.launch(ANY_CONTENT_TYPE) })
+        DialogButton(openDialogState = showDialogState, text = stringResource(id = R.string.cancel))
+        DialogButton(openDialogState = showDialogState, text = stringResource(id = R.string.enable),
+          onClick = {
+            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+            val uri = Uri.fromParts("package", context.packageName, null)
+            intent.data = uri
+            context.startActivity(intent)
+          })
+      }
+    })
 }
 

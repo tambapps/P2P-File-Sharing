@@ -48,6 +48,7 @@ import com.tambapps.p2p.peer_transfer.android.service.AndroidSenderPeersReceiver
 import com.tambapps.p2p.peer_transfer.android.service.FandemWorkService
 import com.tambapps.p2p.peer_transfer.android.ui.theme.FandemSurface
 import com.tambapps.p2p.peer_transfer.android.ui.theme.TextColor
+import com.tambapps.p2p.peer_transfer.android.util.DialogButton
 import com.tambapps.p2p.peer_transfer.android.util.hasPermission
 import com.tambapps.p2p.speer.Peer
 import com.tambapps.p2p.speer.datagram.service.MulticastReceiverService
@@ -76,6 +77,7 @@ class ReceiveActivity : TransferActivity(),
   private lateinit var peerSniffer: AndroidSenderPeersReceiverService
   private val viewModel: ReceiveViewModel by viewModels()
   private val showReceivePermissionDialogState = mutableStateOf(false)
+  private val sniffErrorMessageState = mutableStateOf<String?>(null)
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -102,7 +104,12 @@ class ReceiveActivity : TransferActivity(),
             Box(modifier = Modifier.weight(1f)) {
               val sendingPeersState = viewModel.sendingPeers
               if (sendingPeersState.isEmpty()) {
-                Text(text = stringResource(id = if (peerSniffer.isRunning) R.string.loading_sending_peers else R.string.peer_search_disabled), modifier = Modifier
+                val sniffErrorMessage = sniffErrorMessageState.value
+                val text =
+                  if (peerSniffer.isRunning) stringResource(id = R.string.loading_sending_peers)
+                  else if (sniffErrorMessage != null) getString(R.string.sniff_error) + ": $sniffErrorMessage"
+                  else stringResource(id = R.string.peer_search_disabled)
+                Text(text = text, modifier = Modifier
                   .align(Alignment.Center)
                   .padding(bottom = 40.dp), fontSize = 22.sp, textAlign = TextAlign.Center, color = TextColor)
               } else {
@@ -192,20 +199,6 @@ class ReceiveActivity : TransferActivity(),
       })
   }
 
-  @Composable
-  private fun DialogButton(
-    openDialogState: MutableState<Boolean>,
-    text: String,
-    onClick: () -> Unit = {},
-  ) {
-    TextButton(onClick = {
-      onClick.invoke()
-      openDialogState.value = false
-    }){
-      Text(text.uppercase(), textAlign = TextAlign.End)
-    }
-  }
-
   private fun requestWritePermission() {
     ActivityCompat.requestPermissions(
       this, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
@@ -266,13 +259,7 @@ class ReceiveActivity : TransferActivity(),
     Log.e(TAG, "Error while sniffing peers", e)
     CoroutineScope(Dispatchers.Main).launch {
       viewModel.sniffingPeers.value = false
-      AlertDialog.Builder(this@ReceiveActivity)
-        .setTitle(R.string.network_error)
-        .setMessage(e?.message ?: getString(R.string.no_internet))
-        .setNeutralButton("ok", null)
-        .setPositiveButton(R.string.retry) { dialogInterface: DialogInterface, i: Int ->
-          startSniffing()
-        }
+      sniffErrorMessageState.value = e?.message ?: getString(R.string.no_internet)
     }
   }
 }

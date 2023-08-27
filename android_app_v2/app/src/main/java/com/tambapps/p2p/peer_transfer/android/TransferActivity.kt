@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import com.tambapps.p2p.peer_transfer.android.ui.theme.FandemAndroidTheme
+import com.tambapps.p2p.peer_transfer.android.util.DialogButton
 import com.tambapps.p2p.peer_transfer.android.util.NetworkUtils
 
 abstract class TransferActivity: ComponentActivity() {
@@ -69,17 +70,4 @@ abstract class TransferActivity: ComponentActivity() {
     }
   }
 
-  @Composable
-  private fun DialogButton(
-    openDialogState: MutableState<Boolean>,
-    text: String,
-    onClick: () -> Unit = {},
-  ) {
-    TextButton(onClick = {
-      onClick.invoke()
-      openDialogState.value = false
-    }){
-      Text(text.uppercase(), textAlign = TextAlign.End)
-    }
-  }
 }
