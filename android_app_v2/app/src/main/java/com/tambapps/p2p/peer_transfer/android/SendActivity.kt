@@ -86,7 +86,7 @@ fun SendView(fandemWorkService: FandemWorkService, viewModel: SendViewModel = vi
   val context = LocalContext.current as Activity
   val pickFileLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetMultipleContents()) { uris ->
     if (uris.isEmpty()) {
-      Toast.makeText(context, "No file was selected", Toast.LENGTH_SHORT).show()
+      Toast.makeText(context, context.getString(R.string.no_file_was_selected), Toast.LENGTH_SHORT).show()
       return@rememberLauncherForActivityResult
     }
     CoroutineScope(Dispatchers.IO).launch {

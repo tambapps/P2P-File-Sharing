@@ -110,5 +110,6 @@
     <string name="communication_impossible">Communication avec l\'appareil envoyeur impossible</string>
     <string name="transfer_followup">Suivi du transfert</string>
     <string name="transfer_followup_des">Une fois un transfert commencé, vous pouvez suivre son progrès à travers vos notifications.</string>
+    <string name="no_file_was_selected">Aucun fichier n\'a été sélectionné</string>
 
 </resources>
