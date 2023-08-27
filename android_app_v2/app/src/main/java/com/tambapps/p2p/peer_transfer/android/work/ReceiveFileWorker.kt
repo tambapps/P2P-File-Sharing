@@ -30,7 +30,7 @@ class ReceiveFileWorker @AssistedInject constructor(@Assisted appContext: Contex
   : FandemWorker(appContext, params, R.drawable.download, R.drawable.download2), OutputStreamProvider {
 
   companion object {
-    const val TAG = "ReceiveFileWorker"
+    private const val TAG = "ReceiveFileWorker"
   }
 
   private val receivedFileNames = mutableListOf<String>()
@@ -50,7 +50,6 @@ class ReceiveFileWorker @AssistedInject constructor(@Assisted appContext: Contex
         notify(endNotif = true, title = getString(R.string.transfer_complete), bigText = getString(R.string.success_received,
           receivedFileNames.firstOrNull() ?: "<no name>"))
       }
-
     } catch (e: HandshakeFailException) {
       notify(endNotif = true, title = getString(R.string.couldnt_start), text = e.message)
     } catch (e: CorruptedFileException) {

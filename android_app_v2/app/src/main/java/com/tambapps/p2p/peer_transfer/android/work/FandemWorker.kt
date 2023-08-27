@@ -25,6 +25,7 @@ abstract class FandemWorker(appContext: Context, params: WorkerParameters, small
   companion object {
     const val PEER_KEY = "pk"
     const val SOCKET_TIMEOUT = 1000 * 60 * 2 //in ms
+    private const val NOTIFICATION_PROGRESS_UPDATE_INTERVAL = 1_000L
     val CHANNEL_ID: String = FandemWorker::class.java.name
   }
 
@@ -54,7 +55,7 @@ abstract class FandemWorker(appContext: Context, params: WorkerParameters, small
     totalBytes: Long
   ) {
     val now = System.currentTimeMillis()
-    if (progress < 100 && now - notificationLastUpdated >= 1_000L) {
+    if (progress < 100 && now - notificationLastUpdated >= NOTIFICATION_PROGRESS_UPDATE_INTERVAL) {
       // notifying every 0.5s because if it happened more frequently some notifs could be ignored
       notificationLastUpdated = now
       suspendNotify(progress = progress,
