@@ -108,5 +108,7 @@
     <string name="here">ici</string>
     <string name="sniff_error">Erreur lors de la recherche d\'appareil envoyeur</string>
     <string name="communication_impossible">Communication avec l\'appareil envoyeur impossible</string>
+    <string name="transfer_followup">Suivi du transfert</string>
+    <string name="transfer_followup_des">Une fois un transfert commencé, vous pouvez suivre son progrès à travers vos notifications.</string>
 
 </resources>

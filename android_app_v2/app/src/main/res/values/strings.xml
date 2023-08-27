@@ -109,8 +109,10 @@
     <string name="title_activity_help" translatable="false">HelpActivity</string>
     <string name="rewatch_intro">Re-watch intro</string>
     <string name="here">here</string>
-    <string name="title_activity_on_boarding">OnBoardingActivity</string>
+    <string name="title_activity_on_boarding" translatable="false">OnBoardingActivity</string>
     <string name="sniff_error">Error while searching for sending peers</string>
     <string name="communication_impossible">Couldn\'t communicate with other peer</string>
+    <string name="transfer_followup">Transfer follow-up</string>
+    <string name="transfer_followup_des">Once you started a transfer, you can follow its progress through your notifications.</string>
 
 </resources>

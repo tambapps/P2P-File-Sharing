@@ -1,6 +1,8 @@
 package com.tambapps.p2p.peer_transfer.android
 
+import android.Manifest.permission.POST_NOTIFICATIONS
 import android.animation.ArgbEvaluator
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,33 +11,48 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.ComponentActivity
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.ui.graphics.toArgb
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.tambapps.p2p.peer_transfer.android.databinding.ActivityOnBoardingBinding
 import com.tambapps.p2p.peer_transfer.android.ui.theme.BlueOcean
 import com.tambapps.p2p.peer_transfer.android.ui.theme.Cyan
+import com.tambapps.p2p.peer_transfer.android.util.hasPermission
 import java.util.function.Consumer
 
 class OnBoardingActivity : ComponentActivity() {
 
   private lateinit var binding: ActivityOnBoardingBinding
-  val pages = listOf(
+  private val pages = listOf(
     PageData(R.string.welcome_to_fandem, R.string.welcome_des, R.drawable.appicon),
     PageData(R.string.p2p, R.string.p2p_des, R.drawable.transfer),
     PageData(R.string.same_wifi, R.string.same_wifi_des, R.drawable.wifi),
     PageData(R.string.hotspot, R.string.hotspot_des, R.drawable.hotspot),
+    PageData(R.string.transfer_followup, R.string.transfer_followup_des, R.drawable.notification),
     PageData(R.string.lets_get_started, R.string.lets_get_started_des, R.drawable.appicon),
   )
+  private val needsNotificationPermission
+    get() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !hasPermission(permission = POST_NOTIFICATIONS)
+  private val notificationPageIndex = pages.indexOfFirst { it.imageRes == R.drawable.notification }
+
+
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     binding = ActivityOnBoardingBinding.inflate(layoutInflater)
     setContentView(binding.root)
     binding.apply {
+      val pushNotificationPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+        if (viewPager.currentItem < viewPager.adapter!!.itemCount - 1) {
+          viewPager.currentItem = viewPager.currentItem + 1
+        }
+      }
       viewPager.adapter = OnBoardingAdapter()
       indicator.setViewPager(viewPager)
       nextButton.setOnClickListener {
-        if (viewPager.currentItem < viewPager.adapter!!.itemCount - 1) {
+        if (viewPager.currentItem == notificationPageIndex && needsNotificationPermission) {
+          pushNotificationPermissionLauncher.launch(POST_NOTIFICATIONS)
+        } else if (viewPager.currentItem < viewPager.adapter!!.itemCount - 1) {
           viewPager.currentItem = viewPager.currentItem + 1
         } else {
           finish()
@@ -49,8 +66,6 @@ class OnBoardingActivity : ComponentActivity() {
         root.setBackgroundColor(color)
       })
     }
-
-
   }
 
   private inner class OnBoardingAdapter : RecyclerView.Adapter<OnBoardingViewHolder?>() {
