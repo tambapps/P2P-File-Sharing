@@ -73,19 +73,17 @@ class ReceiveActivity : TransferActivity(),
   lateinit var fandemWorkService: FandemWorkService
   private lateinit var peerSniffer: AndroidSenderPeersReceiverService
   private val viewModel: ReceiveViewModel by viewModels()
-  private val showReceivePermissionDialogState = mutableStateOf(false)
-  private val sniffErrorMessageState = mutableStateOf<String?>(null)
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     peerSniffer = AndroidSenderPeersReceiverService(getSystemService(WifiManager::class.java), this)
     if (!canReceiveFiles(this)) {
-      showReceivePermissionDialogState.value = true
+      viewModel.showReceivePermissionDialogState.value = true
     }
     setContent {
       TransferActivityTheme {
         FandemSurface {
-          if (showReceivePermissionDialogState.value) {
+          if (viewModel.showReceivePermissionDialogState.value) {
             ReceivePermissionDialog()
           }
           Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -101,7 +99,7 @@ class ReceiveActivity : TransferActivity(),
             Box(modifier = Modifier.weight(1f)) {
               val sendingPeersState = viewModel.sendingPeers
               if (sendingPeersState.isEmpty()) {
-                val sniffErrorMessage = sniffErrorMessageState.value
+                val sniffErrorMessage = viewModel.sniffErrorMessageState.value
                 val text =
                   if (peerSniffer.isRunning) stringResource(id = R.string.loading_sending_peers)
                   else if (sniffErrorMessage != null) getString(R.string.sniff_error) + ": $sniffErrorMessage"
@@ -177,7 +175,7 @@ class ReceiveActivity : TransferActivity(),
 
   @Composable
   private fun ReceivePermissionDialog() {
-    AlertDialog(onDismissRequest = { showReceivePermissionDialogState.value = false },
+    AlertDialog(onDismissRequest = { viewModel.showReceivePermissionDialogState.value = false },
       title = {
         Text(text = stringResource(id = R.string.ask_write_permission_title))
       },
@@ -186,13 +184,13 @@ class ReceiveActivity : TransferActivity(),
       },
       confirmButton = {
         DialogButton(
-          openDialogState = showReceivePermissionDialogState,
+          openDialogState = viewModel.showReceivePermissionDialogState,
           text = getString(R.string.yes),
           onClick = { requestWritePermission() }
         )
       },
       dismissButton = {
-        DialogButton(openDialogState = showReceivePermissionDialogState, text = getString(R.string.no))
+        DialogButton(openDialogState = viewModel.showReceivePermissionDialogState, text = getString(R.string.no))
       })
   }
 
@@ -222,7 +220,7 @@ class ReceiveActivity : TransferActivity(),
   }
   private fun startReceiving(peer: Peer) {
     if (!canReceiveFiles(this)) {
-      showReceivePermissionDialogState.value = true
+      viewModel.showReceivePermissionDialogState.value = true
       return
     }
     fandemWorkService.startReceiveFileWork(peer)
@@ -256,7 +254,7 @@ class ReceiveActivity : TransferActivity(),
     Log.e(TAG, "Error while sniffing peers", e)
     CoroutineScope(Dispatchers.Main).launch {
       viewModel.sniffingPeers.value = false
-      sniffErrorMessageState.value = e?.message ?: getString(R.string.no_internet)
+      viewModel.sniffErrorMessageState.value = e?.message ?: getString(R.string.no_internet)
     }
   }
 }
@@ -266,6 +264,8 @@ class ReceiveViewModel @Inject constructor(): ViewModel() {
 
   val sendingPeers = mutableStateListOf<SenderPeer>()
   val sniffingPeers = mutableStateOf(false)
+  val showReceivePermissionDialogState = mutableStateOf(false)
+  val sniffErrorMessageState = mutableStateOf<String?>(null)
 
   fun postNewPeers(discoveredData: List<SenderPeer>) {
     for (potentialPeer in discoveredData) {
