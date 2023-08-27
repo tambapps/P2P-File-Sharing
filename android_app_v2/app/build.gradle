@@ -10,7 +10,7 @@ android {
     compileSdk 33
 
     defaultConfig {
-        applicationId "com.tambapps.p2p.peer_transfer.android.v2"
+        applicationId "com.tambapps.p2p.peer_transfer.android"
         minSdk 24
         targetSdk 33
         versionCode 24
@@ -28,7 +28,6 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         debug {
-            // uncomment below lines to test release-like app
             //minifyEnabled true
             //proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name" translatable="false">Fandem V2</string>
+    <string name="app_name" translatable="false">Fandem</string>
     <string name="tab_text_2">Send file</string>
     <string name="tab_text_3">Receive file</string>
     <string name="help_title">Welcome to Fandem</string>
