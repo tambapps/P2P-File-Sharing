@@ -76,7 +76,7 @@ class ReceiveFileWorker @AssistedInject constructor(@Assisted appContext: Contex
 
   override fun onTransferStarted(fileName: String, fileSize: Long) {
     Log.i(SendFileWorker.TAG, "Receiving $fileName (${FileUtils.toFileSize(fileSize)})")
-    suspendNotify(title = getString(R.string.receiving_connected, fileName))
+    notify(title = getString(R.string.receiving_connected, fileName))
   }
 
   override fun newOutputStream(fileName: String): OutputStream {

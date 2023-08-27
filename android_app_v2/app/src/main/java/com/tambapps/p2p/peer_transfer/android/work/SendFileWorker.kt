@@ -102,12 +102,12 @@ class SendFileWorker @AssistedInject constructor(@Assisted appContext: Context,
 
   override fun onTransferStarted(fileName: String, fileSize: Long) {
     Log.i(TAG, "Sending $fileName (${FileUtils.toFileSize(fileSize)})")
-    suspendNotify(title = getString(R.string.sending_file, fileName))
+    notify(title = getString(R.string.sending_file, fileName))
   }
 
   override fun onConnected(selfPeer: Peer?, remotePeer: Peer?) {
     Log.i(TAG, "Connected to peer $remotePeer (using $selfPeer)")
-    suspendNotify(bigText = getString(
+    notify(bigText = getString(
       R.string.sending_connected,
       fileNames.joinToString(separator = "\n- ", prefix = "- ")
     ))

@@ -58,18 +58,13 @@ abstract class FandemWorker(appContext: Context, params: WorkerParameters, small
     if (progress < 100 && now - notificationLastUpdated >= NOTIFICATION_PROGRESS_UPDATE_INTERVAL) {
       // notifying every 0.5s because if it happened more frequently some notifs could be ignored
       notificationLastUpdated = now
-      suspendNotify(progress = progress,
+      notify(progress = progress,
         bigText = FileUtils.toFileSize(bytesProcessed) + "/ " + FileUtils.toFileSize(totalBytes))
 
     }
   }
 
-  fun suspendNotify(title: String? = null, text: String? = null, bigText: String? = null, progress: Int? = null, endNotif: Boolean = false) {
-    CoroutineScope(Dispatchers.Default).launch {
-      notify(title, text, bigText, progress, endNotif)
-    }
-  }
-  suspend fun notify(title: String? = null, text: String? = null, bigText: String? = null, progress: Int? = null, endNotif: Boolean = false) {
+  fun notify(title: String? = null, text: String? = null, bigText: String? = null, progress: Int? = null, endNotif: Boolean = false) {
     if (endNotif) {
       notifBuilder.clearActions()
       notifBuilder.setStyle(null)
@@ -87,12 +82,14 @@ abstract class FandemWorker(appContext: Context, params: WorkerParameters, small
     if (progress != null) notifBuilder.setProgress(100, progress, false)
     else notifBuilder.setProgress(0, 0, false).setOngoing(false)
 
-    withContext(Dispatchers.Main) {
-      val notification = notifBuilder.build()
-      lastNotificationReference.set(notification)
+    val notification = notifBuilder.build()
+    lastNotificationReference.set(notification)
+    if (endNotif) {
       // NEEDED FOR OLD DEVICES THAT USE FOREGROUND NOTIFICATION
-      notificationManager.notify(if (endNotif) notificationId + 1 else notificationId, notification)
       notificationManager.cancel(notificationId)
+      notificationManager.notify(notificationId + 1, notification)
+    } else {
+      notificationManager.notify(notificationId, notification)
     }
   }
 
