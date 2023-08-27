@@ -8,13 +8,10 @@ import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import com.tambapps.p2p.peer_transfer.android.ui.theme.FandemAndroidTheme
 import com.tambapps.p2p.peer_transfer.android.util.DialogButton
 import com.tambapps.p2p.peer_transfer.android.util.NetworkUtils

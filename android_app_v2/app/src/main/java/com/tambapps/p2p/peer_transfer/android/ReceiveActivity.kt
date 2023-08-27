@@ -1,7 +1,6 @@
 package com.tambapps.p2p.peer_transfer.android
 
 import android.Manifest
-import android.app.AlertDialog
 import android.content.Context
 import android.net.wifi.WifiManager
 import android.os.Build
@@ -86,6 +85,10 @@ class ReceiveActivity : TransferActivity(),
           if (viewModel.showReceivePermissionDialogState.value) {
             ReceivePermissionDialog()
           }
+          viewModel.selectedSenderPeer.value?.let {
+            ProposePeerDialog(it)
+          }
+
           Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
             Text(text = stringResource(id = R.string.select_peer), textAlign = TextAlign.Center, fontSize = 22.sp, color = TextColor, modifier = Modifier.padding(top = 20.dp, bottom = 10.dp))
             val progressBarModifier = Modifier
@@ -113,23 +116,7 @@ class ReceiveActivity : TransferActivity(),
                     Column(modifier = Modifier
                       .fillMaxWidth()
                       .clickable {
-                        val message =
-                          getString(
-                            R.string.alert_receive_file_message,
-                            peer.files.joinToString(
-                              separator = "\n- ",
-                              prefix = "- ",
-                              transform = { it.fileName })
-                          ) + "\n" + getString(R.string.in_download_folder)
-                        AlertDialog
-                          .Builder(this@ReceiveActivity)
-                          .setTitle(peer.deviceName)
-                          .setMessage(message)
-                          .setPositiveButton(R.string.yes) { dialog, which ->
-                            startReceiving(peer)
-                          }
-                          .setNeutralButton(R.string.no, null)
-                          .show()
+                        viewModel.selectedSenderPeer.value = peer
                       }) {
                       Spacer(modifier = Modifier.padding(top = 4.dp))
                       val paddingStart = 10.dp
@@ -192,6 +179,29 @@ class ReceiveActivity : TransferActivity(),
       dismissButton = {
         DialogButton(openDialogState = viewModel.showReceivePermissionDialogState, text = getString(R.string.no))
       })
+  }
+
+  @Composable
+  private fun ProposePeerDialog(peer: SenderPeer) {
+    val dismisser = { viewModel.selectedSenderPeer.value = null }
+    val message =
+      getString(
+        R.string.alert_receive_file_message,
+        peer.files.joinToString(
+          separator = "\n- ",
+          prefix = "- ",
+          transform = { it.fileName })
+      ) + "\n" + getString(R.string.in_download_folder)
+
+    AlertDialog(onDismissRequest = dismisser,
+      title = { Text(text = peer.deviceName) },
+      text = { Text(text = message)},
+      confirmButton = {
+        DialogButton(dissmisser = dismisser, text = stringResource(id = R.string.yes), onClick = {
+          startReceiving(peer)
+        })
+      },
+      dismissButton = { DialogButton(dissmisser = dismisser, text = stringResource(id = R.string.no)) })
   }
 
   private fun requestWritePermission() {
@@ -266,6 +276,7 @@ class ReceiveViewModel @Inject constructor(): ViewModel() {
   val sniffingPeers = mutableStateOf(false)
   val showReceivePermissionDialogState = mutableStateOf(false)
   val sniffErrorMessageState = mutableStateOf<String?>(null)
+  val selectedSenderPeer = mutableStateOf<SenderPeer?>(null)
 
   fun postNewPeers(discoveredData: List<SenderPeer>) {
     for (potentialPeer in discoveredData) {
