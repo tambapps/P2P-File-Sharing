@@ -1,12 +1,16 @@
 package com.tambapps.p2p.peer_transfer.android.work
 
+import android.app.DownloadManager
 import android.app.Notification
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.ContentResolver
 import android.content.Context
+import android.content.Intent
 import android.graphics.BitmapFactory
 import androidx.compose.ui.graphics.toArgb
 import androidx.core.app.NotificationCompat
+import androidx.core.app.TaskStackBuilder
 import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
@@ -64,7 +68,7 @@ abstract class FandemWorker(appContext: Context, params: WorkerParameters, small
     }
   }
 
-  fun notify(title: String? = null, text: String? = null, bigText: String? = null, progress: Int? = null, endNotif: Boolean = false) {
+  fun notify(title: String? = null, text: String? = null, bigText: String? = null, progress: Int? = null, endNotif: Boolean = false, seeFilesIntent: Boolean = false) {
     if (endNotif) {
       notifBuilder.clearActions()
       notifBuilder.setStyle(null)
@@ -81,6 +85,17 @@ abstract class FandemWorker(appContext: Context, params: WorkerParameters, small
     if (bigText != null) notifBuilder.setStyle(NotificationCompat.BigTextStyle().bigText(bigText))
     if (progress != null) notifBuilder.setProgress(100, progress, false)
     else notifBuilder.setProgress(0, 0, false).setOngoing(false)
+    if (endNotif && seeFilesIntent) {
+      val resultIntent = Intent(DownloadManager.ACTION_VIEW_DOWNLOADS)
+      val resultPendingIntent: PendingIntent? = TaskStackBuilder.create(applicationContext).run {
+        // Add the intent, which inflates the back stack
+        addNextIntentWithParentStack(resultIntent)
+        // Get the PendingIntent containing the entire back stack
+        getPendingIntent(0,
+          PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+      }
+      notifBuilder.setContentIntent(resultPendingIntent)
+    }
 
     val notification = notifBuilder.build()
     lastNotificationReference.set(notification)

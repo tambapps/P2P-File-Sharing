@@ -45,10 +45,10 @@ class ReceiveFileWorker @AssistedInject constructor(@Assisted appContext: Contex
       fileReceiver.receiveFrom(peer, this)
       if (receivedFileNames.size > 1) {
         notify(endNotif = true, title = getString(R.string.transfer_complete), bigText = getString(R.string.success_received_many,
-          receivedFileNames.joinToString(separator = "\n- ", prefix = "- ")))
+          receivedFileNames.joinToString(separator = "\n- ", prefix = "- ")), seeFilesIntent = true)
       } else {
         notify(endNotif = true, title = getString(R.string.transfer_complete), bigText = getString(R.string.success_received,
-          receivedFileNames.firstOrNull() ?: "<no name>"))
+          receivedFileNames.firstOrNull() ?: "<no name>"), seeFilesIntent = true)
       }
     } catch (e: HandshakeFailException) {
       notify(endNotif = true, title = getString(R.string.couldnt_start), text = e.message)
@@ -58,7 +58,7 @@ class ReceiveFileWorker @AssistedInject constructor(@Assisted appContext: Contex
       if (receivedFileNames.isEmpty()) {
         notify(endNotif = true, title = getString(R.string.transfer_canceled), bigText = getString(R.string.communication_impossible))
       } else {
-        notify(endNotif = true, title = getString(R.string.transfer_canceled), bigText = getString(R.string.incomplete_transfer))
+        notify(endNotif = true, title = getString(R.string.transfer_canceled), bigText = getString(R.string.incomplete_transfer), seeFilesIntent = true)
       }
     } catch (e: SocketTimeoutException) {
       notify(endNotif = true, title = getString(R.string.transfer_aborted), text = getString(R.string.connection_timeout))
