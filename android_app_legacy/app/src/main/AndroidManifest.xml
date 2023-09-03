@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.tambapps.p2p.peer_transfer.android">
+
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="29" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/appicon"
+        android:label="@string/app_name"
+        android:roundIcon="@drawable/round_appicon"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="${admobApplicationId}" />
+
+        <activity
+            android:name=".HelpActivity"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:exported="false"
+            />
+
+        <provider
+            android:name=".io.GenericFileProvider"
+            android:authorities="${applicationId}.io"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_paths" />
+        </provider>
+
+        <activity
+            android:name=".OnBoardingActivity"
+            android:exported="false"
+            />
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".ReceiveActivity"
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name=".SendActivity"
+            android:theme="@style/AppTheme.TransferScreen"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:mimeType="image/*" />
+                <data android:mimeType="video/*" />
+                <data android:mimeType="application/*" />
+                <data android:mimeType="*/avi" />
+                <data android:mimeType="*/mkv" />
+                <data android:mimeType="audio/*" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.SEND_MULTIPLE" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:mimeType="image/*" />
+                <data android:mimeType="video/*" />
+                <data android:mimeType="application/*" />
+                <data android:mimeType="*/avi" />
+                <data android:mimeType="*/mkv" />
+                <data android:mimeType="audio/*" />
+            </intent-filter>
+        </activity>
+
+        <service
+            android:name=".service.FileSendingJobService"
+            android:exported="true"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+        <service
+            android:name=".service.FileReceivingJobService"
+            android:exported="true"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+    </application>
+
+</manifest>

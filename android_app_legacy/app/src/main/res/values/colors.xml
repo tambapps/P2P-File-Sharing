@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#185a9d</color>
+    <color name="colorAccent">#ff0</color>
+    <color name="colorSmallIcon">#185a9d</color>
+    <color name="gradientDown">#43cea2</color>
+</resources>

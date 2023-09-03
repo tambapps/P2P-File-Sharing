@@ -3,7 +3,7 @@
     <string name="tab_text_2">Envoyer un fichier</string>
     <string name="tab_text_3">Recevoir un fichier</string>
     <string name="help_title">Bienvenue sur Fandem</string>
-    <string name="help_description">\t\t\t\tCette application permet d\'envoyer/recevoir des fichiers en Peer to Peer (P2P) avec le partage de données (point d\'accès). P2P signifie que les données sont transférées directement d\'un appareil à l\'autre, aucune donnée n\'est envoyée à un serveur intermédiaire.\n\nPour transférer des fichiers, les deux appareils doivent être connecté au même Wi-Fi, ou un appareil doit partager ses données (point d\'accès) avec l\'autre.\n\nAfin que le transfert se déroule sans problème, assurez vous que les 2 appareils<b> aient la dernière version de l\'application</b>\n\nFandem est un projet open-source. Vous pouvez consulter le code source</string>
+    <string name="help_description">\t\t\t\tCette application permet d\'envoyer/recevoir des fichiers en Peer to Peer (P2P) avec le partage de données (point d\'accès). P2P signifie que les données sont transférées directement d\'un appareil à l\'autre, aucune donnée n\'est envoyée à un serveur intermédiaire.\n\nPour transférer des fichiers, les deux appareils doivent être connecté au même Wi-Fi, ou un appareil doit partager ses données (point d\'accès) avec l\'autre.\n\nAfin que le transfert se déroule sans problème, assurez vous que les 2 appareils<b> aient la dernière version de l\'application</b>\n\nFandem est un projet open-source. Vous pouvez consulter le code source <a href="https://github.com/tambapps/P2P-File-Sharing">ici</a></string>
     <string name="pick_a_file_to_send">Choisissez un fichier à envoyer</string>
     <string name="port">port</string>
     <string name="receive_file">Recevoir un fichier</string>
@@ -30,20 +30,21 @@
     <string name="error_occured">Une erreur est survenue pendant le transfert</string>
     <string name="error_incomplete">Une erreur est survenue pendant le transfert. Le fichier n\'a pas pu être téléchargé complètement. Veuillez le supprimer</string>
     <string name="incomplete_transfer">Ce fichier n\'a pas été téléchargé entièrement. Vous devriez le supprimer</string>
+    <string name="network_error">Erreur réseau: Envoi impossible</string>
     <string name="no">non</string>
     <string name="permissions_not_granted">Vous n\'avez pas donné les permissions</string>
-    <string name="receiving_connected">Réception de %s</string>
+    <string name="receveiving_connected">Reçois\n%s</string>
     <string name="sending_connected">Envoi\n%s</string>
-    <string name="service_started">Le transfert a commencé. Vous pouvez voir le progrès dans la barre de notification</string>
-    <string name="success_received_many">Le(s) fichier(s) suivant ont été reçu(s) avec succès dans votre dossier Téléchargements\n%s</string>
-    <string name="success_received">%s a été reçu dans votre dossier Téléchargements (Download)</string>
-    <string name="success_send_many">Les fichiers suivant ont été envoyés avec succès\n%s</string>
+    <string name="service_started">Service commencé. Vous pouvez voir le progrès dans la barre de notification</string>
+    <string name="success_received">Le(s) fichier(s) suivant ont été reçu(s) avec succès\n%s</string>
+    <string name="success_send">Le(s) fichier(s) suivant ont été envoyé(s) avec succès\n%s</string>
     <string name="transfer_canceled">Trasfert annulé</string>
     <string name="transfer_complete">Transfert fini avec succès</string>
     <string name="waiting_connection">En attente d\'une connexion</string>
     <string name="waiting_connection_message">clé: %s</string>
     <string name="transfer_aborted">Transfert interrompu</string>
-    <string name="alert_receive_file_message">Voulez-vous recevoir le(s) fichier(s) suivant?\n%s</string>
+    <string name="alert_receive_file">Recevoir %s</string>
+    <string name="alert_receive_file_message">Voulez-vous recevoir les fichiers suivant de %s?\n%s</string>
     <string name="or">ou</string>
     <string name="yes">oui</string>
     <string name="cancel">annuler</string>
@@ -74,11 +75,11 @@
     <string name="successfully_moved">%s a été déplacé avec succès</string>
     <string name="warning_couldnt_delete">Attention: le fichier source n\'a pas pu être supprimé</string>
     <string name="manage">gérer</string>
-    <string name="in_download_folder">Les fichiers seront sauvegardés dans votre repertoire de téléchargements</string>
+    <string name="in_download_folder">Le fichier sera téléchargé dans votre repertoire de téléchargements (\'Download\')</string>
     <string name="select_file">Vous devrez choisir où sauvegarder le fichier</string>
     <string name="filename_invalid">le nom de fichier est invalide</string>
     <string name="welcome_to_fandem">Bienvenue sur Fandem</string>
-    <string name="welcome_des">Cette application permet de transférer rapidement des fichiers à un autre appareil</string>
+    <string name="welcome_des">Cette application permet de transférer rapidement des fichiers à un autre smartphone</string>
     <string name="p2p">Transfert Peer to Peer</string>
     <string name="same_wifi">Avec le Wi-Fi</string>
     <string name="hotspot">Ou avec le partage de données (point d\'accès)</string>
@@ -94,22 +95,5 @@
     <string name="lets_get_started_des">" "</string>
     <string name="nar_description">Pour transférer des fichiers, les 2 appareils doivent être connectés au même Wi-Fi, on un appareil doit partager ses données avec l\'autre.</string>
     <string name="no_more_than_n_files">Vous ne pouvez pas envoyer plus de 10 fichiers en une fois</string>
-    <string name="sending_file">Envoi de %s</string>
-    <string name="success_send">%s a été envoyé avec succès</string>
-    <string name="transfer_started_consult_notif">Le transfert va commencer avec la clé %s\n\nConsultez vos notifications pour suivre le progrès</string>
-    <string name="continuer">continuer</string>
-    <string name="notifications_not_enabled">Les notifications ne sont pas activés</string>
-    <string name="enable">activer</string>
-    <string name="no_progress_without_notifs">Sans notifications vous ne pourrez suivre le progrès du transfert</string>
-    <string name="peer_key">Clé expediteur</string>
-    <string name="peer_search_disabled">La recherche d\'appareil envoyeur est désactivée</string>
-    <string name="retry">Réessayer</string>
-    <string name="rewatch_intro">Revoir l\'intro</string>
-    <string name="here">ici</string>
-    <string name="sniff_error">Erreur lors de la recherche d\'appareil envoyeur</string>
-    <string name="communication_impossible">Communication avec l\'appareil envoyeur impossible</string>
-    <string name="transfer_followup">Suivi du transfert</string>
-    <string name="transfer_followup_des">Une fois un transfert commencé, vous pouvez suivre son progrès à travers vos notifications.</string>
-    <string name="no_file_was_selected">Aucun fichier n\'a été sélectionné</string>
 
 </resources>

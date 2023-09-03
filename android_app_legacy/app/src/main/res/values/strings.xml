@@ -1,9 +1,10 @@
 <resources>
     <string name="app_name" translatable="false">Fandem</string>
+    <string name="tab_text_1" translatable="false">Fandem</string>
     <string name="tab_text_2">Send file</string>
     <string name="tab_text_3">Receive file</string>
     <string name="help_title">Welcome to Fandem</string>
-    <string name="help_description">\t\t\t\tThis app allows to send/receive files from another device in Peer to Peer (P2P), with mobile\'s data. P2P means that the data transferred goes directly from one device to another, without any intermediate server.\n\nTo be able to transfer files, both devices needs to be connected to the same Wi-Fi, or one device must share its data (hotspot) to the other.\n\nTo assure a transfer without problems, please make sure that <b>both devices have the latest version of the app</b>\n\nFandem is an open-source project. You can consult the source code</string>
+    <string name="help_description">\t\t\t\tThis app allows to send/receive files from another device in Peer to Peer (P2P), with mobile\'s data. P2P means that the data transferred goes directly from one device to another, without any intermediate server.\n\nTo be able to transfer files, both devices needs to be connected to the same Wi-Fi, or one device must share its data (hotspot) to the other.\n\nTo assure a transfer without problems, please make sure that <b>both devices have the latest version of the app</b>\n\nFandem is an open-source project. You can consult the source code <a href="https://github.com/tambapps/P2P-File-Sharing">here</a></string>
     <string name="receive_description">\t\t\t\tTo receive files, go to the receive screen, Wait for the app to find the sender peer. Once the sender is found, the transfer can start. You can consult the progress on the notification created.</string>
     <string name="send_description">\t\t\t\tTo send a files, pick one by clicking on the button. Once it is done, a key will be displayed on the screen, you can eventually provide it to the receiving device but the receiver should be able to detect your device without it.\nAfter the receiving peer will have found your device, the transfer will start. All files are downloaded in your \'Download\' folder.\nYou can the see the progress on the notification created</string>
     <string name="pick_a_file_to_send">Pick a file to send</string>
@@ -24,12 +25,11 @@
     <string name="couldnt_find_file">The file couldn\'t be found</string>
     <string name="coudlnt_send">The file selected couldn\'t be sent</string>
     <string name="error_occured">An error occurred during the transfer: %s</string>
-    <string name="success_send_many">The following files were successfully sent %s</string>
+    <string name="success_send">The following file(s) were successfully sent\n%s</string>
     <string name="transfer_complete">Transfer completed</string>
     <string name="transfer_canceled">Transfer canceled</string>
-    <string name="receiving_connected">Receiving %s</string>
-    <string name="success_received_many">The following file(s) were successfully received in your Download folder\n%s</string>
-    <string name="success_received">%s was saved in your Download folder</string>
+    <string name="receveiving_connected">Receiving\n%s</string>
+    <string name="success_received">The following file(s) were successfully received\n%s</string>
     <string name="incomplete_transfer">The file couldn\'t be downloaded entirely. You should delete it.</string>
     <string name="error_incomplete">An error occurred during the transfer: %s. The file couldn\'t be downloaded entirely. You should delete it.</string>
     <string name="connection_timeout">Connection timeout</string>
@@ -37,19 +37,20 @@
     <string name="connecting_to">connecting to %s</string>
     <string name="permissions_not_granted">You didn\'t grant write permissions</string>
     <string name="no">no</string>
-    <string name="service_started">Transfer started. You can see the progress in the notification bar</string>
+    <string name="service_started">Service started. You can see the progress in the notification bar</string>
     <string name="couldnt_get_file">Couldn\'t get file, sending canceled</string>
     <string name="couldnt_get_size_of_file">Error: couldn\'t get size of file</string>
     <string name="couldn_get_name_file">Error: couldn\'t get name of file</string>
     <string name="couldnt_get_file_short">Couldn\'t get a file</string>
+    <string name="network_error">Network error, Couldn\'t start sending</string>
     <string name="couldn_get_ip_address">Couldn\'t get ip address. Please verify your internet connection</string>
-    <string name="alert_receive_file_message">Do you want to receive the following file(s)?\n%s</string>
+    <string name="alert_receive_file">Receive %s</string>
+    <string name="alert_receive_file_message">Do you want to receive the following files from peer %s?\n%s</string>
     <string name="yes">yes</string>
     <string name="or">or</string>
     <string name="cancel">cancel</string>
     <string name="enter_peer_key_manually">Enter peer key manually</string>
     <string name="loading_sending_peers">Searching sending peers…</string>
-    <string name="peer_search_disabled">Peer search is disabled</string>
     <string name="select_peer">Select peer</string>
     <string name="send_service_canceled">Service was canceled due to timeout. Please try again</string>
     <string name="ask_write_permission_title">Grant write permission?</string>
@@ -75,11 +76,11 @@
     <string name="successfully_moved">%s was successfully moved</string>
     <string name="warning_couldnt_delete">Warning: source file couldn\'t be deleted</string>
     <string name="manage">manage</string>
-    <string name="in_download_folder">Files will be saved in your \'Download\' folder</string>
+    <string name="in_download_folder">File will be downloaded in your \'Download\' folder</string>
     <string name="select_file">You will have to select the location where to save the file</string>
     <string name="filename_invalid">the file name is invalid</string>
     <string name="welcome_to_fandem">Welcome to Fandem</string>
-    <string name="welcome_des">This app allows you to transfer files to another device</string>
+    <string name="welcome_des">This app allows you to transfer files to another smartphone</string>
     <string name="p2p">Peer to Peer transfer</string>
     <string name="p2p_des">The transfer is made in Peer to Peer (P2P), meaning that the data goes from one device, directly to the other. There is no intermediate server in between, allowing you to keep your data private.</string>
     <string name="same_wifi">Using Wi-Fi</string>
@@ -95,25 +96,5 @@
     <string name="start_hotspot">Start hotspot</string>
     <string name="lets_get_started">Let\'s get started!</string>
     <string name="no_more_than_n_files">You cannot send more than 10 files at once</string>
-    <string name="title_activity_send" translatable="false">SendActivity</string>
-    <string name="sending_file">Sending %s</string>
-    <string name="success_send">%s was successfully sent</string>
-    <string name="transfer_started_consult_notif">Transfer will start with peer key %s\n\nConsult your notifications to follow the progress</string>
-    <string name="continuer">continue</string>
-    <string name="notifications_not_enabled">Notifications are not enabled</string>
-    <string name="enable">enable</string>
-    <string name="no_progress_without_notifs">Without notifications you won\'t be able to follow the progress of the transfer</string>
-    <string name="title_activity_receive" translatable="false">ReceiveActivity</string>
-    <string name="peer_key">Peer key</string>
-    <string name="retry">Retry</string>
-    <string name="title_activity_help" translatable="false">HelpActivity</string>
-    <string name="rewatch_intro">Re-watch intro</string>
-    <string name="here">here</string>
-    <string name="title_activity_on_boarding" translatable="false">OnBoardingActivity</string>
-    <string name="sniff_error">Error while searching for sending peers</string>
-    <string name="communication_impossible">Couldn\'t communicate with other peer</string>
-    <string name="transfer_followup">Transfer follow-up</string>
-    <string name="transfer_followup_des">Once you started a transfer, you can follow its progress through your notifications.</string>
-    <string name="no_file_was_selected">No file was selected</string>
 
 </resources>
