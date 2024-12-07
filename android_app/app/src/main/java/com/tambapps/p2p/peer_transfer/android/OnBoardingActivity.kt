@@ -2,6 +2,7 @@ package com.tambapps.p2p.peer_transfer.android
 
 import android.Manifest.permission.POST_NOTIFICATIONS
 import android.animation.ArgbEvaluator
+import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -99,6 +100,7 @@ class OnBoardingActivity : ComponentActivity() {
     }
   }
 
+  @SuppressLint("MissingSuperCall")
   override fun onBackPressed() {
     // prevent user from quiting this activity
   }

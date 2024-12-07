@@ -3,17 +3,25 @@ package com.tambapps.p2p.peer_transfer.android
 import android.app.Application
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
+import dagger.hilt.EntryPoint
+import dagger.hilt.EntryPoints
+import dagger.hilt.InstallIn
 import dagger.hilt.android.HiltAndroidApp
-import javax.inject.Inject
+import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.asExecutor
 
 @HiltAndroidApp
 class FandemApplication: Application(), Configuration.Provider {
 
-  @Inject
-  lateinit var workerFactory: HiltWorkerFactory
+  @EntryPoint
+  @InstallIn(SingletonComponent::class)
+  interface HiltWorkerFactoryEntryPoint {
+    fun workerFactory(): HiltWorkerFactory
+  }
 
-  override fun getWorkManagerConfiguration() =
-    Configuration.Builder()
-      .setWorkerFactory(workerFactory)
-      .build()
+  override val workManagerConfiguration = Configuration.Builder()
+    .setExecutor(Dispatchers.Default.asExecutor())
+    .setWorkerFactory(EntryPoints.get(this, HiltWorkerFactoryEntryPoint::class.java).workerFactory())
+    .build()
 }

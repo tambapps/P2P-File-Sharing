@@ -61,7 +61,7 @@ class HelpActivity : ComponentActivity() {
         val tabData = listOf(HelpPageData(R.string.app_name, R.string.help_description), HelpPageData(R.string.tab_text_2, R.string.help_description), HelpPageData(R.string.tab_text_3, R.string.receive_description))
         FandemSurface {
           Column(modifier = Modifier.fillMaxSize()) {
-            val pagerState = rememberPagerState()
+            val pagerState = rememberPagerState(pageCount = tabData::size)
             HelpTab(pagerState, tabData)
             HelpPager(pagerState = pagerState, tabData = tabData)
           }
@@ -109,8 +109,7 @@ fun HelpTab(pagerState: PagerState, tabData: List<HelpPageData>) {
 
 @Composable
 fun HelpPager(pagerState: PagerState, tabData: List<HelpPageData>) {
-  HorizontalPager(pageCount = tabData.size, state = pagerState,
-    verticalAlignment = Alignment.Top) { index ->
+  HorizontalPager(state = pagerState, verticalAlignment = Alignment.Top) { index ->
     val state = rememberScrollState()
     // we need 2 columns here. One is to fit the whole screen, the other is to enable scrolling in case of everfitting
     // we can't have both on same column
