@@ -34,13 +34,22 @@
             android:theme="@style/Theme.FandemAndroid" />
         <activity
             android:name=".SendActivity"
-            android:exported="false"
-            android:label="@string/title_activity_send"
-            android:theme="@style/Theme.FandemAndroid" />
+            android:exported="true"
+            android:theme="@style/Theme.FandemAndroid" >
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="*/*" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.SEND_MULTIPLE" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="*/*" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:label="@string/app_name"
             android:theme="@style/Theme.FandemAndroid">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

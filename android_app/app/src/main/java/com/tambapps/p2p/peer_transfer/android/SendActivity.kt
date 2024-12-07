@@ -2,6 +2,7 @@ package com.tambapps.p2p.peer_transfer.android
 
 import android.Manifest.permission.POST_NOTIFICATIONS
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
@@ -60,6 +61,7 @@ import kotlinx.coroutines.withContext
 import java.io.IOException
 import javax.inject.Inject
 
+
 const val ANY_CONTENT_TYPE = "*/*"
 
 @AndroidEntryPoint
@@ -70,9 +72,26 @@ class SendActivity : TransferActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
 
+    val viewModel = SendViewModel()
     setContent {
       TransferActivityTheme {
-        SendView(fandemWorkService)
+        SendView(fandemWorkService, viewModel)
+      }
+    }
+
+    val intent = intent
+    val action = intent.action
+    val type = intent.type
+    if (Intent.ACTION_SEND == action && type != null) {
+      val fileUri = intent.getParcelableExtra<Uri>(Intent.EXTRA_STREAM)!!
+
+      CoroutineScope(Dispatchers.IO).launch {
+        send(this@SendActivity, viewModel, fandemWorkService, listOf(fileUri))
+      }
+    } else if (Intent.ACTION_SEND_MULTIPLE == action && type != null) {
+      val fileUris = intent.getParcelableArrayListExtra<Uri>(Intent.EXTRA_STREAM)!!
+      CoroutineScope(Dispatchers.IO).launch {
+        send(this@SendActivity, viewModel, fandemWorkService, fileUris)
       }
     }
   }
@@ -80,6 +99,17 @@ class SendActivity : TransferActivity() {
 
 class SendViewModel: ViewModel() {
   val peer = MutableLiveData<Peer?>()
+}
+
+private suspend fun send(context: Context, viewModel: SendViewModel, fandemWorkService: FandemWorkService, uris: List<Uri>) {
+  val peer = try {
+    Fandem.findAvailableSendingPeer()
+  } catch (e: IOException) {
+    withContext(Dispatchers.Main) { Toast.makeText(context, context.getString(R.string.couldn_get_ip_address), Toast.LENGTH_SHORT).show() }
+    null
+  } ?: return
+  viewModel.peer.postValue(peer)
+  fandemWorkService.startSendFileWork(context.contentResolver, peer, uris)
 }
 @Composable
 fun SendView(fandemWorkService: FandemWorkService, viewModel: SendViewModel = viewModel()) {
@@ -90,14 +120,7 @@ fun SendView(fandemWorkService: FandemWorkService, viewModel: SendViewModel = vi
       return@rememberLauncherForActivityResult
     }
     CoroutineScope(Dispatchers.IO).launch {
-      val peer = try {
-        Fandem.findAvailableSendingPeer()
-      } catch (e: IOException) {
-        withContext(Dispatchers.Main) { Toast.makeText(context, context.getString(R.string.couldn_get_ip_address), Toast.LENGTH_SHORT).show() }
-        null
-      } ?: return@launch
-      viewModel.peer.postValue(peer)
-      fandemWorkService.startSendFileWork(context.contentResolver, peer, uris)
+      send(context, viewModel, fandemWorkService, uris)
     }
   }
   val peerState = viewModel.peer.observeAsState()
