@@ -13,7 +13,7 @@ val NotifSmallIconColor = Color(0xFF185a9d)
 val TextColor
   @Composable
   // let the color be loaded dynamically if dynamicColorEnabled
-  get() = if (dynamicColorEnabled) Color.Unspecified else MaterialTheme.colorScheme.onPrimary
+  get() = MaterialTheme.colorScheme.onPrimary
 val IconTintColor
   @Composable
   // let the color be loaded dynamically if dynamicColorEnabled
