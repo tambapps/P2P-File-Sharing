@@ -41,6 +41,7 @@ android {
     }
     buildFeatures {
         compose = true
+        viewBinding = true // TODO remove this. This is deprecated
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.13"

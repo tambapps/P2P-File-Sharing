@@ -151,11 +151,9 @@ fun ColumnScope.HelpPage() {
     }
   })
   Spacer(modifier = Modifier.size(width = 1.dp, height = 32.dp))
-  /*
   Button(onClick = { context.startActivity(Intent(context, OnBoardingActivity::class.java)) }, modifier = Modifier.align(CenterHorizontally)) {
     Text(text = stringResource(id = R.string.rewatch_intro).uppercase(), color = TextColor)
   }
-   */
 }
 
 @Composable

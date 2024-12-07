@@ -23,6 +23,11 @@
         android:theme="@style/Theme.FandemAndroid"
         tools:targetApi="31">
         <activity
+            android:name=".OnBoardingActivity"
+            android:exported="false"
+            android:label="@string/title_activity_on_boarding"
+            android:theme="@style/Theme.FandemAndroid" />
+        <activity
             android:name=".HelpActivity"
             android:exported="false"
             android:label="@string/title_activity_help"
