@@ -48,8 +48,6 @@ val gradientBrush = Brush.verticalGradient(
   )
 )
 
-// Dynamic color is available on Android 12+
-val dynamicColorEnabled = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
 
 @Composable
 fun FandemAndroidTheme(
@@ -57,11 +55,6 @@ fun FandemAndroidTheme(
   content: @Composable () -> Unit
 ) {
   val colorScheme = when {
-    dynamicColorEnabled -> {
-      val context = LocalContext.current
-      if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-    }
-
     darkTheme -> DarkColorScheme
     else -> LightColorScheme
   }
