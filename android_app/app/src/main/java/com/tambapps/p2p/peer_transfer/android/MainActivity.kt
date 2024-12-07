@@ -51,7 +51,6 @@ class MainActivity : ComponentActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     if (!sharedPreferences.contains(FIRST_PREFERENCE_TIME_KEY)) {
-      startActivity(Intent(this, OnBoardingActivity::class.java))
       sharedPreferences.edit(commit = true) {
         putBoolean(FIRST_PREFERENCE_TIME_KEY, true)
       }
