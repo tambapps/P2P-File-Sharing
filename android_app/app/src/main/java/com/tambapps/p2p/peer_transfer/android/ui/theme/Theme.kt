@@ -4,7 +4,12 @@ import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -77,4 +82,6 @@ fun FandemAndroidTheme(
 @Composable
 fun FandemSurface(content: @Composable () -> Unit) = Surface(modifier = Modifier
   .fillMaxSize()
-  .background(brush = gradientBrush), color = Color.Transparent, content = content)
+  .background(brush = gradientBrush), color = Color.Transparent) {
+  Surface(modifier = Modifier.padding(WindowInsets.systemBars.asPaddingValues()), color = Color.Transparent, content = content)
+}

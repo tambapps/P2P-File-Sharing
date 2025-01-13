@@ -28,6 +28,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.edit
+import androidx.core.view.WindowCompat
 import com.tambapps.p2p.fandem.Fandem
 import com.tambapps.p2p.peer_transfer.android.ui.theme.FandemAndroidTheme
 import com.tambapps.p2p.peer_transfer.android.ui.theme.FandemSurface
@@ -50,6 +51,8 @@ class MainActivity : ComponentActivity() {
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
+    // Starting with recent Android versions, Compose expects developers to explicitly handle system insets to ensure proper spacing.
+    WindowCompat.setDecorFitsSystemWindows(window, false) // Disable default insets handling
     if (!sharedPreferences.contains(FIRST_PREFERENCE_TIME_KEY)) {
       startActivity(Intent(this, OnBoardingActivity::class.java))
       sharedPreferences.edit(commit = true) {
