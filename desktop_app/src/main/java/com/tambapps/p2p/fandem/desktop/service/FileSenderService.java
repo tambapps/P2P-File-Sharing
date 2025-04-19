@@ -41,11 +41,7 @@ public class FileSenderService {
     sendingTask.files = files;
     List<SendingFileData> fileData = new ArrayList<>();
     for (File file : files) {
-      try {
-        fileData.add(SendingFileData.fromFile(file));
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
+      fileData.add(SendingFileData.fromFile(file));
     }
     SenderPeer senderPeer = new SenderPeer(peer.getAddress(), peer.getPort(), DESKTOP_NAME, fileData);
     multicastSenderPeersService.addSenderPeer(senderPeer);
