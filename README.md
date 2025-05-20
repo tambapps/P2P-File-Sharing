@@ -14,7 +14,7 @@ It is because of this library that we can also share files between android and d
 
 This is the Android app that performs P2P file sharing
 
-![alt text](medias/android.png)
+![Mobile Screenshots](medias/android.png)
 
 [<img src="https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png" alt="Get it on Google Play" height="80">](https://play.google.com/store/apps/details?id=com.tambapps.p2p.peer_transfer.android)
 
@@ -22,7 +22,7 @@ This is the Android app that performs P2P file sharing
 
 The desktop app was developed with JavaFX and Spring Boot (for dependency injection). It was developed in Java 16.
 
-![alt text](https://raw.githubusercontent.com/tambapps/P2P-File-Sharing/master/screenshots/desktop.png)
+![Desktop Screenshot](medias/desktop.png)
 
 
 ## How it works
