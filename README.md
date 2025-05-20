@@ -14,7 +14,7 @@ It is because of this library that we can also share files between android and d
 
 This is the Android app that performs P2P file sharing
 
-![alt text](./screenshots/android.png)
+![alt text](medias/android.png)
 
 [<img src="https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png" alt="Get it on Google Play" height="80">](https://play.google.com/store/apps/details?id=com.tambapps.p2p.peer_transfer.android)
 
