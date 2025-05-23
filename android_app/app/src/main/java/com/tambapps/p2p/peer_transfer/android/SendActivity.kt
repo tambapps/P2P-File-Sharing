@@ -39,7 +39,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.MutableLiveData
@@ -130,9 +134,24 @@ fun SendView(fandemWorkService: FandemWorkService, viewModel: SendViewModel = vi
     Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
       Spacer(modifier = Modifier.weight(1f))
       if (peer != null) {
-        val clipboardManager = LocalClipboardManager.current
         val peerKey = Fandem.toHexString(peerState.value)
-        Text(text = stringResource(R.string.transfer_started_consult_notif, peerKey), fontSize = 24.sp,
+
+        val annotatedString = buildAnnotatedString {
+          append(context.getString(R.string.transfer_start))
+          append(" ")
+          if (peerKey.length <= 6) {
+            append(peerKey)
+          } else {
+            append(peerKey.substring(0, 6))
+            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+              append(peerKey.substring(6))
+            }
+          }
+          append("\n\n")
+          append(context.getString(R.string.consult_notifications))
+        }
+        val clipboardManager = LocalClipboardManager.current
+        Text(text = annotatedString, fontSize = 24.sp,
           textAlign = TextAlign.Center,
           color = TextColor,
           modifier = Modifier
